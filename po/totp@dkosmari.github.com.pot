@@ -1,14 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR Daniel K. O.
+# This file is distributed under the same license as the TOTP package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-26 13:00-0300\n"
+"Project-Id-Version: TOTP\n"
+"Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
+"totp\n"
+"POT-Creation-Date: 2024-02-26 13:29-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +42,7 @@ msgstr ""
 msgid "Cannot lookup OTP items"
 msgstr ""
 
-#: indicator.js:143
+#: indicator.js:141
 msgid "Failed to copy OTP code"
 msgstr ""
 

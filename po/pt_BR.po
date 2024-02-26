@@ -5,10 +5,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-26 13:00-0300\n"
-"PO-Revision-Date: 2024-02-26 13:01-0300\n"
+"Project-Id-Version: TOTP\n"
+"Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
+"totp\n"
+"POT-Creation-Date: 2024-02-26 13:29-0300\n"
+"PO-Revision-Date: 2024-02-26 13:32-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -42,7 +43,7 @@ msgstr "Editar segredos..."
 msgid "Cannot lookup OTP items"
 msgstr "Não pôde obter itens OTP"
 
-#: indicator.js:143
+#: indicator.js:141
 msgid "Failed to copy OTP code"
 msgstr "Falhou ao copiar o código OTP"
 
@@ -75,7 +76,8 @@ msgid "Issuer"
 msgstr "Emissor"
 
 #: prefs.js:177
-msgid "The name of the organization (Google, Facebook, etc) that issued the OTP."
+msgid ""
+"The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr "O nome da organização (Google, Facebook, etc) que emitiu o OTP."
 
 #: prefs.js:183
