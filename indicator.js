@@ -131,11 +131,9 @@ var Indicator = class extends PanelMenu.Button {
     async copyCode(args)
     {
         try {
-            console.log(`copying TOTP secret for ${args.name}`);
             args.secret = await SecretUtils.get(args);
             let totp = new TOTP.TOTP(args);
             let code = totp.code();
-            console.log(`CODE: ${code}`);
             copyToClipboard(code);
         }
         catch (e) {
