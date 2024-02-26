@@ -1,0 +1,10 @@
+{
+    "name": "TOTP",
+    "description": "Generate Time-based One-Time Passwords (TOTP).",
+    "uuid": "totp@dkosmari.github.com",
+    "shell-version": [
+        "44"
+    ],
+    "gettext-domain": "totp@dkosmari.github.com",
+    "version": 1
+}
