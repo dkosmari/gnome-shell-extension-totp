@@ -4,7 +4,6 @@
  */
 
 
-const System = imports.system;
 const {Gio, GLib, GObject} = imports.gi;
 const {Adw, Gtk, Gdk} = imports.gi;
 
@@ -60,6 +59,29 @@ function makeLabel({issuer, name})
 }
 
 
+
+async function reportError(parent, e, where)
+{
+    logError(e, where);
+    try {
+        let dialog = new Adw.MessageDialog({
+            transient_for: parent,
+            title: _('Error'),
+            heading: where,
+            body: e.message,
+            modal: true,
+        });
+        dialog.add_response('close', _('_Close'));
+        await dialog.choose(null);
+        dialog.destroy();
+    }
+    catch (ee) {
+        logError(ee, 'reportError()');
+    }
+}
+
+
+
 class SecretRow extends Adw.ActionRow {
 
     static {
@@ -88,7 +110,7 @@ class SecretRow extends Adw.ActionRow {
         }));
 
         this.add_suffix(new Gtk.Button({
-            icon_name: 'document-send-symbolic',
+            icon_name: 'document-revert-symbolic-rtl',
             action_name: 'totp.export',
             action_target: makeVariant(args),
             tooltip_text: _('Export secret to clipboard.')
@@ -319,13 +341,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
             title: _('Creating new TOTP secret'),
             confirm: async (args) => {
                 try {
+                    await SecretUtils.create(args);
+                    this.addRow(args);
                     dialog.destroy();
-                    let success = await SecretUtils.create(args);
-                    if (success)
-                        this.addRow(args);
                 }
                 catch (e) {
-                    logError(e, 'createSecret.confirm()');
+                    await reportError(dialog, e, 'createSecret()/confirm');
                 }
             },
             cancel: () => dialog.destroy()
@@ -345,21 +366,27 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 issuer, name, secret, digits, period, algorithm,
                 confirm: async (new_arg) => {
                     try {
-                        await SecretUtils.update({issuer, name, secret, digits, period, algorithm},
-                                                 new_arg);
+                        await SecretUtils.update({
+                            issuer,
+                            name,
+                            secret,
+                            digits,
+                            period,
+                            algorithm
+                        }, new_arg);
+                        dialog.destroy();
                         await this.refreshRows();
                     }
                     catch (e) {
-                        logError(e, 'editSecret.confirm()');
+                        await reportError(dialog, e, 'editSecret()/confirm');
                     }
-                    dialog.destroy();
                 },
                 cancel: () => dialog.destroy()
             });
             dialog.present();
         }
         catch (e) {
-            logError(e, 'editSecret()');
+            await reportError(this.get_root(), e, 'editSecret()');
         }
     }
 
@@ -370,8 +397,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
             let confirm = new Adw.MessageDialog({
                 transient_for: this.get_root(),
                 heading: _('Deleting TOTP secret'),
-                body: pgettext('Deleting "SECRET"', 'Deleting ')
-                    + `"${makeLabel(args)}"`,
+                body: pgettext('Deleting "SECRET"', 'Deleting:')
+                    + ` "${makeLabel(args)}"`,
                 default_response: 'delete',
                 close_response: 'cancel'
             });
@@ -383,13 +410,13 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
             if (response == 'delete') {
                 let success = await SecretUtils.remove(args);
-                if (success) {
-                    await this.refreshRows();
-                }
+                if (!success)
+                    throw new Error(_('Failed to remove secret. Is it locked?'));
+                await this.refreshRows();
             }
         }
         catch (e) {
-            logError(e, 'removeSecret()');
+            await reportError(this.get_root(), e, 'removeSecret()');
         }
     }
 
@@ -404,7 +431,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             copyToClipboard(uri);
         }
         catch (e) {
-            logError(e, 'exportSecret()');
+            await reportError(this.get_root(), e, 'exportSecret()');
         }
     }
 
@@ -419,7 +446,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             copyToClipboard(code);
         }
         catch (e) {
-            logError(e, 'copyCode()');
+            await reportError(this.get_root(), e, 'copyCode()');
         }
     }
 
@@ -443,7 +470,6 @@ class SettingsPage extends Adw.PreferencesPage {
         this.add(this.secrets);
 
     }
-
 
 };
 

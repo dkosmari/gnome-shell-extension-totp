@@ -62,7 +62,7 @@ var Indicator = class extends PanelMenu.Button {
 
         let icon = new St.Icon(
                 {
-                    icon_name: 'dialog-password',
+                    icon_name: 'changes-prevent-symbolic',
                     style_class: 'system-status-icon'
                 }
         );

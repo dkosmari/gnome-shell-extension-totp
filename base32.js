@@ -3,6 +3,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const _ = ExtensionUtils.gettext;
+
 
 // See RFC 4648
 function decode(input, strict = true)
@@ -17,7 +21,7 @@ function decode(input, strict = true)
 
         if (chunk.length != 8) {
             if (strict)
-                throw new Error(`Invalid base32 input; length must be padded with "="`);
+                throw new Error(_('Invalid base32 input; missing padding.'));
             else
                 chunk = chunk.padEnd(8, '=');
         }
@@ -33,13 +37,14 @@ function decode(input, strict = true)
                 ++pad;
             }
             if (idx == -1)
-                throw new Error(`Invalid base32 character at position ${i + j} in "${input}"`);
+                throw new Error(_('Invalid base32 character at position:')
+                                + ` ${i + j}`);
 
             value = value * 32 + idx;
         }
 
         if (pad == 2 || pad == 5 || pad == 7)
-            throw new Error(`Invalid padding in chunk: "${chunk}"`);
+            throw new Error(_('Invalid padding.'));
 
         // store value as little endian
         let value_bytes = [];

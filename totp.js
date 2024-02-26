@@ -22,6 +22,8 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Base32 = Me ? Me.imports.base32 : imports.base32;
 
+const _ = ExtensionUtils.gettext;
+
 
 var Algorithm = {
 
@@ -43,7 +45,7 @@ var Algorithm = {
         case 'SHA-512':
             return Algorithm.SHA512;
         default:
-            throw new Error(`Invalid algorithm "${arg}"`);
+            throw new Error(_('Invalid algorithm:') + ` "${arg}"`);
         }
     },
 
@@ -60,7 +62,7 @@ var Algorithm = {
         default:
             if (typeof arg == 'string')
                 return arg;
-            throw new Error(`Invalid algorithm "${arg}"`);
+            throw new Error(_('Invalid algorithm:') + ` "${arg}"`);
         }
     }
 
@@ -107,7 +109,8 @@ function base32_to_bytes(input)
             if (d == '=')
                 idx = 0;
             if (idx == -1)
-                throw new Error(`Invalid base32 character at position ${i + j} in "${input}"`);
+                throw new Error(_('Invalid base32 character at position:')
+                                + ` ${i + j}`);
 
             value = value * 32 + idx;
         }

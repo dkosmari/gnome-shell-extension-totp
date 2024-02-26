@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-26 10:08-0300\n"
-"PO-Revision-Date: 2024-02-26 10:14-0300\n"
+"POT-Creation-Date: 2024-02-26 13:00-0300\n"
+"PO-Revision-Date: 2024-02-26 13:01-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -17,6 +17,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.2.2\n"
+
+#: base32.js:24
+msgid "Invalid base32 input; missing padding."
+msgstr "Entrada inválida em base32; falta preenchimento."
+
+#: base32.js:40 totp.js:112
+msgid "Invalid base32 character at position:"
+msgstr "Caractere inválido em base32 na posição:"
+
+#: base32.js:47
+msgid "Invalid padding."
+msgstr "Preenchimento inválido."
 
 #: indicator.js:34
 msgid "OTP code copied."
@@ -34,106 +46,142 @@ msgstr "Não pôde obter itens OTP"
 msgid "Failed to copy OTP code"
 msgstr "Falhou ao copiar o código OTP"
 
-#: prefs.js:103
+#: prefs.js:69
+msgid "Error"
+msgstr "Erro"
+
+#: prefs.js:74
+msgid "_Close"
+msgstr "_Fechar"
+
+#: prefs.js:102
 msgid "Copy code to clipboard."
 msgstr "Copiar código para a área de transferência."
 
-#: prefs.js:110
+#: prefs.js:109
 msgid "Edit this secret."
 msgstr "Editar este segredo."
 
-#: prefs.js:117
+#: prefs.js:116
 msgid "Export secret to clipboard."
 msgstr "Exportar segredo para a área de transferência."
 
-#: prefs.js:124
+#: prefs.js:123
 msgid "Remove this secret."
 msgstr "Remover este segredo."
 
-#: prefs.js:176
+#: prefs.js:175
 msgid "Issuer"
 msgstr "Emissor"
 
-#: prefs.js:178
+#: prefs.js:177
 msgid "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr "O nome da organização (Google, Facebook, etc) que emitiu o OTP."
 
-#: prefs.js:184
+#: prefs.js:183
 msgid "Name"
 msgstr "Nome"
 
-#: prefs.js:191
+#: prefs.js:190
 msgid "Secret"
 msgstr "Segredo"
 
-#: prefs.js:193
+#: prefs.js:192
 msgid "The secret key, encoded in base32."
 msgstr "A chave secreta, codificada em base32."
 
-#: prefs.js:200
+#: prefs.js:199
 msgid "Digits"
 msgstr "Dígitos"
 
-#: prefs.js:205
+#: prefs.js:204
 msgid "How many digits in the code."
 msgstr "Quantos dígitos no código."
 
-#: prefs.js:212
+#: prefs.js:211
 msgid "Period"
 msgstr "Período"
 
-#: prefs.js:213
+#: prefs.js:212
 msgid "Time between code updates, in seconds."
 msgstr "Tempo entre atualizações do código, em segundos."
 
-#: prefs.js:224
+#: prefs.js:223
 msgid "Algorithm"
 msgstr "Algorítimo"
 
-#: prefs.js:229
+#: prefs.js:228
 msgid "The hash algoritm used to generate codes."
 msgstr "O algorítimo usado para gerar códigos."
 
-#: prefs.js:235 prefs.js:403
+#: prefs.js:234 prefs.js:405
 msgid "_Cancel"
 msgstr "_Cancelar"
 
-#: prefs.js:236
+#: prefs.js:235
 msgid "_OK"
 msgstr "_OK"
 
-#: prefs.js:291
+#: prefs.js:288
 msgid "Secrets"
 msgstr "Segredos"
 
-#: prefs.js:292
+#: prefs.js:289
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Uma lista de todos os segredos do chaveiro."
 
-#: prefs.js:300
+#: prefs.js:297
 msgid "Add secret"
 msgstr "Adicionar segredo"
 
-#: prefs.js:344
+#: prefs.js:341
 msgid "Creating new TOTP secret"
 msgstr "Criando novo segredo TOTP"
 
-#: prefs.js:369
+#: prefs.js:365
 msgid "Editing TOTP secret"
 msgstr "Editando segredo TOTP"
 
-#: prefs.js:397
+#: prefs.js:399
 msgid "Deleting TOTP secret"
 msgstr "Apagando segredo TOTP"
 
-#: prefs.js:398
+#: prefs.js:400
 msgctxt "Deleting \"SECRET\""
-msgid "Deleting "
-msgstr "Apagando"
+msgid "Deleting:"
+msgstr "Apagando:"
 
-#: prefs.js:404
+#: prefs.js:406
 msgid "_Delete"
 msgstr "_Apagar"
+
+#: prefs.js:414
+msgid "Failed to remove secret. Is it locked?"
+msgstr "Falha em remover o segredo. Está bloqueado?"
+
+#: secretUtils.js:121
+msgid "Failed to retrieve secret."
+msgstr "Falha em obter segredo."
+
+#: secretUtils.js:153
+msgid "Failed to lookup secret."
+msgstr "Falha em obter segredo."
+
+#: secretUtils.js:160
+msgid "Failed to set label."
+msgstr "Falha em definir rótulo."
+
+#: secretUtils.js:167
+msgid "Failed to set attributes."
+msgstr "Falha em definir atributos."
+
+#: secretUtils.js:173
+msgid "Failed to set secret"
+msgstr "Falha em definir segredo"
+
+#: totp.js:48 totp.js:65
+msgid "Invalid algorithm:"
+msgstr "Algorítimo inválido:"
 
 #, fuzzy
 #~ msgid "Cancel"

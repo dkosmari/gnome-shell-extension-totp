@@ -1,4 +1,5 @@
 syntax: glob
 
-*~
+*.mo
 *.zip
+*~

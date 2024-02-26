@@ -5,12 +5,16 @@
 
 
 const {Gio, GLib, Secret} = imports.gi;
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const _ = ExtensionUtils.gettext;
 
 
 Gio._promisify(Secret, 'password_clear', 'password_clear_finish');
 Gio._promisify(Secret, 'password_lookup', 'password_lookup_finish');
 Gio._promisify(Secret, 'password_search', 'password_search_finish');
 Gio._promisify(Secret, 'password_store', 'password_store_finish');
+Gio._promisify(Secret.Collection, 'create');
 Gio._promisify(Secret.Item.prototype, 'set_attributes', 'set_attributes_finish');
 Gio._promisify(Secret.Item.prototype, 'set_label', 'set_label_finish');
 Gio._promisify(Secret.Item.prototype, 'set_secret', 'set_secret_finish');
@@ -35,25 +39,19 @@ let OTP_COLLECTION = '/org/freedesktop/secrets/collection/OTP';
 
 async function ensureCollection()
 {
-    try {
-        let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
-        let collections = service.get_collections();
-        // look for a collection called 'OTP'
-        for (let i = 0; i < collections.length; ++i)
-            if (collections[i].label == 'OTP')
-                return;
+    let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
+    let collections = service.get_collections();
+    // look for a collection called 'OTP'
+    for (let i = 0; i < collections.length; ++i)
+        if (collections[i].label == 'OTP')
+            return;
 
-        // could not find it, so create one
-        await Secret.Collection.create(service,
-                                       'OTP',
-                                       null,
-                                       Secret.CollectionCreateFlags.NONE,
-                                       null);
-    }
-    catch (e) {
-        logError(e, 'ensureCollection()');
-        throw e;
-    }
+    // could not find it, so create one
+    await Secret.Collection.create(service,
+                                   'OTP',
+                                   null,
+                                   Secret.CollectionCreateFlags.NONE,
+                                   null);
 }
 
 
@@ -82,7 +80,6 @@ async function getList()
                                             null);
     }
     catch (e) {
-        logerror(e, 'getList()');
         return [];
     }
 }
@@ -119,16 +116,10 @@ function makeLabel({issuer, name})
 
 async function get(args)
 {
-    try {
-        let secret = await Secret.password_lookup(SCHEMA, makeAttributes(args), null);
-        if (!secret)
-            throw new Error(`failed to retrieve secret for ${args.name}`);
-        return secret;
-    }
-    catch (e) {
-        logError(e, 'get()');
-        throw e;
-    }
+    let secret = await Secret.password_lookup(SCHEMA, makeAttributes(args), null);
+    if (!secret)
+        throw new Error(_('Failed to retrieve secret.'));
+    return secret;
 }
 
 
@@ -149,62 +140,50 @@ function equalDictionaries(a, b)
 
 async function update(old_arg, new_arg)
 {
-    try {
-        let service = await Secret.Service.get(
-            Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
-            null);
-        let old_attributes = makeAttributes(old_arg);
-        let [item] = await service.search(SCHEMA,
-                                          old_attributes,
-                                          Secret.SearchFlags.UNLOCK
-                                          | Secret.SearchFlags.LOAD_SECRETS,
-                                          null);
-        if (!item)
-            throw new Error(`failed to lookup item for ${old_arg.name}`);
+    let service = await Secret.Service.get(
+        Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
+        null);
+    let old_attributes = makeAttributes(old_arg);
+    let [item] = await service.search(SCHEMA,
+                                      old_attributes,
+                                      Secret.SearchFlags.UNLOCK
+                                      | Secret.SearchFlags.LOAD_SECRETS,
+                                      null);
+    if (!item)
+        throw new Error(_('Failed to lookup secret.'));
 
-        // check if label changed
-        let old_label = item.get_label();
-        let new_label = makeLabel(new_arg);
-        if (old_label != new_label)
-            if (!await item.set_label(new_label, null))
-                throw new Error(`failed to set item label from ${old_label} to ${new_label}`);
+    // check if label changed
+    let old_label = item.get_label();
+    let new_label = makeLabel(new_arg);
+    if (old_label != new_label)
+        if (!await item.set_label(new_label, null))
+            throw new Error(_('Failed to set label.'));
 
-        // check if attributes changed
-        let new_attributes = makeAttributes(new_arg);
+    // check if attributes changed
+    let new_attributes = makeAttributes(new_arg);
 
-        if (!equalDictionaries(old_attributes, new_attributes))
-            if (!await item.set_attributes(SCHEMA, new_attributes, null))
-                throw new Error(`failed to set item attributes for ${new_label}`);
+    if (!equalDictionaries(old_attributes, new_attributes))
+        if (!await item.set_attributes(SCHEMA, new_attributes, null))
+            throw new Error(_('Failed to set attributes.'));
 
-        // check if secret changed
-        if (old_arg.secret != new_arg.secret) {
-            let secret_value = new Secret.Value(new_arg.secret, -1, "text/plain");
-            if (!await item.set_secret(secret_value, null))
-                throw new Error(`failed to set item secret for ${new_label}`);
-        }
-    }
-    catch (e) {
-        logError(e, 'update()');
-        throw e;
+    // check if secret changed
+    if (old_arg.secret != new_arg.secret) {
+        let secret_value = new Secret.Value(new_arg.secret, -1, "text/plain");
+        if (!await item.set_secret(secret_value, null))
+            throw new Error(_('Failed to set secret'));
     }
 }
 
 
 async function create(args)
 {
-    try {
-        await ensureCollection();
-        return await Secret.password_store(SCHEMA,
-                                           makeAttributes(args),
-                                           OTP_COLLECTION,
-                                           makeLabel(args),
-                                           args.secret,
-                                           null);
-    }
-    catch (e) {
-        logError(e, 'create()');
-        return false;
-    }
+    await ensureCollection();
+    return await Secret.password_store(SCHEMA,
+                                       makeAttributes(args),
+                                       OTP_COLLECTION,
+                                       makeLabel(args),
+                                       args.secret,
+                                       null);
 }
 
 
@@ -222,39 +201,7 @@ function createSync(args)
 
 async function remove(args)
 {
-    try {
-        return await Secret.password_clear(SCHEMA,
-                                           makeAttributes(args),
-                                           null);
-    }
-    catch (e) {
-        logError(e, 'remove()');
-        return false;
-    }
+    return await Secret.password_clear(SCHEMA,
+                                       makeAttributes(args),
+                                       null);
 }
-
-
-function _test()
-{
-    createSync({
-        issuer: 'NOBODY',
-        name: 'ABC',
-        secret: 'abcdabcd',
-        digits: 6,
-        period: 30,
-        algorithm: 'SHA-1'
-    });
-
-    let s = getTOTPListSync();
-    s.forEach(item => {
-        item.load_secret_sync(null);
-        let secret = item.get_secret().get_text();
-        console.log(`    ${item.get_object_path()} : ${item.label} = ${secret}`);
-    });
-
-    console.log('retrieval test:');
-    let a = getSync('ABC');
-    console.log(a);
-}
-
-//_test();
