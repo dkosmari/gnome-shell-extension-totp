@@ -20,8 +20,11 @@ var Algorithm = {
     SHA512: GLib.ChecksumType.SHA512,
 
 
-    fromString(arg)
+    parse(arg)
     {
+        if (typeof arg != 'string')
+            return arg;
+
         switch (arg.toUpperCase()) {
         case 'SHA1':
         case 'SHA-1':
@@ -38,15 +41,15 @@ var Algorithm = {
     },
 
 
-    toString(arg)
+    str(arg)
     {
         switch (arg) {
         case Algorithm.SHA1:
-            return 'SHA1';
+            return 'SHA-1';
         case Algorithm.SHA256:
-            return 'SHA256';
+            return 'SHA-256';
         case Algorithm.SHA512:
-            return 'SHA512';
+            return 'SHA-512';
         default:
             if (typeof arg == 'string')
                 return arg;
@@ -80,6 +83,20 @@ function bytes_to_hex(blob)
 }
 
 
+function splitQuery(query)
+{
+    let entries = query.split('&');
+    let result = {};
+    entries.forEach(x => {
+        let re = /(?<key>[^=]+)=(?<value>.*)/;
+        let found = x.match(re);
+        if (found)
+            result[found.groups.key] = found.groups.value;
+    });
+    return result;
+}
+
+
 var TOTP = class {
 
     constructor({
@@ -90,30 +107,61 @@ var TOTP = class {
         period = 30,
         algorithm = Algorithm.SHA1,
         uri = null
-    })
+    } = {})
     {
         if (uri) {
+            let [success,
+                 scheme,
+                 userinfo,
+                 host,
+                 port,
+                 path,
+                 query,
+                 fragment] = GLib.Uri.split(uri, GLib.UriFlags.NON_DNS);
+            if (!success)
+                throw new Error(_('Failed to parse URI.'));
+            if (scheme != 'otpauth')
+                throw new Error(_('URI scheme should be "otpauth://..."'));
+            if (host != 'totp')
+                throw new Error(_('URI host should be "totp"'));
+            if (port != -1)
+                throw new Error(_('Unexpected port number in URI.'));
 
+            if (userinfo)
+                console.warn(_('Unexpected userinfo in URI.'));
+            if (fragment)
+                console.warn(`Unexpected fragment in URI: ${fragment}`);
+
+            let {
+                issuer='',
+                secret,
+                digits=6,
+                period=30,
+                algorithm='SHA-1'
+            } = splitQuery(query);
+
+            this.issuer = issuer;
+            this.name = path.substring(1);
+            this.secret = secret;
+            this.secret_bin = Base32.decode(this.secret);
+            this.digits = parseInt(digits);
+            this.period = parseInt(period);
+            this.algorithm = Algorithm.parse(algorithm);
         } else {
             this.issuer = issuer;
             this.name = name;
             this.secret = secret;
-            this.secret_bin = Base32.decode(secret);
-            this.digits = digits;
-            this.period = period;
-            if (typeof algorithm == 'string')
-                algorithm = Algorithm.fromString(algorithm);
-            this.algorithm = algorithm;
+            this.secret_bin = Base32.decode(this.secret);
+            this.digits = parseInt(digits);
+            this.period = parseInt(period);
+            this.algorithm = Algorithm.parse(algorithm);
         }
     }
 
 
     wipe()
     {
-        for (let i = 0; i < this.secret.length; ++i)
-            if (this.secret[i] != '=')
-                this.secret[i] = 'A';
-
+        this.secret = this.secret.replaceAll(/[^=]/g, 'A');
         for (let i = 0; i < this.secret_bin.length; ++i)
             this.secret_bin[i] = 0;
     }
@@ -164,10 +212,14 @@ var TOTP = class {
         if (this.period != 30)
             query = query + `&period=${this.period}`;
 
-        if (this.algorithm != Algorithm.SHA1)
-            query = query + `&algorithm=${Algorithm.toString(this.algorithm)}`;
+        if (this.algorithm != Algorithm.SHA1) {
+            let algo_str = Algorithm.str(this.algorithm);
+            // remove the '-' from the algorithm name
+            algo_str = algo_str.replaceAll(/-/g, '');
+            query = query + `&algorithm=${algo_str}`;
+        }
 
-        return GLib.Uri.join(GLib.UriFlags.NONE,
+        return GLib.Uri.join(GLib.UriFlags.NON_DNS,
                              'otpauth',
                              null, // no user
                              'totp', // host
@@ -176,5 +228,28 @@ var TOTP = class {
                              query,
                              null);
     }
+
+
+    // return all members as strings, as required by libsecret
+    fields()
+    {
+        let result = this.fields_non_destructive();
+        this.wipe();
+        return result;
+    }
+
+
+    fields_non_destructive()
+    {
+        return {
+            issuer: this.issuer,
+            name: this.name,
+            secret: this.secret,
+            digits: this.digits.toString(),
+            period: this.period.toString(),
+            algorithm: Algorithm.str(this.algorithm)
+        };
+    }
+
 
 };

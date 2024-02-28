@@ -24,7 +24,6 @@ Gio._promisify(Adw.MessageDialog.prototype, 'choose', 'choose_finish');
 function init(metadata)
 {
     ExtensionUtils.initTranslations(metadata.uuid);
-    console.log(`TOTP initializing prefs.js: ${metadata}`);
 }
 
 
@@ -55,9 +54,16 @@ function copyToClipboard(text)
 
 function makeLabel({issuer, name})
 {
-    return `${issuer} / ${name}`;
+    return `${issuer}: ${name}`;
 }
 
+
+function makeMarkupLabel({issuer, name})
+{
+    let safe_issuer = GLib.markup_escape_text(issuer, -1);
+    let safe_name = GLib.markup_escape_text(name, -1);
+    return `<b>${safe_issuer}:</b> ${safe_name}`;
+}
 
 
 async function reportError(parent, e, where)
@@ -92,7 +98,8 @@ class SecretRow extends Adw.ActionRow {
     constructor(args)
     {
         super({
-            title: makeLabel(args)
+            title: makeMarkupLabel(args),
+            use_markup: true
         });
 
         this.add_suffix(new Gtk.Button({
@@ -110,7 +117,8 @@ class SecretRow extends Adw.ActionRow {
         }));
 
         this.add_suffix(new Gtk.Button({
-            icon_name: 'document-revert-symbolic-rtl',
+            //icon_name: 'document-revert-symbolic-rtl',
+            icon_name: 'send-to-symbolic',
             action_name: 'totp.export',
             action_target: makeVariant(args),
             tooltip_text: _('Export secret to clipboard.')
@@ -134,19 +142,14 @@ class SecretDialog extends Gtk.Dialog {
     }
 
 
-    constructor({
-        parent,
-        title,
-        issuer = '',
-        name = '',
-        secret = '',
-        digits = 6,
-        period = 30,
-        algorithm = 'SHA-1',
-        confirm,
-        cancel
-    })
+    constructor(parent,
+                title,
+                totp,
+                confirm,
+                cancel)
     {
+        let fields = totp.fields_non_destructive();
+
         super({
             transient_for: parent,
             modal: true,
@@ -173,7 +176,7 @@ class SecretDialog extends Gtk.Dialog {
         // UI: issuer
         this._ui.issuer = new Adw.EntryRow({
             title: _('Issuer'),
-            text: issuer,
+            text: fields.issuer,
             tooltip_text: _('The name of the organization (Google, Facebook, etc) that issued the OTP.')
         });
         group.add(this._ui.issuer);
@@ -181,14 +184,14 @@ class SecretDialog extends Gtk.Dialog {
         // UI: name
         this._ui.name = new Adw.EntryRow({
             title: _('Name'),
-            text: name
+            text: fields.name
         });
         group.add(this._ui.name);
 
         // UI: secret
         this._ui.secret = new Adw.EntryRow({
             title: _('Secret'),
-            text: secret,
+            text: fields.secret,
             tooltip_text: _('The secret key, encoded in base32.')
         });
         group.add(this._ui.secret);
@@ -200,7 +203,7 @@ class SecretDialog extends Gtk.Dialog {
             model: new Gtk.StringList({
                 strings: digits_list
             }),
-            selected: digits_list.indexOf(digits.toString()),
+            selected: digits_list.indexOf(fields.digits),
             tooltip_text: _('How many digits in the code.')
         });
         group.add(this._ui.digits);
@@ -213,7 +216,7 @@ class SecretDialog extends Gtk.Dialog {
             model: new Gtk.StringList({
                 strings: period_list
             }),
-            selected: period_list.indexOf(period.toString())
+            selected: period_list.indexOf(fields.period)
         });
         group.add(this._ui.period);
 
@@ -224,7 +227,7 @@ class SecretDialog extends Gtk.Dialog {
             model: new Gtk.StringList({
                 strings: algorithm_list
             }),
-            selected: algorithm_list.indexOf(algorithm),
+            selected: algorithm_list.indexOf(fields.algorithm),
             tooltip_text: _('The hash algoritm used to generate codes.')
         });
         group.add(this._ui.algorithm);
@@ -271,6 +274,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.install_action('totp.create', null,
                             obj => obj.createSecret());
 
+        this.install_action('totp.import', null,
+                            obj => obj.importSecrets());
+
+        this.install_action('totp.export_all', null,
+                            obj => obj.exportAllSecrets());
+
         this.install_action('totp.copy', "a{sv}",
                             (obj, _, arg) => obj.copyCode(arg.recursiveUnpack()));
         this.install_action('totp.edit', "a{sv}",
@@ -291,15 +300,37 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
 
         let edit_row = new Adw.ActionRow();
-        let add_button = new Gtk.Button({
-            action_name: 'totp.create',
-            child: new Adw.ButtonContent({
-                label: _("Add secret"),
-                icon_name: 'list-add-symbolic'
-            })
-        });
-        edit_row.add_prefix(add_button);
         this.add(edit_row);
+
+        edit_row.add_prefix(
+            new Gtk.Button({
+                action_name: 'totp.create',
+                child: new Adw.ButtonContent({
+                    label: _("Add secret"),
+                    icon_name: 'list-add-symbolic'
+                })
+            })
+        );
+
+        edit_row.add_suffix(
+            new Gtk.Button({
+                action_name: 'totp.import',
+                child: new Adw.ButtonContent({
+                    label: _("Import secrets"),
+                    icon_name: 'document-revert-symbolic'
+                })
+            })
+        );
+
+        edit_row.add_suffix(
+            new Gtk.Button({
+                action_name: 'totp.export_all',
+                child: new Adw.ButtonContent({
+                    label: _("Export all secrets"),
+                    icon_name: 'send-to-symbolic'
+                })
+            })
+        );
 
         this._rows = [];
         this.refreshRows();
@@ -336,44 +367,43 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
     createSecret()
     {
-        let dialog = new SecretDialog({
-            parent: this.get_root(),
-            title: _('Creating new TOTP secret'),
-            confirm: async (args) => {
+        let dialog = new SecretDialog(
+            this.root,
+            _('Creating new TOTP secret'),
+            new TOTP.TOTP(),
+            async (args) => {
                 try {
-                    await SecretUtils.create(args);
-                    this.addRow(args);
+                    let totp = new TOTP.TOTP(args);
+                    let fields = totp.fields();
+                    await SecretUtils.create(fields);
+                    this.addRow(fields);
                     dialog.destroy();
                 }
                 catch (e) {
                     await reportError(dialog, e, 'createSecret()/confirm');
                 }
             },
-            cancel: () => dialog.destroy()
-        });
+            () => dialog.destroy()
+        );
         dialog.present();
     }
 
 
-    async editSecret({issuer, name, digits, period, algorithm})
+    async editSecret(args)
     {
         try {
-            let secret = await SecretUtils.get({issuer, name, digits, period, algorithm});
+            args.secret = await SecretUtils.get(args);
 
-            let dialog = new SecretDialog({
-                parent: this.get_root(),
-                title: _('Editing TOTP secret'),
-                issuer, name, secret, digits, period, algorithm,
-                confirm: async (new_arg) => {
+            let old_totp = new TOTP.TOTP(args);
+
+            let dialog = new SecretDialog(
+                this.root,
+                _('Editing TOTP secret'),
+                old_totp,
+                async (new_args) => {
                     try {
-                        await SecretUtils.update({
-                            issuer,
-                            name,
-                            secret,
-                            digits,
-                            period,
-                            algorithm
-                        }, new_arg);
+                        let new_totp = new TOTP.TOTP(new_args);
+                        await SecretUtils.update(old_totp.fields(), new_totp.fields());
                         dialog.destroy();
                         await this.refreshRows();
                     }
@@ -381,12 +411,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
                         await reportError(dialog, e, 'editSecret()/confirm');
                     }
                 },
-                cancel: () => dialog.destroy()
-            });
+                () => dialog.destroy()
+            );
             dialog.present();
         }
         catch (e) {
-            await reportError(this.get_root(), e, 'editSecret()');
+            await reportError(this.root, e, 'editSecret()');
         }
     }
 
@@ -394,19 +424,20 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async removeSecret(args)
     {
         try {
-            let confirm = new Adw.MessageDialog({
-                transient_for: this.get_root(),
+            let dialog = new Adw.MessageDialog({
+                transient_for: this.root,
                 heading: _('Deleting TOTP secret'),
-                body: pgettext('Deleting "SECRET"', 'Deleting:')
-                    + ` "${makeLabel(args)}"`,
+                body: pgettext('Deleting: "SECRET"', 'Deleting:')
+                    + ` "${makeMarkupLabel(args)}"`,
+                body_use_markup: true,
                 default_response: 'delete',
                 close_response: 'cancel'
             });
-            confirm.add_response('cancel', _('_Cancel'));
-            confirm.add_response('delete', _('_Delete'));
-            confirm.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
+            dialog.add_response('cancel', _('_Cancel'));
+            dialog.add_response('delete', _('_Delete'));
+            dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
 
-            let response = await confirm.choose(null);
+            let response = await dialog.choose(null);
 
             if (response == 'delete') {
                 let success = await SecretUtils.remove(args);
@@ -416,7 +447,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             }
         }
         catch (e) {
-            await reportError(this.get_root(), e, 'removeSecret()');
+            await reportError(this.root, e, 'removeSecret()');
         }
     }
 
@@ -430,7 +461,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             copyToClipboard(uri);
         }
         catch (e) {
-            await reportError(this.get_root(), e, 'exportSecret()');
+            await reportError(this.root, e, 'exportSecret()');
         }
     }
 
@@ -444,7 +475,71 @@ class SecretsGroup extends Adw.PreferencesGroup {
             copyToClipboard(code);
         }
         catch (e) {
-            await reportError(this.get_root(), e, 'copyCode()');
+            await reportError(this.root, e, 'copyCode()');
+        }
+    }
+
+
+    async importSecrets()
+    {
+        try {
+            let dialog = new Adw.MessageDialog({
+                transient_for: this.root,
+                heading: _('Importing otpauth:// URIs'),
+                body: _('Paste all "otpauth://" URIs you want import, one per line.'),
+                default_width: 500,
+                resizable: true,
+                default_response: 'import',
+                close_response: 'cancel',
+                extra_child: new Gtk.ScrolledWindow({
+                    vexpand: true,
+                    hexpand: true,
+                    child: new Gtk.TextView({
+                        monospace: true
+                    })
+                })
+            });
+            dialog.add_response('cancel', _('_Cancel'));
+            dialog.add_response('import', _('_Import'));
+            dialog.set_response_appearance('import', Adw.ResponseAppearance.SUGGESTED);
+
+            let response = await dialog.choose(null);
+            if (response == 'import') {
+                let text = dialog.extra_child.child.buffer.text;
+                let uris = GLib.Uri.list_extract_uris(text);
+                for (let i = 0; i < uris.length; ++i) {
+                    try {
+                        let totp = new TOTP.TOTP({uri: uris[i]});
+                        await SecretUtils.create(totp.fields());
+                    }
+                    catch (e) {
+                        await reportError(dialog, e, 'importSecrets()');
+                    }
+                }
+                await this.refreshRows();
+            }
+        }
+        catch (e) {
+            await reportError(this.root, e, 'importSecrets()');
+        }
+    }
+
+
+    async exportAllSecrets()
+    {
+        try {
+            let uris = [];
+            let list = await SecretUtils.getList();
+            for (let i = 0; i < list.length; ++i) {
+                let args = list[i].get_attributes();
+                args.secret = await SecretUtils.get(args);
+                let totp = new TOTP.TOTP(args);
+                uris.push(totp.uri());
+            }
+            copyToClipboard(uris.join('\n'));
+        }
+        catch (e) {
+            await reportError(this.root, e, 'exportAllSecrets()');
         }
     }
 

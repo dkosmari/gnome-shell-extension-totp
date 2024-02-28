@@ -37,7 +37,7 @@ function copyToClipboard(text)
 
 function makeLabel({issuer, name})
 {
-    return `${issuer} / ${name}`;
+    return `${issuer}: ${name}`;
 }
 
 
@@ -100,7 +100,7 @@ var Indicator = class extends PanelMenu.Button {
             let secrets = await SecretUtils.getList();
             secrets.forEach(x => {
                 let attributes = x.get_attributes();
-                let label = `${attributes.issuer} / ${attributes.name}`;
+                let label = makeLabel(attributes);
                 this.addItem(label, attributes);
             });
         }
