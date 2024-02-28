@@ -8,10 +8,12 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const _ = ExtensionUtils.gettext;
 
 
+const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+
 // See RFC 4648
 function decode(input, strict = true)
 {
-    const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     console.assert(digits.length == 32);
     let output = [];
 
@@ -66,7 +68,6 @@ function decode(input, strict = true)
 
 function encode(input, trim = false)
 {
-    const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     let output = '';
 
     for (let i = 0; i < input.length; i += 5) {

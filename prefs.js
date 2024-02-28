@@ -5,7 +5,7 @@
 
 
 const {Gio, GLib, GObject} = imports.gi;
-const {Adw, Gtk, Gdk} = imports.gi;
+const {Adw, Gtk, Gdk, GdkPixbuf} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 
@@ -19,6 +19,7 @@ const pgettext = ExtensionUtils.pgettext;
 
 
 Gio._promisify(Adw.MessageDialog.prototype, 'choose', 'choose_finish');
+Gio._promisify(Gio.Subprocess.prototype, 'communicate_async');
 
 
 function init(metadata)
@@ -117,11 +118,17 @@ class SecretRow extends Adw.ActionRow {
         }));
 
         this.add_suffix(new Gtk.Button({
-            //icon_name: 'document-revert-symbolic-rtl',
             icon_name: 'send-to-symbolic',
             action_name: 'totp.export',
             action_target: makeVariant(args),
             tooltip_text: _('Export secret to clipboard.')
+        }));
+
+        this.add_suffix(new Gtk.Button({
+            icon_name: 'qrscanner-symbolic',
+            action_name: 'totp.export_qr',
+            action_target: makeVariant(args),
+            tooltip_text: _('Export QR code.')
         }));
 
         this.add_suffix(new Gtk.Button({
@@ -284,10 +291,13 @@ class SecretsGroup extends Adw.PreferencesGroup {
                             (obj, _, arg) => obj.copyCode(arg.recursiveUnpack()));
         this.install_action('totp.edit', "a{sv}",
                             (obj, _, arg) => obj.editSecret(arg.recursiveUnpack()));
-        this.install_action('totp.remove', "a{sv}",
-                            (obj, _, arg) => obj.removeSecret(arg.recursiveUnpack()));
         this.install_action('totp.export', "a{sv}",
                             (obj, _, arg) => obj.exportSecret(arg.recursiveUnpack()));
+        this.install_action('totp.export_qr', "a{sv}",
+                            (obj, _, arg) => obj.exportSecretQR(arg.recursiveUnpack()));
+
+        this.install_action('totp.remove', "a{sv}",
+                            (obj, _, arg) => obj.removeSecret(arg.recursiveUnpack()));
     }
 
 
@@ -462,6 +472,44 @@ class SecretsGroup extends Adw.PreferencesGroup {
         }
         catch (e) {
             await reportError(this.root, e, 'exportSecret()');
+        }
+    }
+
+
+    async exportSecretQR(args)
+    {
+        try {
+            args.secret = await SecretUtils.get(args);
+            let totp = new TOTP.TOTP(args);
+            let uri = totp.uri();
+
+            let t = new TextEncoder();
+            let uri_data = t.encode(uri);
+
+            let qr_proc = Gio.Subprocess.new(['qrencode', '-s', '10', '-o', '-'],
+                                             Gio.SubprocessFlags.STDIN_PIPE |
+                                             Gio.SubprocessFlags.STDOUT_PIPE);
+            let [stdout, stderr] = await qr_proc.communicate_async(uri_data, null);
+
+            let img_stream = Gio.MemoryInputStream.new_from_bytes(stdout);
+            let pbuf = GdkPixbuf.Pixbuf.new_from_stream(img_stream, null);
+            let img = Gtk.Image.new_from_pixbuf(pbuf);
+            img.vexpand = true;
+            img.hexpand = true;
+            img.set_size_request(400, 400);
+
+            let dialog = new Adw.MessageDialog({
+                transient_for: this.root,
+                title: _('OTP secret QR code'),
+                modal: true,
+                resizable: true,
+                extra_child: img
+            });
+            dialog.add_response('close', _('_Close'));
+            await dialog.choose(null);
+        }
+        catch (e) {
+            await reportError(this.root, e, 'exportSecretQR()');
         }
     }
 

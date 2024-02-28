@@ -23,6 +23,13 @@ To create an installable .zip file, run the script `./bundle.sh`. It can be inst
 running the `./install.sh` script.
 
 
+Exporting QR code
+-----------------
+
+It's possible to export the OTP secret as a QR code to be scanned into other devices, if
+you have the [qrencode](https://fukuchi.org/works/qrencode/) package installed.
+
+
 Translations
 ------------
 
