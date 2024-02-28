@@ -170,7 +170,7 @@ async function update(old_arg, new_arg)
     if (old_arg.secret != new_arg.secret) {
         let secret_value = new Secret.Value(new_arg.secret, -1, "text/plain");
         if (!await item.set_secret(secret_value, null))
-            throw new Error(_('Failed to set secret'));
+            throw new Error(_('Failed to set secret.'));
     }
 }
 

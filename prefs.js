@@ -316,7 +316,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 action_name: 'totp.create',
                 child: new Adw.ButtonContent({
-                    label: _("Add secret"),
+                    label: _("Add secret..."),
                     icon_name: 'list-add-symbolic'
                 })
             })
@@ -326,7 +326,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 action_name: 'totp.import',
                 child: new Adw.ButtonContent({
-                    label: _("Import secrets"),
+                    label: _("Import secrets..."),
                     icon_name: 'document-revert-symbolic'
                 })
             })
@@ -336,7 +336,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 action_name: 'totp.export_all',
                 child: new Adw.ButtonContent({
-                    label: _("Export all secrets"),
+                    label: _("Export secrets..."),
                     icon_name: 'send-to-symbolic'
                 })
             })
@@ -500,7 +500,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
             let dialog = new Adw.MessageDialog({
                 transient_for: this.root,
-                title: _('OTP secret QR code'),
+                title: _('QR code'),
                 modal: true,
                 resizable: true,
                 extra_child: img
@@ -533,7 +533,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         try {
             let dialog = new Adw.MessageDialog({
                 transient_for: this.root,
-                heading: _('Importing otpauth:// URIs'),
+                heading: _('Importing "otpauth://" URIs'),
                 body: _('Paste all "otpauth://" URIs you want import, one per line.'),
                 default_width: 500,
                 resizable: true,

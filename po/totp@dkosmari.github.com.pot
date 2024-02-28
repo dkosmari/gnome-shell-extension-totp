@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-02-26 13:29-0300\n"
+"POT-Creation-Date: 2024-02-28 09:10-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: base32.js:24
+#: base32.js:26
 msgid "Invalid base32 input; missing padding."
 msgstr ""
 
-#: base32.js:40 totp.js:112
+#: base32.js:42
 msgid "Invalid base32 character at position:"
 msgstr ""
 
-#: base32.js:47
+#: base32.js:49
 msgid "Invalid padding."
 msgstr ""
 
@@ -46,118 +46,146 @@ msgstr ""
 msgid "Failed to copy OTP code"
 msgstr ""
 
-#: prefs.js:69
+#: prefs.js:76
 msgid "Error"
 msgstr ""
 
-#: prefs.js:74
+#: prefs.js:81 prefs.js:508
 msgid "_Close"
 msgstr ""
 
-#: prefs.js:102
+#: prefs.js:110
 msgid "Copy code to clipboard."
 msgstr ""
 
-#: prefs.js:109
+#: prefs.js:117
 msgid "Edit this secret."
 msgstr ""
 
-#: prefs.js:116
+#: prefs.js:124
 msgid "Export secret to clipboard."
 msgstr ""
 
-#: prefs.js:123
+#: prefs.js:131
+msgid "Export QR code."
+msgstr ""
+
+#: prefs.js:138
 msgid "Remove this secret."
 msgstr ""
 
-#: prefs.js:175
+#: prefs.js:185
 msgid "Issuer"
 msgstr ""
 
-#: prefs.js:177
+#: prefs.js:187
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr ""
 
-#: prefs.js:183
+#: prefs.js:193
 msgid "Name"
 msgstr ""
 
-#: prefs.js:190
+#: prefs.js:200
 msgid "Secret"
 msgstr ""
 
-#: prefs.js:192
+#: prefs.js:202
 msgid "The secret key, encoded in base32."
 msgstr ""
 
-#: prefs.js:199
+#: prefs.js:209
 msgid "Digits"
 msgstr ""
 
-#: prefs.js:204
+#: prefs.js:214
 msgid "How many digits in the code."
 msgstr ""
 
-#: prefs.js:211
+#: prefs.js:221
 msgid "Period"
 msgstr ""
 
-#: prefs.js:212
+#: prefs.js:222
 msgid "Time between code updates, in seconds."
 msgstr ""
 
-#: prefs.js:223
+#: prefs.js:233
 msgid "Algorithm"
 msgstr ""
 
-#: prefs.js:228
+#: prefs.js:238
 msgid "The hash algoritm used to generate codes."
 msgstr ""
 
-#: prefs.js:234 prefs.js:405
+#: prefs.js:244 prefs.js:446 prefs.js:550
 msgid "_Cancel"
 msgstr ""
 
-#: prefs.js:235
+#: prefs.js:245
 msgid "_OK"
 msgstr ""
 
-#: prefs.js:288
+#: prefs.js:307
 msgid "Secrets"
 msgstr ""
 
-#: prefs.js:289
+#: prefs.js:308
 msgid "A list of all TOTP secrets from the keyring."
 msgstr ""
 
-#: prefs.js:297
-msgid "Add secret"
+#: prefs.js:319
+msgid "Add secret..."
 msgstr ""
 
-#: prefs.js:341
+#: prefs.js:329
+msgid "Import secrets..."
+msgstr ""
+
+#: prefs.js:339
+msgid "Export secrets..."
+msgstr ""
+
+#: prefs.js:382
 msgid "Creating new TOTP secret"
 msgstr ""
 
-#: prefs.js:365
+#: prefs.js:411
 msgid "Editing TOTP secret"
 msgstr ""
 
-#: prefs.js:399
+#: prefs.js:439
 msgid "Deleting TOTP secret"
 msgstr ""
 
-#: prefs.js:400
-msgctxt "Deleting \"SECRET\""
+#: prefs.js:440
+msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr ""
 
-#: prefs.js:406
+#: prefs.js:447
 msgid "_Delete"
 msgstr ""
 
-#: prefs.js:414
+#: prefs.js:455
 msgid "Failed to remove secret. Is it locked?"
+msgstr ""
+
+#: prefs.js:503
+msgid "QR code"
+msgstr ""
+
+#: prefs.js:536
+msgid "Importing \"otpauth://\" URIs"
+msgstr ""
+
+#: prefs.js:537
+msgid "Paste all \"otpauth://\" URIs you want import, one per line."
+msgstr ""
+
+#: prefs.js:551
+msgid "_Import"
 msgstr ""
 
 #: secretUtils.js:121
@@ -177,9 +205,29 @@ msgid "Failed to set attributes."
 msgstr ""
 
 #: secretUtils.js:173
-msgid "Failed to set secret"
+msgid "Failed to set secret."
 msgstr ""
 
-#: totp.js:48 totp.js:65
+#: totp.js:39 totp.js:56
 msgid "Invalid algorithm:"
+msgstr ""
+
+#: totp.js:122
+msgid "Failed to parse URI."
+msgstr ""
+
+#: totp.js:124
+msgid "URI scheme should be \"otpauth://...\""
+msgstr ""
+
+#: totp.js:126
+msgid "URI host should be \"totp\""
+msgstr ""
+
+#: totp.js:128
+msgid "Unexpected port number in URI."
+msgstr ""
+
+#: totp.js:131
+msgid "Unexpected userinfo in URI."
 msgstr ""
