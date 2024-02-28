@@ -427,7 +427,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
             args.secret = await SecretUtils.get(args);
             let totp = new TOTP.TOTP(args);
             let uri = totp.uri();
-
             copyToClipboard(uri);
         }
         catch (e) {
@@ -442,7 +441,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
             args.secret = await SecretUtils.get(args);
             let totp = new TOTP.TOTP(args);
             let code = totp.code();
-
             copyToClipboard(code);
         }
         catch (e) {
