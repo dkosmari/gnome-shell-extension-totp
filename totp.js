@@ -67,7 +67,7 @@ function hex_to_bytes(hex)
 {
     let blob = [];
     for (let i = 0; i < hex.length; i += 2)
-        blob.push(parseInt(hex.substr(i, 2), 16));
+        blob.push(parseInt(hex.substring(i, i + 2), 16));
     return new Uint8Array(blob);
 }
 
@@ -84,22 +84,27 @@ var TOTP = class {
 
     constructor({
         issuer = '',
-        name,
-        secret,
+        name = '',
+        secret = '',
         digits = 6,
         period = 30,
-        algorithm = Algorithm.SHA1
+        algorithm = Algorithm.SHA1,
+        uri = null
     })
     {
-        this.issuer = issuer;
-        this.name = name;
-        this.secret = secret;
-        this.secret_bin = Base32.decode(secret);
-        this.digits = digits;
-        this.period = period;
-        if (typeof algorithm == 'string')
-            algorithm = Algorithm.fromString(algorithm);
-        this.algorithm = algorithm;
+        if (uri) {
+
+        } else {
+            this.issuer = issuer;
+            this.name = name;
+            this.secret = secret;
+            this.secret_bin = Base32.decode(secret);
+            this.digits = digits;
+            this.period = period;
+            if (typeof algorithm == 'string')
+                algorithm = Algorithm.fromString(algorithm);
+            this.algorithm = algorithm;
+        }
     }
 
 

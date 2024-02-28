@@ -17,7 +17,7 @@ function decode(input, strict = true)
 
     // process 40 bits at a time (8 base32 digits)
     for (let i = 0; i < input.length; i += 8) {
-        let chunk = input.substr(i, 8);
+        let chunk = input.substring(i, i + 8);
 
         if (chunk.length != 8) {
             if (strict)
