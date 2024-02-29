@@ -68,6 +68,10 @@ var Indicator = class extends PanelMenu.Button {
         );
         this.add_child(icon);
 
+        this._unlock_item = this.menu.addAction(_('Unlock keyring...'),
+                                                this.unlockSecrets.bind(this),
+                                               'changes-allow-symbolic');;
+
         this.menu.addAction(_('Edit secrets...'),
                             this.editSecrets.bind(this),
                            'document-edit-symbolic');
@@ -77,14 +81,32 @@ var Indicator = class extends PanelMenu.Button {
     }
 
 
-    _onOpenStateChanged(menu, is_open)
+    async _onOpenStateChanged(menu, is_open)
     {
         super._onOpenStateChanged(menu, is_open);
 
-        if (is_open)
-            this.addItems();
-        else
-            this.clearItems();
+        try  {
+            if (is_open) {
+                this._unlock_item.visible = await SecretUtils.isCollectionLocked();
+                this.addItems();
+            } else
+                this.clearItems();
+        }
+        catch (e) {
+            logError(e, '_onOpenStateChanged()');
+        }
+    }
+
+
+    async unlockSecrets()
+    {
+        try {
+            await SecretUtils.unlockCollection();
+        }
+        catch (e) {
+            logError(e, 'unlockSecrets()');
+            Main.notifyError(_('Cannot unlock OTP keyring'), e.message);
+        }
     }
 
 

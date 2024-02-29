@@ -14,12 +14,13 @@ Gio._promisify(Secret, 'password_clear', 'password_clear_finish');
 Gio._promisify(Secret, 'password_lookup', 'password_lookup_finish');
 Gio._promisify(Secret, 'password_search', 'password_search_finish');
 Gio._promisify(Secret, 'password_store', 'password_store_finish');
-Gio._promisify(Secret.Collection, 'create');
+Gio._promisify(Secret.Collection, 'create', 'create_finish');
 Gio._promisify(Secret.Item.prototype, 'set_attributes', 'set_attributes_finish');
 Gio._promisify(Secret.Item.prototype, 'set_label', 'set_label_finish');
 Gio._promisify(Secret.Item.prototype, 'set_secret', 'set_secret_finish');
 Gio._promisify(Secret.Service, 'get', 'get_finish');
 Gio._promisify(Secret.Service.prototype, 'search', 'search_finish');
+Gio._promisify(Secret.Service.prototype, 'unlock', 'unlock_finish');
 
 
 let SCHEMA = new Secret.Schema('org.gnome.shell.extensions.totp',
@@ -37,14 +38,26 @@ let SCHEMA = new Secret.Schema('org.gnome.shell.extensions.totp',
 let OTP_COLLECTION = '/org/freedesktop/secrets/collection/OTP';
 
 
-async function ensureCollection()
+
+async function findCollection()
 {
     let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
     let collections = service.get_collections();
     // look for a collection called 'OTP'
     for (let i = 0; i < collections.length; ++i)
         if (collections[i].label == 'OTP')
-            return;
+            return [service, collections[i]];
+    return [service, null];
+}
+
+
+async function ensureCollection()
+{
+    let [service, collection] = await findCollection();
+    if (collection) {
+        console.log('found OTP collection');
+        return;
+    }
 
     // could not find it, so create one
     await Secret.Collection.create(service,
@@ -55,19 +68,21 @@ async function ensureCollection()
 }
 
 
-function ensureCollectionSync()
+async function isCollectionLocked()
 {
-    let service = Secret.Service.get_sync(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
-    let collections = service.get_collections();
-    for (let i = 0; i < collections.length; ++i)
-        if (collections[i].label == 'OTP')
-            return;
-    // could not find it, so create one
-    let c = Secret.Collection.create_sync(service,
-                                          'OTP',
-                                          null,
-                                          Secret.CollectionCreateFlags.NONE,
-                                          null);
+    let [service, collection] = await findCollection();
+    if (!collection)
+        return false;
+    return collection.locked;
+}
+
+
+async function unlockCollection()
+{
+    let [service, collection] = await findCollection();
+    if (!collection)
+        return;
+    await service.unlock([collection], null);
 }
 
 
@@ -82,15 +97,6 @@ async function getList()
     catch (e) {
         return [];
     }
-}
-
-
-function getListSync()
-{
-    return Secret.password_search_sync(SCHEMA,
-                                       { type: 'TOTP' },
-                                       Secret.SearchFlags.ALL,
-                                       null);
 }
 
 
@@ -184,18 +190,6 @@ async function create(args)
                                        makeLabel(args),
                                        args.secret,
                                        null);
-}
-
-
-function createSync(args)
-{
-    ensureCollectionSync();
-    return Secret.password_store_sync(SCHEMA,
-                                      makeAttributes(args),
-                                      OTP_COLLECTION,
-                                      makeLabel(args),
-                                      args.secret,
-                                      null);
 }
 
 
