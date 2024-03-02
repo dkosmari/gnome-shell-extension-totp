@@ -8,11 +8,10 @@ const {Gio, GLib, GObject} = imports.gi;
 const {Adw, Gtk, Gdk, GdkPixbuf} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
-
 const Me = ExtensionUtils.getCurrentExtension();
 
-const SecretUtils = Me.imports.secretUtils;
-const TOTP = Me.imports.totp;
+const SecretUtils = Me.imports.src.secretUtils;
+const TOTP = Me.imports.src.totp;
 
 const _ = ExtensionUtils.gettext;
 const pgettext = ExtensionUtils.pgettext;
@@ -86,7 +85,6 @@ async function reportError(parent, e, where)
         logError(ee, 'reportError()');
     }
 }
-
 
 
 class SecretRow extends Adw.ActionRow {
@@ -604,12 +602,13 @@ class SettingsPage extends Adw.PreferencesPage {
     {
         super();
 
-        this.set_title("Test Title");
-        this.set_name("Test Name");
+        const path = `${Me.path}/icons`;
+        const theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+        if (!theme.get_search_path().includes(path))
+            theme.add_search_path(path);
 
         this.secrets = new SecretsGroup();
         this.add(this.secrets);
-
     }
 
 };

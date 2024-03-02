@@ -6,4 +6,5 @@ exec xgettext \
      --package-name='TOTP' \
      --msgid-bugs='https://github.com/dkosmari/gnome-shell-extension-totp' \
      --output=po/totp@dkosmari.github.com.pot \
+     src/*.js \
      *.js

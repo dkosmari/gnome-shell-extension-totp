@@ -5,5 +5,5 @@ exec gnome-extensions pack \
      --podir=po \
      --extra-source=COPYING \
      --extra-source=AUTHORS \
-     --extra-source={base32,indicator,secretUtils,totp}.js \
+     --extra-source={src,icons} \
      .

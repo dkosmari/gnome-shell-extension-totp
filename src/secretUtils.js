@@ -23,20 +23,22 @@ Gio._promisify(Secret.Service.prototype, 'search', 'search_finish');
 Gio._promisify(Secret.Service.prototype, 'unlock', 'unlock_finish');
 
 
-let SCHEMA = new Secret.Schema('org.gnome.shell.extensions.totp',
-                               Secret.SchemaFlags.NONE,
-                               {
-                                   type      : Secret.SchemaAttributeType.STRING,
-                                   issuer    : Secret.SchemaAttributeType.STRING,
-                                   name      : Secret.SchemaAttributeType.STRING,
-                                   digits    : Secret.SchemaAttributeType.INTEGER,
-                                   period    : Secret.SchemaAttributeType.INTEGER,
-                                   algorithm : Secret.SchemaAttributeType.STRING
-                               });
+const OTP_COLLECTION_DBUS_PATH = '/org/freedesktop/secrets/collection/OTP';
 
 
-let OTP_COLLECTION = '/org/freedesktop/secrets/collection/OTP';
-
+function makeSchema()
+{
+    return new Secret.Schema('org.gnome.shell.extensions.totp',
+                             Secret.SchemaFlags.NONE,
+                             {
+                                 type      : Secret.SchemaAttributeType.STRING,
+                                 issuer    : Secret.SchemaAttributeType.STRING,
+                                 name      : Secret.SchemaAttributeType.STRING,
+                                 digits    : Secret.SchemaAttributeType.INTEGER,
+                                 period    : Secret.SchemaAttributeType.INTEGER,
+                                 algorithm : Secret.SchemaAttributeType.STRING
+                             });
+}
 
 
 async function findCollection()
@@ -89,7 +91,7 @@ async function unlockCollection()
 async function getList()
 {
     try {
-        return await Secret.password_search(SCHEMA,
+        return await Secret.password_search(makeSchema(),
                                             { type: 'TOTP' },
                                             Secret.SearchFlags.ALL,
                                             null);
@@ -122,7 +124,7 @@ function makeLabel({issuer, name})
 
 async function get(args)
 {
-    let secret = await Secret.password_lookup(SCHEMA, makeAttributes(args), null);
+    let secret = await Secret.password_lookup(makeSchema(), makeAttributes(args), null);
     if (!secret)
         throw new Error(_('Failed to retrieve secret.'));
     return secret;
@@ -150,7 +152,7 @@ async function update(old_arg, new_arg)
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
     let old_attributes = makeAttributes(old_arg);
-    let [item] = await service.search(SCHEMA,
+    let [item] = await service.search(makeSchema(),
                                       old_attributes,
                                       Secret.SearchFlags.UNLOCK
                                       | Secret.SearchFlags.LOAD_SECRETS,
@@ -169,7 +171,7 @@ async function update(old_arg, new_arg)
     let new_attributes = makeAttributes(new_arg);
 
     if (!equalDictionaries(old_attributes, new_attributes))
-        if (!await item.set_attributes(SCHEMA, new_attributes, null))
+        if (!await item.set_attributes(makeSchema(), new_attributes, null))
             throw new Error(_('Failed to set attributes.'));
 
     // check if secret changed
@@ -184,9 +186,9 @@ async function update(old_arg, new_arg)
 async function create(args)
 {
     await ensureCollection();
-    return await Secret.password_store(SCHEMA,
+    return await Secret.password_store(makeSchema(),
                                        makeAttributes(args),
-                                       OTP_COLLECTION,
+                                       OTP_COLLECTION_DBUS_PATH,
                                        makeLabel(args),
                                        args.secret,
                                        null);
@@ -195,7 +197,7 @@ async function create(args)
 
 async function remove(args)
 {
-    return await Secret.password_clear(SCHEMA,
+    return await Secret.password_clear(makeSchema(),
                                        makeAttributes(args),
                                        null);
 }

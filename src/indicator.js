@@ -7,21 +7,16 @@
 // GI imports
 const { Gio, GLib, GObject, St, Secret } = imports.gi;
 
-
-// Shell UI imports
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-
-// Shell misc imports
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const TOTP = Me.imports.totp;
-const SecretUtils = Me.imports.secretUtils;
+const TOTP = Me.imports.src.totp;
+const SecretUtils = Me.imports.src.secretUtils;
 
-// gettext support
 const _ = ExtensionUtils.gettext;
 
 

@@ -7,7 +7,7 @@
 // Shell misc imports
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Indicator = Me.imports.indicator;
+const Indicator = Me.imports.src.indicator;
 
 
 class Extension {

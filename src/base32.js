@@ -101,6 +101,7 @@ function encode(input, trim = false)
 
 
 // Unit test
+/*
 function _test()
 {
     function utf8(s)
@@ -149,6 +150,6 @@ function _test()
     check('fooba', 'MZXW6YTB');
     check('foobar', 'MZXW6YTBOI======');
 }
-
+*/
 
 // _test();

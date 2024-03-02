@@ -8,7 +8,8 @@ const {Gio, GLib} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Base32 = Me ? Me.imports.base32 : imports.base32;
+
+const Base32 = Me.imports.src.base32;
 
 const _ = ExtensionUtils.gettext;
 
