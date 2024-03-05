@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-02 10:10-0300\n"
+"POT-Creation-Date: 2024-03-05 15:32-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -168,7 +168,7 @@ msgid "Algorithm"
 msgstr ""
 
 #: prefs.js:236
-msgid "The hash algoritm used to generate codes."
+msgid "The hash algorithm used to generate codes."
 msgstr ""
 
 #: prefs.js:242 prefs.js:444 prefs.js:548

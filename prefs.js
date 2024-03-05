@@ -233,7 +233,7 @@ class SecretDialog extends Gtk.Dialog {
                 strings: algorithm_list
             }),
             selected: algorithm_list.indexOf(fields.algorithm),
-            tooltip_text: _('The hash algoritm used to generate codes.')
+            tooltip_text: _('The hash algorithm used to generate codes.')
         });
         group.add(this._ui.algorithm);
 
