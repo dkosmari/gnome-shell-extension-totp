@@ -16,6 +16,12 @@ Keyring if necessary), copy the authentication code to the clipboard, and immedi
 the OTP secret from memory.
 
 
+Installing from GNOME Shell Extensions website
+----------------------------------------------
+
+The extension can be obtained from the [GNOME Shell Extensions website](https://extensions.gnome.org/extension/6793/totp/).
+
+
 Installing from sources
 -----------------------
 
