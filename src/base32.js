@@ -3,15 +3,22 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-const ExtensionUtils = imports.misc.extensionUtils;
 
-const _ = ExtensionUtils.gettext;
+let _ = null;
+try {
+    // for outside prefs.js
+    _ = (await import('resource:///org/gnome/shell/extensions/extension.js')).gettext;
+} catch (e) {
+    // for inside prefs.js
+    _ = (await import('resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js')).gettext;
+}
 
 
 const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 
 // See RFC 4648
+export
 function decode(input, strict = true)
 {
     console.assert(digits.length == 32);
@@ -66,6 +73,7 @@ function decode(input, strict = true)
 }
 
 
+export
 function encode(input, trim = false)
 {
     let output = '';

@@ -4,20 +4,23 @@
  */
 
 
-// GI imports
-const { Gio, GLib, GObject, St, Secret } = imports.gi;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
+import Secret from 'gi://Secret';
+import St from 'gi://St';
 
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import {
+    Extension,
+    gettext as _
+} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-const TOTP = Me.imports.src.totp;
-const SecretUtils = Me.imports.src.secretUtils;
-
-const _ = ExtensionUtils.gettext;
+import * as SecretUtils from './secretUtils.js';
+import TOTP from './totp.js';
 
 
 function copyToClipboard(text)
@@ -36,17 +39,18 @@ function makeLabel({issuer, name})
 }
 
 
-var Indicator = class extends PanelMenu.Button {
+export default
+class Indicator extends PanelMenu.Button {
 
     static {
         GObject.registerClass(this);
     }
 
 
-    constructor(uuid)
+    constructor(ext)
     {
         super();
-        this._uuid = uuid;
+        this._ext = ext;
         this._totp_items = [];
     }
 
@@ -73,10 +77,10 @@ var Indicator = class extends PanelMenu.Button {
 
         this.menu.addAction(_('Edit secrets...'),
                             this.editSecrets.bind(this),
-                           'document-edit-symbolic');
+                            'document-edit-symbolic');
 
 
-        Main.panel.addToStatusArea(this._uuid, this);
+        Main.panel.addToStatusArea(this.uuid, this);
     }
 
 
@@ -133,7 +137,7 @@ var Indicator = class extends PanelMenu.Button {
 
     editSecrets()
     {
-        ExtensionUtils.openPrefs();
+        this._ext.openPreferences();
     }
 
 
@@ -175,7 +179,7 @@ var Indicator = class extends PanelMenu.Button {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let code = totp.code();
             copyToClipboard(code);
         }

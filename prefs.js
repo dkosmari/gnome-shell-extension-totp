@@ -4,27 +4,27 @@
  */
 
 
-const {Gio, GLib, GObject} = imports.gi;
-const {Adw, Gtk, Gdk, GdkPixbuf} = imports.gi;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import Adw from 'gi://Adw';
+import Gdk from 'gi://Gdk?version=4.0';
+import GdkPixbuf from 'gi://GdkPixbuf';
+import Gtk from 'gi://Gtk?version=4.0';
 
-const SecretUtils = Me.imports.src.secretUtils;
-const TOTP = Me.imports.src.totp;
+import {
+    ExtensionPreferences,
+    gettext as _
+} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const _ = ExtensionUtils.gettext;
-const pgettext = ExtensionUtils.pgettext;
+
+import * as SecretUtils from './src/secretUtils.js';
+import TOTP from './src/totp.js';
 
 
 Gio._promisify(Adw.MessageDialog.prototype, 'choose', 'choose_finish');
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_async');
-
-
-function init(metadata)
-{
-    ExtensionUtils.initTranslations(metadata.uuid);
-}
 
 
 function makeVariant({issuer, name, secret, digits, period, algorithm})
@@ -378,10 +378,10 @@ class SecretsGroup extends Adw.PreferencesGroup {
         let dialog = new SecretDialog(
             this.root,
             _('Creating new TOTP secret'),
-            new TOTP.TOTP(),
+            new TOTP(),
             async (args) => {
                 try {
-                    let totp = new TOTP.TOTP(args);
+                    let totp = new TOTP(args);
                     let fields = totp.fields();
                     await SecretUtils.create(fields);
                     this.addRow(fields);
@@ -402,7 +402,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         try {
             args.secret = await SecretUtils.get(args);
 
-            let old_totp = new TOTP.TOTP(args);
+            let old_totp = new TOTP(args);
 
             let dialog = new SecretDialog(
                 this.root,
@@ -410,7 +410,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 old_totp,
                 async (new_args) => {
                     try {
-                        let new_totp = new TOTP.TOTP(new_args);
+                        let new_totp = new TOTP(new_args);
                         await SecretUtils.update(old_totp.fields(), new_totp.fields());
                         dialog.destroy();
                         await this.refreshRows();
@@ -464,7 +464,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let uri = totp.uri();
             copyToClipboard(uri);
         }
@@ -478,7 +478,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let uri = totp.uri();
 
             let t = new TextEncoder();
@@ -516,7 +516,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let code = totp.code();
             copyToClipboard(code);
         }
@@ -555,7 +555,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 let uris = GLib.Uri.list_extract_uris(text);
                 for (let i = 0; i < uris.length; ++i) {
                     try {
-                        let totp = new TOTP.TOTP({uri: uris[i]});
+                        let totp = new TOTP({uri: uris[i]});
                         await SecretUtils.create(totp.fields());
                     }
                     catch (e) {
@@ -579,7 +579,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             for (let i = 0; i < list.length; ++i) {
                 let args = list[i].get_attributes();
                 args.secret = await SecretUtils.get(args);
-                let totp = new TOTP.TOTP(args);
+                let totp = new TOTP(args);
                 uris.push(totp.uri());
             }
             copyToClipboard(uris.join('\n'));
@@ -598,11 +598,11 @@ class SettingsPage extends Adw.PreferencesPage {
         GObject.registerClass(this);
     }
 
-    constructor()
+    constructor(prefs)
     {
         super();
 
-        const path = `${Me.path}/icons`;
+        const path = `${prefs.path}/icons`;
         const theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
         if (!theme.get_search_path().includes(path))
             theme.add_search_path(path);
@@ -614,7 +614,17 @@ class SettingsPage extends Adw.PreferencesPage {
 };
 
 
-function buildPrefsWidget()
-{
-    return new SettingsPage();
-}
+export default
+class TOTPPreferences extends ExtensionPreferences {
+
+    constructor(metadata)
+    {
+        super(metadata);
+        this.initTranslations();
+    }
+
+    fillPreferencesWindow(window)
+    {
+        window.add(new SettingsPage(this));
+    }
+};

@@ -4,10 +4,18 @@
  */
 
 
-const {Gio, GLib, Secret} = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import Secret from 'gi://Secret';
 
-const _ = ExtensionUtils.gettext;
+let _ = null;
+try {
+    // for outside prefs.js
+    _ = (await import('resource:///org/gnome/shell/extensions/extension.js')).gettext;
+} catch (e) {
+    // for inside prefs.js
+    _ = (await import('resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js')).gettext;
+}
 
 
 Gio._promisify(Secret, 'password_clear', 'password_clear_finish');
@@ -57,10 +65,8 @@ async function findCollection()
 async function ensureCollection()
 {
     let [service, collection] = await findCollection();
-    if (collection) {
-        console.log('found OTP collection');
+    if (collection)
         return;
-    }
 
     // could not find it, so create one
     await Secret.Collection.create(service,
@@ -71,6 +77,7 @@ async function ensureCollection()
 }
 
 
+export
 async function isCollectionLocked()
 {
     let [service, collection] = await findCollection();
@@ -80,6 +87,7 @@ async function isCollectionLocked()
 }
 
 
+export
 async function lockCollection()
 {
     let [service, collection] = await findCollection();
@@ -89,6 +97,7 @@ async function lockCollection()
 }
 
 
+export
 async function unlockCollection()
 {
     let [service, collection] = await findCollection();
@@ -98,6 +107,7 @@ async function unlockCollection()
 }
 
 
+export
 async function getList()
 {
     try {
@@ -132,6 +142,7 @@ function makeLabel({issuer, name})
 }
 
 
+export
 async function get(args)
 {
     let secret = await Secret.password_lookup(makeSchema(), makeAttributes(args), null);
@@ -156,6 +167,7 @@ function equalDictionaries(a, b)
 }
 
 
+export
 async function update(old_arg, new_arg)
 {
     let service = await Secret.Service.get(
@@ -193,6 +205,7 @@ async function update(old_arg, new_arg)
 }
 
 
+export
 async function create(args)
 {
     await ensureCollection();
@@ -205,6 +218,7 @@ async function create(args)
 }
 
 
+export
 async function remove(args)
 {
     return await Secret.password_clear(makeSchema(),

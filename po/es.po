@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-08 09:39-0300\n"
+"POT-Creation-Date: 2024-03-08 17:03-0300\n"
 "PO-Revision-Date: 2024-03-08 06:33-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -19,99 +19,99 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: src/base32.js:26
+#: src/base32.js:33
 msgid "Invalid base32 input; missing padding."
 msgstr "Entrada base32 no válida; falta relleno."
 
-#: src/base32.js:42
+#: src/base32.js:49
 msgid "Invalid base32 character at position:"
 msgstr "Carácter base32 no válido en la posición:"
 
-#: src/base32.js:49
+#: src/base32.js:56
 msgid "Invalid padding."
 msgstr "Relleno no válido."
 
-#: src/indicator.js:29
+#: src/indicator.js:32
 msgid "OTP code copied."
 msgstr "Código OTP copiado."
 
-#: src/indicator.js:66
+#: src/indicator.js:70
 msgid "Lock the keyring..."
 msgstr "Cierra el depósito de claves..."
 
-#: src/indicator.js:70
+#: src/indicator.js:74
 msgid "Unlock the keyring..."
 msgstr "Desbloquea el depósito de claves..."
 
-#: src/indicator.js:74
+#: src/indicator.js:78
 msgid "Edit secrets..."
 msgstr "Editar secretos..."
 
-#: src/indicator.js:109
+#: src/indicator.js:113
 msgid "Failed to lock the OTP keyring."
 msgstr "No se pudo bloquear el llavero OTP."
 
-#: src/indicator.js:114
+#: src/indicator.js:117
 msgid "Error locking the OTP keyring."
 msgstr "Error al bloquear el llavero OTP."
 
-#: src/indicator.js:126
+#: src/indicator.js:129
 msgid "Failed to unlock the OTP keyring."
 msgstr "No se pudo desbloquear el llavero OTP."
 
-#: src/indicator.js:130
+#: src/indicator.js:133
 msgid "Error unlocking the OTP keyring."
 msgstr "Error al desbloquear el llavero OTP."
 
-#: src/indicator.js:153
+#: src/indicator.js:156
 msgid "Error retrieving OTP items."
 msgstr "Error al recuperar elementos OTP."
 
-#: src/indicator.js:185
+#: src/indicator.js:188
 msgid "Error copying the OTP code."
 msgstr "Error al copiar el código OTP."
 
-#: src/secretUtils.js:139
+#: src/secretUtils.js:150
 msgid "Failed to retrieve secret."
 msgstr "No se pudo recuperar el secreto."
 
-#: src/secretUtils.js:171
+#: src/secretUtils.js:183
 msgid "Failed to lookup secret."
 msgstr "No se pudo buscar el secreto."
 
-#: src/secretUtils.js:178
+#: src/secretUtils.js:190
 msgid "Failed to set label."
 msgstr "No se pudo establecer la etiqueta."
 
-#: src/secretUtils.js:185
+#: src/secretUtils.js:197
 msgid "Failed to set attributes."
 msgstr "No se pudieron establecer los atributos."
 
-#: src/secretUtils.js:191
+#: src/secretUtils.js:203
 msgid "Failed to set secret."
 msgstr "No se pudo escribir el secreto."
 
-#: src/totp.js:40 src/totp.js:57
+#: src/totp.js:44 src/totp.js:61
 msgid "Invalid algorithm:"
 msgstr "Algoritmo no válido:"
 
-#: src/totp.js:123
+#: src/totp.js:132
 msgid "Failed to parse URI."
 msgstr "No se pudo analizar el URI."
 
-#: src/totp.js:125
+#: src/totp.js:134
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "El esquema de URI debe ser \"otpauth://...\""
 
-#: src/totp.js:127
+#: src/totp.js:136
 msgid "URI host should be \"totp\""
 msgstr "El host URI debe ser \"totp\""
 
-#: src/totp.js:129
+#: src/totp.js:138
 msgid "Unexpected port number in URI."
 msgstr "Número de puerto inesperado en URI."
 
-#: src/totp.js:132
+#: src/totp.js:141
 msgid "Unexpected userinfo in URI."
 msgstr "Información de usuario inesperada en URI."
 

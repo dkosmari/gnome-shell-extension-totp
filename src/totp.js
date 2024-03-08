@@ -4,17 +4,21 @@
  */
 
 
-const {Gio, GLib} = imports.gi;
+import GLib from 'gi://GLib';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+let _ = null;
+try {
+    // for outside prefs.js
+    _ = (await import('resource:///org/gnome/shell/extensions/extension.js')).gettext;
+} catch (e) {
+    // for inside prefs.js
+    _ = (await import('resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js')).gettext;
+}
 
-const Base32 = Me.imports.src.base32;
-
-const _ = ExtensionUtils.gettext;
+import * as Base32 from './base32.js';
 
 
-var Algorithm = {
+const Algorithm = {
 
     SHA1: GLib.ChecksumType.SHA1,
     SHA256: GLib.ChecksumType.SHA256,
@@ -61,12 +65,14 @@ var Algorithm = {
 };
 
 
+export
 function now()
 {
     return new Date().getTime() / 1000;
 }
 
 
+export
 function hex_to_bytes(hex)
 {
     let blob = [];
@@ -76,6 +82,7 @@ function hex_to_bytes(hex)
 }
 
 
+export
 function bytes_to_hex(blob)
 {
     let hex = "";
@@ -84,6 +91,7 @@ function bytes_to_hex(blob)
 }
 
 
+export
 function splitQuery(query)
 {
     let entries = query.split('&');
@@ -98,7 +106,8 @@ function splitQuery(query)
 }
 
 
-var TOTP = class {
+export default
+class TOTP {
 
     constructor({
         issuer = '',
@@ -251,6 +260,5 @@ var TOTP = class {
             algorithm: Algorithm.str(this.algorithm)
         };
     }
-
 
 };

@@ -4,35 +4,29 @@
  */
 
 
-// Shell misc imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Indicator = Me.imports.src.indicator;
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+
+import Indicator from './src/indicator.js';
 
 
-class Extension {
+export default
+class TOTPExtension extends Extension {
 
-    constructor(uuid)
+    constructor(metadata)
     {
-        this.uuid = uuid;
+        super(metadata);
+        this.initTranslations();
     }
 
     enable()
     {
-        this.indicator = new Indicator.Indicator(this.uuid);
+        this._indicator = new Indicator(this);
     }
 
     disable()
     {
-        this.indicator.destroy();
-        this.indicator = null;
+        this._indicator?.destroy();
+        this._indicator = null;
     }
 
-}
-
-
-function init(meta)
-{
-    ExtensionUtils.initTranslations(meta.uuid);
-    return new Extension(meta.uuid);
-}
+};
