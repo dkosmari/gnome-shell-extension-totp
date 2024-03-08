@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-08 06:28-0300\n"
+"POT-Creation-Date: 2024-03-08 09:39-0300\n"
 "PO-Revision-Date: 2024-03-08 06:35-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -47,27 +47,27 @@ msgstr "Déverrouillez le porte-clés..."
 msgid "Edit secrets..."
 msgstr "Modifier les secrets..."
 
-#: src/indicator.js:106
+#: src/indicator.js:109
 msgid "Failed to lock the OTP keyring."
 msgstr "Échec du verrouillage du trousseau de clés OTP."
 
-#: src/indicator.js:110
+#: src/indicator.js:114
 msgid "Error locking the OTP keyring."
 msgstr "Erreur lors du verrouillage du trousseau OTP."
 
-#: src/indicator.js:119
+#: src/indicator.js:126
 msgid "Failed to unlock the OTP keyring."
 msgstr "Échec du déverrouillage du trousseau OTP."
 
-#: src/indicator.js:123
+#: src/indicator.js:130
 msgid "Error unlocking the OTP keyring."
 msgstr "Erreur lors du déverrouillage du trousseau OTP."
 
-#: src/indicator.js:146
+#: src/indicator.js:153
 msgid "Error retrieving OTP items."
 msgstr "Erreur lors de la récupération des éléments OTP."
 
-#: src/indicator.js:178
+#: src/indicator.js:185
 msgid "Error copying the OTP code."
 msgstr "Erreur lors de la copie du code OTP."
 

@@ -102,8 +102,12 @@ var Indicator = class extends PanelMenu.Button {
     async lockSecrets()
     {
         try {
-            if (!await SecretUtils.lockCollection())
-                Main.notify(_('Failed to lock the OTP keyring.'));
+            if (!await SecretUtils.lockCollection()) {
+                // Sometimes the keyring locks just fine, yet it reports incorrectly that
+                // nothing was locked. So we double check here.
+                if (!await SecretUtils.isCollectionLocked())
+                    Main.notify(_('Failed to lock the OTP keyring.'));
+            }
         }
         catch (e) {
             logError(e, 'lockSecrets()');
@@ -116,7 +120,10 @@ var Indicator = class extends PanelMenu.Button {
     {
         try {
             if (!await SecretUtils.unlockCollection())
-                Main.notify(_('Failed to unlock the OTP keyring.'));
+                // Sometimes the keyring unlocks just fine, yet it reports incorrectly
+                // that nothing was unlocked. So we double check here.
+                if (await SecretUtils.isCollectionLocked())
+                    Main.notify(_('Failed to unlock the OTP keyring.'));
         }
         catch (e) {
             logError(e, 'unlockSecrets()');
