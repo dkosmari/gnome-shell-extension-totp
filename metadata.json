@@ -1,6 +1,6 @@
 {
     "name": "TOTP",
-    "description": "Generate Time-based One-Time Passwords (TOTP).",
+    "description": "Generate Time-based One-Time Passwords (TOTP aka OTP) for websites that use Two-Factor Authentication (2FA) like Google, Facebook, Discord, Amazon, etc.",
     "uuid": "totp@dkosmari.github.com",
     "url": "https://github.com/dkosmari/gnome-shell-extension-totp",
     "gettext-domain": "totp@dkosmari.github.com",
