@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-08 09:39-0300\n"
+"POT-Creation-Date: 2024-03-08 17:08-0300\n"
 "PO-Revision-Date: 2024-03-08 06:33-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -51,43 +51,43 @@ msgstr "Editar secretos..."
 msgid "Failed to lock the OTP keyring."
 msgstr "No se pudo bloquear el llavero OTP."
 
-#: src/indicator.js:114
+#: src/indicator.js:113
 msgid "Error locking the OTP keyring."
 msgstr "Error al bloquear el llavero OTP."
 
-#: src/indicator.js:126
+#: src/indicator.js:125
 msgid "Failed to unlock the OTP keyring."
 msgstr "No se pudo desbloquear el llavero OTP."
 
-#: src/indicator.js:130
+#: src/indicator.js:129
 msgid "Error unlocking the OTP keyring."
 msgstr "Error al desbloquear el llavero OTP."
 
-#: src/indicator.js:153
+#: src/indicator.js:152
 msgid "Error retrieving OTP items."
 msgstr "Error al recuperar elementos OTP."
 
-#: src/indicator.js:185
+#: src/indicator.js:184
 msgid "Error copying the OTP code."
 msgstr "Error al copiar el código OTP."
 
-#: src/secretUtils.js:139
+#: src/secretUtils.js:137
 msgid "Failed to retrieve secret."
 msgstr "No se pudo recuperar el secreto."
 
-#: src/secretUtils.js:171
+#: src/secretUtils.js:169
 msgid "Failed to lookup secret."
 msgstr "No se pudo buscar el secreto."
 
-#: src/secretUtils.js:178
+#: src/secretUtils.js:176
 msgid "Failed to set label."
 msgstr "No se pudo establecer la etiqueta."
 
-#: src/secretUtils.js:185
+#: src/secretUtils.js:183
 msgid "Failed to set attributes."
 msgstr "No se pudieron establecer los atributos."
 
-#: src/secretUtils.js:191
+#: src/secretUtils.js:189
 msgid "Failed to set secret."
 msgstr "No se pudo escribir el secreto."
 

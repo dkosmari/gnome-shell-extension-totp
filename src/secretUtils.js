@@ -57,10 +57,8 @@ async function findCollection()
 async function ensureCollection()
 {
     let [service, collection] = await findCollection();
-    if (collection) {
-        console.log('found OTP collection');
+    if (collection)
         return;
-    }
 
     // could not find it, so create one
     await Secret.Collection.create(service,
