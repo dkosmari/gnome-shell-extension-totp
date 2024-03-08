@@ -102,12 +102,11 @@ var Indicator = class extends PanelMenu.Button {
     async lockSecrets()
     {
         try {
-            if (!await SecretUtils.lockCollection()) {
+            if (!await SecretUtils.lockCollection())
                 // Sometimes the keyring locks just fine, yet it reports incorrectly that
                 // nothing was locked. So we double check here.
                 if (!await SecretUtils.isCollectionLocked())
                     Main.notify(_('Failed to lock the OTP keyring.'));
-            }
         }
         catch (e) {
             logError(e, 'lockSecrets()');
