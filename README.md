@@ -19,7 +19,8 @@ the OTP secret from memory.
 Installing from GNOME Shell Extensions website
 ----------------------------------------------
 
-The extension can be obtained from the [GNOME Shell Extensions website](https://extensions.gnome.org/extension/6793/totp/).
+The extension can be obtained from the [GNOME Shell Extensions
+website](https://extensions.gnome.org/extension/6793/totp/).
 
 
 Installing from sources
@@ -29,11 +30,20 @@ To create an installable .zip file, run the script `./bundle.sh`. It can be inst
 running the `./install.sh` script.
 
 
+Importing and exporting URIs
+----------------------------
+
+It's possible to import and export OTP secrets that conform to [Google's Key URI
+Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format). This format
+is compatible with applications like Google Authenticator, FreeOTP, Authy, etc.
+
+
 Exporting QR code
 -----------------
 
 It's possible to export the OTP secret as a QR code to be scanned into other devices, if
 you have the [qrencode](https://fukuchi.org/works/qrencode/) package installed.
+
 
 
 Translations
