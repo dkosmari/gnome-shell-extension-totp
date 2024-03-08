@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-05 15:32-0300\n"
-"PO-Revision-Date: 2024-03-05 15:33-0300\n"
+"POT-Creation-Date: 2024-03-08 06:28-0300\n"
+"PO-Revision-Date: 2024-03-08 06:38-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -36,42 +36,58 @@ msgid "OTP code copied."
 msgstr "Código OTP copiado."
 
 #: src/indicator.js:66
-msgid "Unlock keyring..."
-msgstr "Desbloquear chaveiro..."
+msgid "Lock the keyring..."
+msgstr "Bloquear o chaveiro..."
 
 #: src/indicator.js:70
+msgid "Unlock the keyring..."
+msgstr "Desbloquear o chaveiro..."
+
+#: src/indicator.js:74
 msgid "Edit secrets..."
 msgstr "Editar segredos..."
 
-#: src/indicator.js:103
-msgid "Cannot unlock OTP keyring"
-msgstr "Não pôde desbloquear chaveiro OTP"
+#: src/indicator.js:106
+msgid "Failed to lock the OTP keyring."
+msgstr "Falhou ao bloquear o chaveiro OTP."
 
-#: src/indicator.js:126
-msgid "Cannot lookup OTP items"
-msgstr "Não pôde obter itens OTP"
+#: src/indicator.js:110
+msgid "Error locking the OTP keyring."
+msgstr "Erro bloqueando o chaveiro OTP."
 
-#: src/indicator.js:158
-msgid "Failed to copy OTP code"
-msgstr "Falhou ao copiar o código OTP"
+#: src/indicator.js:119
+msgid "Failed to unlock the OTP keyring."
+msgstr "Falhou ao bloquear o chaveiro OTP."
 
-#: src/secretUtils.js:129
+#: src/indicator.js:123
+msgid "Error unlocking the OTP keyring."
+msgstr "Erro desbloqueando o chaveiro OTP."
+
+#: src/indicator.js:146
+msgid "Error retrieving OTP items."
+msgstr "Erro obtendo itens OTP."
+
+#: src/indicator.js:178
+msgid "Error copying the OTP code."
+msgstr "Erro copiando código OTP."
+
+#: src/secretUtils.js:139
 msgid "Failed to retrieve secret."
 msgstr "Falha em obter segredo."
 
-#: src/secretUtils.js:161
+#: src/secretUtils.js:171
 msgid "Failed to lookup secret."
 msgstr "Falha em obter segredo."
 
-#: src/secretUtils.js:168
+#: src/secretUtils.js:178
 msgid "Failed to set label."
 msgstr "Falha em definir rótulo."
 
-#: src/secretUtils.js:175
+#: src/secretUtils.js:185
 msgid "Failed to set attributes."
 msgstr "Falha em definir atributos."
 
-#: src/secretUtils.js:181
+#: src/secretUtils.js:191
 msgid "Failed to set secret."
 msgstr "Falha em definir segredo."
 
@@ -240,6 +256,12 @@ msgstr "Cole todas URIs \"otpauth://\", uma por linha."
 #: prefs.js:549
 msgid "_Import"
 msgstr "_Importar"
+
+#~ msgid "Cannot lookup OTP items."
+#~ msgstr "Não pôde obter itens OTP."
+
+#~ msgid "Failed to copy OTP code."
+#~ msgstr "Falhou ao copiar o código OTP."
 
 #~ msgid "Export all secrets"
 #~ msgstr "Exportar todos os segredos"

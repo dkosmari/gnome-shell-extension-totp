@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-05 15:32-0300\n"
-"PO-Revision-Date: 2024-03-05 16:15-0300\n"
+"POT-Creation-Date: 2024-03-08 06:28-0300\n"
+"PO-Revision-Date: 2024-03-08 06:30-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -36,42 +36,58 @@ msgid "OTP code copied."
 msgstr "OTP-Code kopiert."
 
 #: src/indicator.js:66
-msgid "Unlock keyring..."
-msgstr "Schlüsselbund entsperren..."
+msgid "Lock the keyring..."
+msgstr "Schlüsselbund verriegeln..."
 
 #: src/indicator.js:70
+msgid "Unlock the keyring..."
+msgstr "Entsperren Sie den Schlüsselbund..."
+
+#: src/indicator.js:74
 msgid "Edit secrets..."
 msgstr "Geheimnisse bearbeiten..."
 
-#: src/indicator.js:103
-msgid "Cannot unlock OTP keyring"
-msgstr "OTP-Schlüsselbund kann nicht entsperrt werden"
+#: src/indicator.js:106
+msgid "Failed to lock the OTP keyring."
+msgstr "Der OTP-Schlüsselbund konnte nicht gesperrt werden."
 
-#: src/indicator.js:126
-msgid "Cannot lookup OTP items"
-msgstr "OTP-Elemente können nicht gesucht werden"
+#: src/indicator.js:110
+msgid "Error locking the OTP keyring."
+msgstr "Fehler beim Sperren des OTP-Schlüsselbunds."
 
-#: src/indicator.js:158
-msgid "Failed to copy OTP code"
-msgstr "Der OTP-Code konnte nicht kopiert werden"
+#: src/indicator.js:119
+msgid "Failed to unlock the OTP keyring."
+msgstr "Der OTP-Schlüsselbund konnte nicht entsperrt werden."
 
-#: src/secretUtils.js:129
+#: src/indicator.js:123
+msgid "Error unlocking the OTP keyring."
+msgstr "Fehler beim Entsperren des OTP-Schlüsselbunds."
+
+#: src/indicator.js:146
+msgid "Error retrieving OTP items."
+msgstr "Fehler beim Abrufen von OTP-Elementen."
+
+#: src/indicator.js:178
+msgid "Error copying the OTP code."
+msgstr "Fehler beim Kopieren des OTP-Codes."
+
+#: src/secretUtils.js:139
 msgid "Failed to retrieve secret."
 msgstr "Das Abrufen des Geheimnisses ist fehlgeschlagen."
 
-#: src/secretUtils.js:161
+#: src/secretUtils.js:171
 msgid "Failed to lookup secret."
 msgstr "Das Geheimnis konnte nicht gesucht werden."
 
-#: src/secretUtils.js:168
+#: src/secretUtils.js:178
 msgid "Failed to set label."
 msgstr "Das Label konnte nicht festgelegt werden."
 
-#: src/secretUtils.js:175
+#: src/secretUtils.js:185
 msgid "Failed to set attributes."
 msgstr "Attribute konnten nicht festgelegt werden."
 
-#: src/secretUtils.js:181
+#: src/secretUtils.js:191
 msgid "Failed to set secret."
 msgstr "Geheimnis konnte nicht festgelegt werden."
 
@@ -135,8 +151,8 @@ msgstr "Aussteller"
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr ""
-"Der Name der Organisation (Google, Facebook usw.), die das OTP "
-"herausgegeben hat."
+"Der Name der Organisation (Google, Facebook usw.), die das OTP herausgegeben "
+"hat."
 
 #: prefs.js:191
 msgid "Name"
@@ -238,9 +254,21 @@ msgstr "Importieren von „otpauth://“-URIs"
 #: prefs.js:535
 msgid "Paste all \"otpauth://\" URIs you want import, one per line."
 msgstr ""
-"Fügen Sie alle „otpauth://“-URIs ein, die Sie importieren möchten, einen "
-"pro Zeile."
+"Fügen Sie alle „otpauth://“-URIs ein, die Sie importieren möchten, einen pro "
+"Zeile."
 
 #: prefs.js:549
 msgid "_Import"
 msgstr "_Importieren"
+
+#~ msgid "Cannot lookup OTP items."
+#~ msgstr "OTP-Elemente können nicht gesucht werden."
+
+#~ msgid "Failed to copy OTP code."
+#~ msgstr "Der OTP-Code konnte nicht kopiert werden."
+
+#~ msgid "OTP keyring was not locked."
+#~ msgstr "Der OTP-Schlüsselbund war nicht gesperrt."
+
+#~ msgid "OTP keyring was not unlocked."
+#~ msgstr "Der OTP-Schlüsselbund wurde nicht entsperrt."

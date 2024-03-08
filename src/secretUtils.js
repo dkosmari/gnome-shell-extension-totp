@@ -20,6 +20,7 @@ Gio._promisify(Secret.Item.prototype, 'set_label', 'set_label_finish');
 Gio._promisify(Secret.Item.prototype, 'set_secret', 'set_secret_finish');
 Gio._promisify(Secret.Service, 'get', 'get_finish');
 Gio._promisify(Secret.Service.prototype, 'search', 'search_finish');
+Gio._promisify(Secret.Service.prototype, 'lock', 'lock_finish');
 Gio._promisify(Secret.Service.prototype, 'unlock', 'unlock_finish');
 
 
@@ -79,12 +80,21 @@ async function isCollectionLocked()
 }
 
 
+async function lockCollection()
+{
+    let [service, collection] = await findCollection();
+    if (!collection)
+        return false;
+    return await service.lock([collection], null) > 0;
+}
+
+
 async function unlockCollection()
 {
     let [service, collection] = await findCollection();
     if (!collection)
-        return;
-    await service.unlock([collection], null);
+        return false;
+    return await service.unlock([collection], null) > 0;
 }
 
 
