@@ -4,8 +4,7 @@
  */
 
 
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
+import Gio    from 'gi://Gio';
 import Secret from 'gi://Secret';
 
 

@@ -4,17 +4,18 @@
  */
 
 
-import Adw from 'gi://Adw';
-import Gdk from 'gi://Gdk';
+import Adw       from 'gi://Adw';
+import Gdk       from 'gi://Gdk';
 import GdkPixbuf from 'gi://GdkPixbuf';
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import Gtk from 'gi://Gtk';
+import Gio       from 'gi://Gio';
+import GLib      from 'gi://GLib';
+import GObject   from 'gi://GObject';
+import Gtk       from 'gi://Gtk';
 
 import {
     ExtensionPreferences,
-    gettext as _
+    gettext as _,
+    pgettext
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 import * as SecretUtils from './src/secretUtils.js';

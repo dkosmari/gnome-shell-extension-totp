@@ -4,23 +4,18 @@
  */
 
 
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Secret from 'gi://Secret';
 import St from 'gi://St';
 
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Main      from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-import {
-    Extension,
-    gettext as _
-} from 'resource:///org/gnome/shell/extensions/extension.js';
-
 import * as SecretUtils from './secretUtils.js';
 import TOTP from './totp.js';
+
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
 function copyToClipboard(text)
@@ -50,20 +45,15 @@ class Indicator extends PanelMenu.Button {
     constructor(ext)
     {
         super();
+
         this._ext = ext;
         this._totp_items = [];
-    }
-
-
-    _init()
-    {
-        super._init(0.5, 'TOTP');
 
         let icon = new St.Icon(
-                {
-                    icon_name: 'changes-prevent-symbolic',
-                    style_class: 'system-status-icon'
-                }
+            {
+                icon_name: 'changes-prevent-symbolic',
+                style_class: 'system-status-icon'
+            }
         );
         this.add_child(icon);
 
@@ -79,8 +69,13 @@ class Indicator extends PanelMenu.Button {
                             this.editSecrets.bind(this),
                             'document-edit-symbolic');
 
+        Main.panel.addToStatusArea(ext.uuid, this);
+    }
 
-        Main.panel.addToStatusArea(this.uuid, this);
+
+    _init()
+    {
+        super._init(0.5, 'TOTP');
     }
 
 
