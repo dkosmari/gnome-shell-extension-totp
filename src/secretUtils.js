@@ -4,10 +4,14 @@
  */
 
 
-const {Gio, GLib, Secret} = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
+const {
+    Gio,
+    Secret
+} = imports.gi;
 
-const _ = ExtensionUtils.gettext;
+
+// strings will be translated by gettext in the frontend
+const _ = x => x;
 
 
 Gio._promisify(Secret, 'password_clear', 'password_clear_finish');

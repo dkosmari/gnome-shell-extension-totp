@@ -5,17 +5,21 @@
 
 
 // GI imports
-const { Gio, GLib, GObject, St, Secret } = imports.gi;
+const {
+    GObject,
+    Secret,
+    St
+} = imports.gi;
 
-const Main = imports.ui.main;
+const Main      = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const TOTP = Me.imports.src.totp;
 const SecretUtils = Me.imports.src.secretUtils;
+const TOTP = Me.imports.src.totp.TOTP;
 
 const _ = ExtensionUtils.gettext;
 
@@ -43,23 +47,17 @@ var Indicator = class extends PanelMenu.Button {
     }
 
 
-    constructor(uuid)
+    constructor(ext)
     {
         super();
-        this._uuid = uuid;
+
         this._totp_items = [];
-    }
-
-
-    _init()
-    {
-        super._init(0.5, 'TOTP');
 
         let icon = new St.Icon(
-                {
-                    icon_name: 'changes-prevent-symbolic',
-                    style_class: 'system-status-icon'
-                }
+            {
+                icon_name: 'changes-prevent-symbolic',
+                style_class: 'system-status-icon'
+            }
         );
         this.add_child(icon);
 
@@ -73,10 +71,15 @@ var Indicator = class extends PanelMenu.Button {
 
         this.menu.addAction(_('Edit secrets...'),
                             this.editSecrets.bind(this),
-                           'document-edit-symbolic');
+                            'document-edit-symbolic');
+
+        Main.panel.addToStatusArea(ext.uuid, this);
+    }
 
 
-        Main.panel.addToStatusArea(this._uuid, this);
+    _init()
+    {
+        super._init(0.5, 'TOTP');
     }
 
 
@@ -110,7 +113,7 @@ var Indicator = class extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'lockSecrets()');
-            Main.notifyError(_('Error locking the OTP keyring.'), e.message);
+            Main.notifyError(_('Error locking the OTP keyring.'), _(e.message));
         }
     }
 
@@ -126,7 +129,7 @@ var Indicator = class extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'unlockSecrets()');
-            Main.notifyError(_('Error unlocking the OTP keyring.'), e.message);
+            Main.notifyError(_('Error unlocking the OTP keyring.'), _(e.message));
         }
     }
 
@@ -149,7 +152,7 @@ var Indicator = class extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'addSecretItems()');
-            Main.notifyError(_('Error retrieving OTP items.'), e.message);
+            Main.notifyError(_('Error retrieving OTP items.'), _(e.message));
         }
     }
 
@@ -175,13 +178,13 @@ var Indicator = class extends PanelMenu.Button {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let code = totp.code();
             copyToClipboard(code);
         }
         catch (e) {
             logError(e, 'copyCode()');
-            Main.notifyError(_('Error copying the OTP code.'), e.message);
+            Main.notifyError(_('Error copying the OTP code.'), _(e.message));
         }
     }
 

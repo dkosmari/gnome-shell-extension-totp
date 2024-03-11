@@ -4,14 +4,15 @@
  */
 
 
-const {Gio, GLib} = imports.gi;
+const {GLib} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-
 const Base32 = Me.imports.src.base32;
 
-const _ = ExtensionUtils.gettext;
+
+// strings will be translated by gettext in the frontend
+const _ = x => x;
 
 
 var Algorithm = {
@@ -37,7 +38,7 @@ var Algorithm = {
         case 'SHA-512':
             return Algorithm.SHA512;
         default:
-            throw new Error(_('Invalid algorithm:') + ` "${arg}"`);
+            throw new Error(_('Invalid algorithm.'));
         }
     },
 
@@ -54,7 +55,7 @@ var Algorithm = {
         default:
             if (typeof arg == 'string')
                 return arg;
-            throw new Error(_('Invalid algorithm:') + ` "${arg}"`);
+            throw new Error(_('Invalid algorithm.'));
         }
     }
 
@@ -251,6 +252,5 @@ var TOTP = class {
             algorithm: Algorithm.str(this.algorithm)
         };
     }
-
 
 };

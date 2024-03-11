@@ -4,35 +4,39 @@
  */
 
 
-// Shell misc imports
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Indicator = Me.imports.src.indicator;
+const Indicator = Me.imports.src.indicator.Indicator;
 
 
 class Extension {
 
-    constructor(uuid)
+    constructor(meta)
     {
-        this.uuid = uuid;
+        this._meta = meta;
     }
 
     enable()
     {
-        this.indicator = new Indicator.Indicator(this.uuid);
+        this._indicator = new Indicator(this);
     }
 
     disable()
     {
-        this.indicator.destroy();
-        this.indicator = null;
+        this._indicator?.destroy();
+        this._indicator = null;
     }
 
-}
+    get uuid()
+    {
+        return this._meta.uuid;
+    }
+
+};
 
 
 function init(meta)
 {
     ExtensionUtils.initTranslations(meta.uuid);
-    return new Extension(meta.uuid);
+    return new Extension(meta);
 }

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-const ExtensionUtils = imports.misc.extensionUtils;
 
-const _ = ExtensionUtils.gettext;
+// strings will be translated by gettext in the frontend
+const _ = x => x;
 
 
 const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';

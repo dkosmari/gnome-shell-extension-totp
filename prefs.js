@@ -4,17 +4,27 @@
  */
 
 
-const {Gio, GLib, GObject} = imports.gi;
-const {Adw, Gtk, Gdk, GdkPixbuf} = imports.gi;
+const {
+    Adw,
+    Gdk,
+    GdkPixbuf,
+    Gio,
+    GLib,
+    GObject,
+    Gtk
+} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const SecretUtils = Me.imports.src.secretUtils;
-const TOTP = Me.imports.src.totp;
+const TOTP = Me.imports.src.totp.TOTP;
 
-const _ = ExtensionUtils.gettext;
-const pgettext = ExtensionUtils.pgettext;
+const {
+    gettext,
+    pgettext
+} = ExtensionUtils;
+const _ = gettext;
 
 
 Gio._promisify(Adw.MessageDialog.prototype, 'choose', 'choose_finish');
@@ -74,7 +84,7 @@ async function reportError(parent, e, where)
             transient_for: parent,
             title: _('Error'),
             heading: where,
-            body: e.message,
+            body: _(e.message),
             modal: true,
         });
         dialog.add_response('close', _('_Close'));
@@ -378,10 +388,10 @@ class SecretsGroup extends Adw.PreferencesGroup {
         let dialog = new SecretDialog(
             this.root,
             _('Creating new TOTP secret'),
-            new TOTP.TOTP(),
+            new TOTP(),
             async (args) => {
                 try {
-                    let totp = new TOTP.TOTP(args);
+                    let totp = new TOTP(args);
                     let fields = totp.fields();
                     await SecretUtils.create(fields);
                     this.addRow(fields);
@@ -402,7 +412,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         try {
             args.secret = await SecretUtils.get(args);
 
-            let old_totp = new TOTP.TOTP(args);
+            let old_totp = new TOTP(args);
 
             let dialog = new SecretDialog(
                 this.root,
@@ -410,7 +420,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 old_totp,
                 async (new_args) => {
                     try {
-                        let new_totp = new TOTP.TOTP(new_args);
+                        let new_totp = new TOTP(new_args);
                         await SecretUtils.update(old_totp.fields(), new_totp.fields());
                         dialog.destroy();
                         await this.refreshRows();
@@ -464,7 +474,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let uri = totp.uri();
             copyToClipboard(uri);
         }
@@ -478,7 +488,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let uri = totp.uri();
 
             let t = new TextEncoder();
@@ -516,7 +526,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             args.secret = await SecretUtils.get(args);
-            let totp = new TOTP.TOTP(args);
+            let totp = new TOTP(args);
             let code = totp.code();
             copyToClipboard(code);
         }
@@ -555,7 +565,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 let uris = GLib.Uri.list_extract_uris(text);
                 for (let i = 0; i < uris.length; ++i) {
                     try {
-                        let totp = new TOTP.TOTP({uri: uris[i]});
+                        let totp = new TOTP({uri: uris[i]});
                         await SecretUtils.create(totp.fields());
                     }
                     catch (e) {
@@ -579,7 +589,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             for (let i = 0; i < list.length; ++i) {
                 let args = list[i].get_attributes();
                 args.secret = await SecretUtils.get(args);
-                let totp = new TOTP.TOTP(args);
+                let totp = new TOTP(args);
                 uris.push(totp.uri());
             }
             copyToClipboard(uris.join('\n'));
