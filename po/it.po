@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-08 17:03-0300\n"
-"PO-Revision-Date: 2024-03-08 06:36-0300\n"
+"POT-Creation-Date: 2024-03-11 15:41-0300\n"
+"PO-Revision-Date: 2024-03-11 15:42-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: it\n"
@@ -19,15 +19,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: src/base32.js:33
+#: src/base32.js:27
 msgid "Invalid base32 input; missing padding."
 msgstr "Input base32 non valido; imbottitura mancante."
 
-#: src/base32.js:49
+#: src/base32.js:43
 msgid "Invalid base32 character at position:"
 msgstr "Carattere base32 non valido nella posizione:"
 
-#: src/base32.js:56
+#: src/base32.js:50
 msgid "Invalid padding."
 msgstr "Imbottitura non valida."
 
@@ -71,193 +71,192 @@ msgstr "Errore durante il recupero degli elementi OTP."
 msgid "Error copying the OTP code."
 msgstr "Errore durante la copia del codice OTP."
 
-#: src/secretUtils.js:150
+#: src/secretUtils.js:145
 msgid "Failed to retrieve secret."
 msgstr "Impossibile recuperare il segreto."
 
-#: src/secretUtils.js:183
+#: src/secretUtils.js:178
 msgid "Failed to lookup secret."
 msgstr "Impossibile cercare il segreto."
 
-#: src/secretUtils.js:190
+#: src/secretUtils.js:185
 msgid "Failed to set label."
 msgstr "Impossibile impostare l'etichetta."
 
-#: src/secretUtils.js:197
+#: src/secretUtils.js:192
 msgid "Failed to set attributes."
 msgstr "Impossibile impostare gli attributi."
 
-#: src/secretUtils.js:203
+#: src/secretUtils.js:198
 msgid "Failed to set secret."
 msgstr "Impossibile impostare il segreto."
 
-#: src/totp.js:44 src/totp.js:61
-msgid "Invalid algorithm:"
-msgstr "Algoritmo non valido:"
+#: src/totp.js:39 src/totp.js:56
+msgid "Invalid algorithm."
+msgstr "Algoritmo non valido."
 
-#: src/totp.js:132
+#: src/totp.js:127
 msgid "Failed to parse URI."
 msgstr "Impossibile analizzare l'URI."
 
-#: src/totp.js:134
+#: src/totp.js:129
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Lo schema URI dovrebbe essere \"otpauth://...\""
 
-#: src/totp.js:136
+#: src/totp.js:131
 msgid "URI host should be \"totp\""
 msgstr "L'host URI dovrebbe essere \"totp\""
 
-#: src/totp.js:138
+#: src/totp.js:133
 msgid "Unexpected port number in URI."
 msgstr "Numero di porta imprevisto nell'URI."
 
-#: src/totp.js:141
-msgid "Unexpected userinfo in URI."
-msgstr "Informazioni utente impreviste nell'URI."
-
-#: prefs.js:75
+#: prefs.js:73
 msgid "Error"
 msgstr "Errore"
 
-#: prefs.js:80 prefs.js:506
+#: prefs.js:78 prefs.js:504
 msgid "_Close"
 msgstr "_Chiudi"
 
-#: prefs.js:108
+#: prefs.js:106
 msgid "Copy code to clipboard."
 msgstr "Copia il codice negli appunti."
 
-#: prefs.js:115
+#: prefs.js:113
 msgid "Edit this secret."
 msgstr "Modifica questo segreto."
 
-#: prefs.js:122
+#: prefs.js:120
 msgid "Export secret to clipboard."
 msgstr "Esporta il segreto negli appunti."
 
-#: prefs.js:129
+#: prefs.js:127
 msgid "Export QR code."
 msgstr "Esporta il codice QR."
 
-#: prefs.js:136
+#: prefs.js:134
 msgid "Remove this secret."
 msgstr "Rimuovi questo segreto."
 
-#: prefs.js:183
+#: prefs.js:181
 msgid "Issuer"
 msgstr "Emittente"
 
-#: prefs.js:185
+#: prefs.js:183
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr ""
 "Il nome dell'organizzazione (Google, Facebook, ecc.) che ha emesso l'OTP."
 
-#: prefs.js:191
+#: prefs.js:189
 msgid "Name"
 msgstr "Nome"
 
-#: prefs.js:198
+#: prefs.js:196
 msgid "Secret"
 msgstr "Segreto"
 
-#: prefs.js:200
+#: prefs.js:198
 msgid "The secret key, encoded in base32."
 msgstr "La chiave segreta, codificata in base32."
 
-#: prefs.js:207
+#: prefs.js:205
 msgid "Digits"
 msgstr "Cifre"
 
-#: prefs.js:212
+#: prefs.js:210
 msgid "How many digits in the code."
 msgstr "Quante cifre nel codice."
 
-#: prefs.js:219
+#: prefs.js:217
 msgid "Period"
 msgstr "Periodo"
 
-#: prefs.js:220
+#: prefs.js:218
 msgid "Time between code updates, in seconds."
 msgstr "Tempo tra gli aggiornamenti del codice, in secondi."
 
-#: prefs.js:231
+#: prefs.js:229
 msgid "Algorithm"
 msgstr "Algoritmo"
 
-#: prefs.js:236
+#: prefs.js:234
 msgid "The hash algorithm used to generate codes."
 msgstr "L'algoritmo hash utilizzato per generare codici."
 
-#: prefs.js:242 prefs.js:444 prefs.js:548
+#: prefs.js:240 prefs.js:442 prefs.js:546
 msgid "_Cancel"
 msgstr "A_nnulla"
 
-#: prefs.js:243
+#: prefs.js:241
 msgid "_OK"
 msgstr "_OK"
 
-#: prefs.js:305
+#: prefs.js:303
 msgid "Secrets"
 msgstr "Segreti"
 
-#: prefs.js:306
+#: prefs.js:304
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Un elenco di tutti i segreti TOTP dal portachiavi."
 
-#: prefs.js:317
+#: prefs.js:315
 msgid "Add secret..."
 msgstr "Aggiungi segreto..."
 
-#: prefs.js:327
+#: prefs.js:325
 msgid "Import secrets..."
 msgstr "Importa segreti..."
 
-#: prefs.js:337
+#: prefs.js:335
 msgid "Export secrets..."
 msgstr "Esporta segreti..."
 
-#: prefs.js:380
+#: prefs.js:378
 msgid "Creating new TOTP secret"
 msgstr "Creazione di un nuovo segreto TOTP"
 
-#: prefs.js:409
+#: prefs.js:407
 msgid "Editing TOTP secret"
 msgstr "Modifica del segreto TOTP"
 
-#: prefs.js:437
+#: prefs.js:435
 msgid "Deleting TOTP secret"
 msgstr "Eliminazione del segreto TOTP"
 
-#: prefs.js:438
+#: prefs.js:436
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr "Deleting:"
 
-#: prefs.js:445
+#: prefs.js:443
 msgid "_Delete"
 msgstr "_Eliminare"
 
-#: prefs.js:453
+#: prefs.js:451
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Impossibile rimuovere il segreto. E' bloccato?"
 
-#: prefs.js:501
+#: prefs.js:499
 msgid "QR code"
 msgstr "QR Code"
 
-#: prefs.js:534
+#: prefs.js:532
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Importazione degli URI \"otpauth://\""
 
-#: prefs.js:535
+#: prefs.js:533
 msgid "Paste all \"otpauth://\" URIs you want import, one per line."
 msgstr ""
 "Incolla tutti gli URI \"otpauth://\" che desideri importare, uno per riga."
 
-#: prefs.js:549
+#: prefs.js:547
 msgid "_Import"
 msgstr "_Importare"
+
+#~ msgid "Unexpected userinfo in URI."
+#~ msgstr "Informazioni utente impreviste nell'URI."
 
 #~ msgid "Cannot lookup OTP items."
 #~ msgstr "Impossibile cercare elementi OTP."

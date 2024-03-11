@@ -114,7 +114,7 @@ class Indicator extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'lockSecrets()');
-            Main.notifyError(_('Error locking the OTP keyring.'), e.message);
+            Main.notifyError(_('Error locking the OTP keyring.'), _(e.message));
         }
     }
 
@@ -130,7 +130,7 @@ class Indicator extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'unlockSecrets()');
-            Main.notifyError(_('Error unlocking the OTP keyring.'), e.message);
+            Main.notifyError(_('Error unlocking the OTP keyring.'), _(e.message));
         }
     }
 
@@ -153,7 +153,7 @@ class Indicator extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'addSecretItems()');
-            Main.notifyError(_('Error retrieving OTP items.'), e.message);
+            Main.notifyError(_('Error retrieving OTP items.'), _(e.message));
         }
     }
 
@@ -185,7 +185,7 @@ class Indicator extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'copyCode()');
-            Main.notifyError(_('Error copying the OTP code.'), e.message);
+            Main.notifyError(_('Error copying the OTP code.'), _(e.message));
         }
     }
 

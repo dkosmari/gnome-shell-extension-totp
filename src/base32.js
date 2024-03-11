@@ -4,14 +4,8 @@
  */
 
 
-let _ = null;
-try {
-    // for outside prefs.js
-    _ = (await import('resource:///org/gnome/shell/extensions/extension.js')).gettext;
-} catch (e) {
-    // for inside prefs.js
-    _ = (await import('resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js')).gettext;
-}
+// strings will be translated by gettext in the frontend
+const _ = x => x;
 
 
 const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';

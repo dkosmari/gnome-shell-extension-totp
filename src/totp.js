@@ -6,16 +6,11 @@
 
 import GLib from 'gi://GLib';
 
-let _ = null;
-try {
-    // for outside prefs.js
-    _ = (await import('resource:///org/gnome/shell/extensions/extension.js')).gettext;
-} catch (e) {
-    // for inside prefs.js
-    _ = (await import('resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js')).gettext;
-}
-
 import * as Base32 from './base32.js';
+
+
+// strings will be translated by gettext in the frontend
+const _ = x => x;
 
 
 const Algorithm = {
@@ -41,7 +36,7 @@ const Algorithm = {
         case 'SHA-512':
             return Algorithm.SHA512;
         default:
-            throw new Error(_('Invalid algorithm:') + ` "${arg}"`);
+            throw new Error(_('Invalid algorithm.'));
         }
     },
 
@@ -58,7 +53,7 @@ const Algorithm = {
         default:
             if (typeof arg == 'string')
                 return arg;
-            throw new Error(_('Invalid algorithm:') + ` "${arg}"`);
+            throw new Error(_('Invalid algorithm.'));
         }
     }
 
@@ -137,10 +132,12 @@ class TOTP {
             if (port != -1)
                 throw new Error(_('Unexpected port number in URI.'));
 
+            /*
             if (userinfo)
                 console.warn(_('Unexpected userinfo in URI.'));
             if (fragment)
                 console.warn(`Unexpected fragment in URI: ${fragment}`);
+            */
 
             let {
                 issuer='',

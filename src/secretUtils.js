@@ -8,14 +8,9 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Secret from 'gi://Secret';
 
-let _ = null;
-try {
-    // for outside prefs.js
-    _ = (await import('resource:///org/gnome/shell/extensions/extension.js')).gettext;
-} catch (e) {
-    // for inside prefs.js
-    _ = (await import('resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js')).gettext;
-}
+
+// strings will be translated by gettext in the frontend
+const _ = x => x;
 
 
 Gio._promisify(Secret, 'password_clear', 'password_clear_finish');

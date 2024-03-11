@@ -4,20 +4,18 @@
  */
 
 
+import Adw from 'gi://Adw';
+import Gdk from 'gi://Gdk';
+import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
-
-import Adw from 'gi://Adw';
-import Gdk from 'gi://Gdk?version=4.0';
-import GdkPixbuf from 'gi://GdkPixbuf';
-import Gtk from 'gi://Gtk?version=4.0';
+import Gtk from 'gi://Gtk';
 
 import {
     ExtensionPreferences,
     gettext as _
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-
 
 import * as SecretUtils from './src/secretUtils.js';
 import TOTP from './src/totp.js';
@@ -74,7 +72,7 @@ async function reportError(parent, e, where)
             transient_for: parent,
             title: _('Error'),
             heading: where,
-            body: e.message,
+            body: _(e.message),
             modal: true,
         });
         dialog.add_response('close', _('_Close'));
@@ -617,14 +615,9 @@ class SettingsPage extends Adw.PreferencesPage {
 export default
 class TOTPPreferences extends ExtensionPreferences {
 
-    constructor(metadata)
-    {
-        super(metadata);
-        this.initTranslations();
-    }
-
     fillPreferencesWindow(window)
     {
         window.add(new SettingsPage(this));
     }
+
 };
