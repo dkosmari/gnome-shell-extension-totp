@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-11 15:41-0300\n"
+"POT-Creation-Date: 2024-03-11 17:08-0300\n"
 "PO-Revision-Date: 2024-03-11 15:43-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -31,63 +31,63 @@ msgstr "Caractère base32 invalide à la position :"
 msgid "Invalid padding."
 msgstr "Remplissage invalide."
 
-#: src/indicator.js:32
+#: src/indicator.js:27
 msgid "OTP code copied."
 msgstr "Code OTP copié."
 
-#: src/indicator.js:70
+#: src/indicator.js:60
 msgid "Lock the keyring..."
 msgstr "Verrouillez le porte-clés..."
 
-#: src/indicator.js:74
+#: src/indicator.js:64
 msgid "Unlock the keyring..."
 msgstr "Déverrouillez le porte-clés..."
 
-#: src/indicator.js:78
+#: src/indicator.js:68
 msgid "Edit secrets..."
 msgstr "Modifier les secrets..."
 
-#: src/indicator.js:113
+#: src/indicator.js:108
 msgid "Failed to lock the OTP keyring."
 msgstr "Échec du verrouillage du trousseau de clés OTP."
 
-#: src/indicator.js:117
+#: src/indicator.js:112
 msgid "Error locking the OTP keyring."
 msgstr "Erreur lors du verrouillage du trousseau OTP."
 
-#: src/indicator.js:129
+#: src/indicator.js:124
 msgid "Failed to unlock the OTP keyring."
 msgstr "Échec du déverrouillage du trousseau OTP."
 
-#: src/indicator.js:133
+#: src/indicator.js:128
 msgid "Error unlocking the OTP keyring."
 msgstr "Erreur lors du déverrouillage du trousseau OTP."
 
-#: src/indicator.js:156
+#: src/indicator.js:151
 msgid "Error retrieving OTP items."
 msgstr "Erreur lors de la récupération des éléments OTP."
 
-#: src/indicator.js:188
+#: src/indicator.js:183
 msgid "Error copying the OTP code."
 msgstr "Erreur lors de la copie du code OTP."
 
-#: src/secretUtils.js:145
+#: src/secretUtils.js:144
 msgid "Failed to retrieve secret."
 msgstr "Échec de la récupération du secret."
 
-#: src/secretUtils.js:178
+#: src/secretUtils.js:177
 msgid "Failed to lookup secret."
 msgstr "Échec de la recherche du secret."
 
-#: src/secretUtils.js:185
+#: src/secretUtils.js:184
 msgid "Failed to set label."
 msgstr "Échec de la définition du libellé."
 
-#: src/secretUtils.js:192
+#: src/secretUtils.js:191
 msgid "Failed to set attributes."
 msgstr "Échec de la définition des attributs."
 
-#: src/secretUtils.js:198
+#: src/secretUtils.js:197
 msgid "Failed to set secret."
 msgstr "Échec de la définition du secret."
 
@@ -111,146 +111,146 @@ msgstr "L'hôte URI doit être \"totp\""
 msgid "Unexpected port number in URI."
 msgstr "Numéro de port inattendu dans l'URI."
 
-#: prefs.js:73
+#: prefs.js:74
 msgid "Error"
 msgstr "Erreur"
 
-#: prefs.js:78 prefs.js:504
+#: prefs.js:79 prefs.js:505
 msgid "_Close"
 msgstr "_Fermer"
 
-#: prefs.js:106
+#: prefs.js:107
 msgid "Copy code to clipboard."
 msgstr "Copiez le code dans le presse-papiers."
 
-#: prefs.js:113
+#: prefs.js:114
 msgid "Edit this secret."
 msgstr "Modifiez ce secret."
 
-#: prefs.js:120
+#: prefs.js:121
 msgid "Export secret to clipboard."
 msgstr "Exporter le secret vers le presse-papiers."
 
-#: prefs.js:127
+#: prefs.js:128
 msgid "Export QR code."
 msgstr "Exportez le code QR."
 
-#: prefs.js:134
+#: prefs.js:135
 msgid "Remove this secret."
 msgstr "Supprimez ce secret."
 
-#: prefs.js:181
+#: prefs.js:182
 msgid "Issuer"
 msgstr "Émetteur"
 
-#: prefs.js:183
+#: prefs.js:184
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr "Le nom de l'organisation (Google, Facebook, etc.) qui a délivré l'OTP."
 
-#: prefs.js:189
+#: prefs.js:190
 msgid "Name"
 msgstr "Nom"
 
-#: prefs.js:196
+#: prefs.js:197
 msgid "Secret"
 msgstr "Secrète"
 
-#: prefs.js:198
+#: prefs.js:199
 msgid "The secret key, encoded in base32."
 msgstr "La clé secrète, codée en base32."
 
-#: prefs.js:205
+#: prefs.js:206
 msgid "Digits"
 msgstr "Chiffres"
 
-#: prefs.js:210
+#: prefs.js:211
 msgid "How many digits in the code."
 msgstr "Combien de chiffres dans le code."
 
-#: prefs.js:217
+#: prefs.js:218
 msgid "Period"
 msgstr "Période"
 
-#: prefs.js:218
+#: prefs.js:219
 msgid "Time between code updates, in seconds."
 msgstr "Temps entre les mises à jour du code, en secondes."
 
-#: prefs.js:229
+#: prefs.js:230
 msgid "Algorithm"
 msgstr "Algorithme"
 
-#: prefs.js:234
+#: prefs.js:235
 msgid "The hash algorithm used to generate codes."
 msgstr "L'algorithme de hachage utilisé pour générer des codes."
 
-#: prefs.js:240 prefs.js:442 prefs.js:546
+#: prefs.js:241 prefs.js:443 prefs.js:547
 msgid "_Cancel"
 msgstr "A_nnuler"
 
-#: prefs.js:241
+#: prefs.js:242
 msgid "_OK"
 msgstr "_Valider"
 
-#: prefs.js:303
+#: prefs.js:304
 msgid "Secrets"
 msgstr "Secrets"
 
-#: prefs.js:304
+#: prefs.js:305
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Une liste de tous les secrets TOTP du porte-clés."
 
-#: prefs.js:315
+#: prefs.js:316
 msgid "Add secret..."
 msgstr "Ajouter un secret..."
 
-#: prefs.js:325
+#: prefs.js:326
 msgid "Import secrets..."
 msgstr "Importer des secrets..."
 
-#: prefs.js:335
+#: prefs.js:336
 msgid "Export secrets..."
 msgstr "Exporter les secrets..."
 
-#: prefs.js:378
+#: prefs.js:379
 msgid "Creating new TOTP secret"
 msgstr "Création d'un nouveau secret TOTP"
 
-#: prefs.js:407
+#: prefs.js:408
 msgid "Editing TOTP secret"
 msgstr "Modification du secret TOTP"
 
-#: prefs.js:435
+#: prefs.js:436
 msgid "Deleting TOTP secret"
 msgstr "Suppression du secret TOTP"
 
-#: prefs.js:436
+#: prefs.js:437
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr "Suppression :"
 
-#: prefs.js:443
+#: prefs.js:444
 msgid "_Delete"
 msgstr "_Supprimer"
 
-#: prefs.js:451
+#: prefs.js:452
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Échec de la suppression du secret. Est-ce verrouillé ?"
 
-#: prefs.js:499
+#: prefs.js:500
 msgid "QR code"
 msgstr "QR Code"
 
-#: prefs.js:532
+#: prefs.js:533
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Importation des URI \"otpauth://\""
 
-#: prefs.js:533
+#: prefs.js:534
 msgid "Paste all \"otpauth://\" URIs you want import, one per line."
 msgstr ""
 "Collez tous les URI \"otpauth://\" que vous souhaitez importer, un par ligne."
 
-#: prefs.js:547
+#: prefs.js:548
 msgid "_Import"
 msgstr "_Importer"
 
