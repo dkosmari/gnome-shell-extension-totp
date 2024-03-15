@@ -37,6 +37,6 @@ class Extension {
 
 function init(meta)
 {
-    ExtensionUtils.initTranslations(meta.uuid);
+    ExtensionUtils.initTranslations();
     return new Extension(meta);
 }

@@ -144,6 +144,7 @@ var Indicator = class extends PanelMenu.Button {
     {
         try {
             let secrets = await SecretUtils.getList();
+            this.clearItems();
             secrets.forEach(x => {
                 let attributes = x.get_attributes();
                 let label = makeLabel(attributes);
