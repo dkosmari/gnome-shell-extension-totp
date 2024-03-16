@@ -60,14 +60,12 @@ const Algorithm = {
 };
 
 
-export
 function now()
 {
     return new Date().getTime() / 1000;
 }
 
 
-export
 function hex_to_bytes(hex)
 {
     let blob = [];
@@ -77,7 +75,6 @@ function hex_to_bytes(hex)
 }
 
 
-export
 function bytes_to_hex(blob)
 {
     let hex = "";
@@ -86,7 +83,6 @@ function bytes_to_hex(blob)
 }
 
 
-export
 function splitQuery(query)
 {
     let entries = query.split('&');
@@ -140,17 +136,16 @@ class TOTP {
             */
 
             let {
-                issuer='',
+                issuer = '',
                 secret,
-                digits=6,
-                period=30,
-                algorithm='SHA-1'
+                digits = 6,
+                period = 30,
+                algorithm = 'SHA-1'
             } = splitQuery(query);
 
             this.issuer = issuer;
             this.name = path.substring(1);
             this.secret = secret;
-            this.secret_bin = Base32.decode(this.secret, false);
             this.digits = parseInt(digits);
             this.period = parseInt(period);
             this.algorithm = Algorithm.parse(algorithm);
@@ -158,7 +153,6 @@ class TOTP {
             this.issuer = issuer;
             this.name = name;
             this.secret = secret;
-            this.secret_bin = Base32.decode(this.secret, false);
             this.digits = parseInt(digits);
             this.period = parseInt(period);
             this.algorithm = Algorithm.parse(algorithm);
@@ -169,34 +163,43 @@ class TOTP {
     wipe()
     {
         this.secret = this.secret.replaceAll(/[^=]/g, 'A');
-        for (let i = 0; i < this.secret_bin.length; ++i)
-            this.secret_bin[i] = 0;
     }
 
 
     code(time = now())
     {
-        let bytes = this.secret_bin;
-        let counter = Math.floor(time / this.period);
-        let t_hex = `${counter.toString(16)}`.padStart(16, '0');
-        let t_bytes = hex_to_bytes(t_hex);
+        const secret_bytes = Base32.decode(this.secret, false);
+        const counter = Math.trunc(time / this.period);
+        const counter_hex = `${counter.toString(16)}`.padStart(16, '0');
+        const counter_bytes = hex_to_bytes(counter_hex);
 
-        let hmac_hex = GLib.compute_hmac_for_bytes(this.algorithm,
-                                                   this.secret_bin,
-                                                   t_bytes);
-        let hmac = hex_to_bytes(hmac_hex);
+        const hmac_hex = GLib.compute_hmac_for_bytes(this.algorithm,
+                                                     secret_bytes,
+                                                     counter_bytes);
+        const hmac = hex_to_bytes(hmac_hex);
 
         // extract offset from the lower nibble of the last byte
-        let offset = hmac.at(-1) & 0xf;
+        const offset = hmac.at(-1) & 0xf;
 
         // load the big endian uint32 starting at offset, discard top bit
-        let view = new DataView(hmac.buffer);
+        const view = new DataView(hmac.buffer);
+        let value = view.getUint32(offset) & 0x7fffffff;
+        let value_str = '';
 
-        let value = (view.getUint32(offset) & 0x7fffffff).toString();
+        if (this.issuer.toUpperCase() == 'STEAM') {
+            // Steam OTP uses this reversed base-26 encoding.
+            const steam_digits = "23456789BCDFGHJKMNPQRTVWXY";
+            for (let i = 0; i < this.digits; ++i) {
+                value_str += steam_digits[value % 26];
+                value = Math.trunc(value / 26);
+            }
+        } else {
+            // regular OTP uses decimal
+            value_str = value.toString();
+        }
 
-        // take the last digits characters of the decimal representation, pad with zeros
-        let code = value.slice(-this.digits);
-
+        // take the last digits characters of the string representation, pad with zeros
+        let code = value_str.slice(-this.digits);
         this.wipe();
 
         return code.padStart(this.digits, '0');

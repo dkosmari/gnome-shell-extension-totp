@@ -18,6 +18,7 @@ import {
     pgettext
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
+import * as Base32 from './src/base32.js';
 import * as SecretUtils from './src/secretUtils.js';
 import TOTP from './src/totp.js';
 
@@ -158,7 +159,7 @@ class SecretDialog extends Gtk.Dialog {
             transient_for: parent,
             modal: true,
             title: title,
-            default_width: 400,
+            default_width: 500,
             // WORKAROUND: need header bar, otherwise the dialog is not centered
             use_header_bar: true
         });
@@ -196,12 +197,20 @@ class SecretDialog extends Gtk.Dialog {
         this._ui.secret = new Adw.EntryRow({
             title: _('Secret'),
             text: fields.secret,
-            tooltip_text: _('The secret key, encoded in base32.')
+            tooltip_text: _("The shared secret key.")
         });
+        this._ui.secret_type = new Gtk.DropDown({
+            model: new Gtk.StringList({
+                strings: ['Base32', 'Base64']
+            }),
+            selected: 0,
+            tooltip_text: _('How the secret key is encoded.')
+        });
+        this._ui.secret.add_suffix(this._ui.secret_type);
         group.add(this._ui.secret);
 
         // UI: digits
-        let digits_list = ['6', '7', '8'];
+        let digits_list = ['5', '6', '7', '8'];
         this._ui.digits = new Adw.ComboRow({
             title: _('Digits'),
             model: new Gtk.StringList({
@@ -257,10 +266,14 @@ class SecretDialog extends Gtk.Dialog {
 
     getFields()
     {
+        let secret = this._ui.secret.text;
+        if (this._ui.secret_type.selected == 1) // base64 -> base32
+            secret = Base32.encode(GLib.base64_decode(secret));
+
         return {
             issuer: this._ui.issuer.text,
             name: this._ui.name.text,
-            secret: this._ui.secret.text,
+            secret: secret,
             digits: parseInt(this._ui.digits.selected_item.string),
             period: parseInt(this._ui.period.selected_item.string),
             algorithm: this._ui.algorithm.selected_item.string
