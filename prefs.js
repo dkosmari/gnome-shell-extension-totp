@@ -17,9 +17,9 @@ const {
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const Base32 = Me.imports.src.base32;
+const Base32      = Me.imports.src.base32;
 const SecretUtils = Me.imports.src.secretUtils;
-const TOTP = Me.imports.src.totp.TOTP;
+const TOTP        = Me.imports.src.totp.TOTP;
 
 const {
     gettext,
@@ -34,7 +34,7 @@ Gio._promisify(Gio.Subprocess.prototype, 'communicate_async');
 
 function init(metadata)
 {
-    ExtensionUtils.initTranslations(metadata.uuid);
+    ExtensionUtils.initTranslations();
 }
 
 

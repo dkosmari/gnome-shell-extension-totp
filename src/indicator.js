@@ -19,7 +19,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const SecretUtils = Me.imports.src.secretUtils;
-const TOTP = Me.imports.src.totp.TOTP;
+const TOTP        = Me.imports.src.totp.TOTP;
 
 const _ = ExtensionUtils.gettext;
 

@@ -129,10 +129,12 @@ var TOTP = class {
             if (port != -1)
                 throw new Error(_('Unexpected port number in URI.'));
 
+            /*
             if (userinfo)
                 console.warn(_('Unexpected userinfo in URI.'));
             if (fragment)
                 console.warn(`Unexpected fragment in URI: ${fragment}`);
+            */
 
             let {
                 issuer = '',
