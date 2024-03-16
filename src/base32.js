@@ -52,7 +52,7 @@ function decode(input, strict = true)
         let value_bytes = [];
         for (let j = 0; j < 5; ++j) {
             value_bytes.push(value % 256);
-            value = Math.floor(value / 256);
+            value = Math.trunc(value / 256);
         }
         // pad tells how many bytes to discard
         value_bytes = value_bytes.slice(Math.ceil(pad * 5 / 8));
@@ -84,11 +84,11 @@ function encode(input, trim = false)
         for (let j = 0; j < 8; ++j) {
             let idx = value & 0x1f;
             qo.push(digits[idx]);
-            value /= 32;
+            value = Math.trunc(value / 32);
         }
 
         if (!trim) {
-            let num_fill = Math.floor(pad * 8 / 5);
+            let num_fill = Math.trunc(pad * 8 / 5);
             qo.fill('=', 0, num_fill);
         }
         // reverse qo to big endian before joining the string

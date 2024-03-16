@@ -212,7 +212,7 @@ class SecretDialog extends Gtk.Dialog {
         group.add(this._ui.secret);
 
         // UI: digits
-        let digits_list = ['6', '7', '8'];
+        let digits_list = ['5', '6', '7', '8'];
         this._ui.digits = new Adw.ComboRow({
             title: _('Digits'),
             model: new Gtk.StringList({
