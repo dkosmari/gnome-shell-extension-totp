@@ -185,7 +185,7 @@ var TOTP = class {
         let value = view.getUint32(offset) & 0x7fffffff;
         let value_str = '';
 
-        if (this.issuer == 'Steam') {
+        if (this.issuer.toUpperCase() == 'STEAM') {
             // Steam OTP uses this reversed base-26 encoding.
             const steam_digits = "23456789BCDFGHJKMNPQRTVWXY";
             for (let i = 0; i < this.digits; ++i) {
