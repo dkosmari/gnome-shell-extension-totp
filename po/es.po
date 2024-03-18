@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-16 03:18-0300\n"
-"PO-Revision-Date: 2024-03-16 03:20-0300\n"
+"POT-Creation-Date: 2024-03-18 01:01-0300\n"
+"PO-Revision-Date: 2024-03-18 01:03-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -36,58 +36,62 @@ msgid "OTP code copied."
 msgstr "Código OTP copiado."
 
 #: src/indicator.js:64
-msgid "Lock the keyring..."
-msgstr "Cierra el depósito de claves..."
+msgid "Lock OTP secrets"
+msgstr "Bloquear secretos de OTP"
 
 #: src/indicator.js:68
-msgid "Unlock the keyring..."
-msgstr "Desbloquea el depósito de claves..."
+msgid "Unlock OTP secrets"
+msgstr "Desbloquear secretos de OTP"
 
 #: src/indicator.js:72
-msgid "Edit secrets..."
-msgstr "Editar secretos..."
+msgid "Edit OTP secrets..."
+msgstr "Editar secretos OTP..."
 
-#: src/indicator.js:112
-msgid "Failed to lock the OTP keyring."
-msgstr "No se pudo bloquear el llavero OTP."
+#: src/indicator.js:76
+msgid "OTP Secrets"
+msgstr "Secretos de OTP"
 
-#: src/indicator.js:116
-msgid "Error locking the OTP keyring."
-msgstr "Error al bloquear el llavero OTP."
+#: src/indicator.js:115
+msgid "Failed to lock OTP secrets."
+msgstr "No se pudieron bloquear los secretos de OTP."
 
-#: src/indicator.js:128
-msgid "Failed to unlock the OTP keyring."
-msgstr "No se pudo desbloquear el llavero OTP."
+#: src/indicator.js:119
+msgid "Error locking OTP secrets."
+msgstr "Error al bloquear secretos OTP."
 
-#: src/indicator.js:132
-msgid "Error unlocking the OTP keyring."
-msgstr "Error al desbloquear el llavero OTP."
+#: src/indicator.js:131
+msgid "Failed to unlock OTP secrets."
+msgstr "No se pudieron desbloquear los secretos de OTP."
 
-#: src/indicator.js:156
+#: src/indicator.js:135
+msgid "Error unlocking OTP secrets."
+msgstr "Error al desbloquear secretos OTP."
+
+#: src/indicator.js:159
 msgid "Error retrieving OTP items."
 msgstr "Error al recuperar elementos OTP."
 
-#: src/indicator.js:188
-msgid "Error copying the OTP code."
-msgstr "Error al copiar el código OTP."
+#: src/indicator.js:191
+msgid "Error copying the OTP authentication code."
+msgstr "Error al copiar el código de autenticación OTP."
 
-#: src/secretUtils.js:141
+#: src/secretUtils.js:146
 msgid "Failed to retrieve secret."
 msgstr "No se pudo recuperar el secreto."
 
-#: src/secretUtils.js:173
+#: src/secretUtils.js:178
 msgid "Failed to lookup secret."
 msgstr "No se pudo buscar el secreto."
 
-#: src/secretUtils.js:180
+#: src/secretUtils.js:185
 msgid "Failed to set label."
 msgstr "No se pudo establecer la etiqueta."
 
-#: src/secretUtils.js:187
+#: src/secretUtils.js:192
 msgid "Failed to set attributes."
 msgstr "No se pudieron establecer los atributos."
 
-#: src/secretUtils.js:193
+#: src/secretUtils.js:198
 msgid "Failed to set secret."
 msgstr "No se pudo escribir el secreto."
 
@@ -110,10 +114,6 @@ msgstr "El host URI debe ser \"totp\""
 #: src/totp.js:130
 msgid "Unexpected port number in URI."
 msgstr "Número de puerto inesperado en URI."
-
-#: src/totp.js:133
-msgid "Unexpected userinfo in URI."
-msgstr "Información de usuario inesperada en URI."
 
 #: prefs.js:86
 msgid "Error"
@@ -261,6 +261,15 @@ msgstr "Pegue todos los URI \"otpauth://\" que desee importar, uno por línea."
 #: prefs.js:572
 msgid "_Import"
 msgstr "_Importar"
+
+#~ msgid "Failed to unlock the OTP keyring."
+#~ msgstr "No se pudo desbloquear el llavero OTP."
+
+#~ msgid "Error unlocking the OTP keyring."
+#~ msgstr "Error al desbloquear el llavero OTP."
+
+#~ msgid "Unexpected userinfo in URI."
+#~ msgstr "Información de usuario inesperada en URI."
 
 #~ msgid "Cannot lookup OTP items."
 #~ msgstr "No se pueden buscar elementos OTP."

@@ -75,6 +75,8 @@ async function ensureCollection()
 
 async function isCollectionLocked()
 {
+    // force a new connection, so we get reliable lock status
+    Secret.Service.disconnect();
     let [service, collection] = await findCollection();
     if (!collection)
         return false;
@@ -103,10 +105,13 @@ async function unlockCollection()
 async function getList()
 {
     try {
-        return await Secret.password_search(makeSchema(),
-                                            { type: 'TOTP' },
-                                            Secret.SearchFlags.ALL,
-                                            null);
+        let items = await Secret.password_search(makeSchema(),
+                                                 { type: 'TOTP' },
+                                                 Secret.SearchFlags.ALL,
+                                                 null);
+        // return them sorted by label
+        items.sort((a, b) => a.get_label().localeCompare(b.get_label()));
+        return items;
     }
     catch (e) {
         return [];

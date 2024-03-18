@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-16 03:18-0300\n"
+"POT-Creation-Date: 2024-03-18 01:01-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,58 +35,62 @@ msgid "OTP code copied."
 msgstr ""
 
 #: src/indicator.js:64
-msgid "Lock the keyring..."
+msgid "Lock OTP secrets"
 msgstr ""
 
 #: src/indicator.js:68
-msgid "Unlock the keyring..."
+msgid "Unlock OTP secrets"
 msgstr ""
 
 #: src/indicator.js:72
-msgid "Edit secrets..."
+msgid "Edit OTP secrets..."
 msgstr ""
 
-#: src/indicator.js:112
-msgid "Failed to lock the OTP keyring."
+#: src/indicator.js:76
+msgid "OTP Secrets"
 msgstr ""
 
-#: src/indicator.js:116
-msgid "Error locking the OTP keyring."
+#: src/indicator.js:115
+msgid "Failed to lock OTP secrets."
 msgstr ""
 
-#: src/indicator.js:128
-msgid "Failed to unlock the OTP keyring."
+#: src/indicator.js:119
+msgid "Error locking OTP secrets."
 msgstr ""
 
-#: src/indicator.js:132
-msgid "Error unlocking the OTP keyring."
+#: src/indicator.js:131
+msgid "Failed to unlock OTP secrets."
 msgstr ""
 
-#: src/indicator.js:156
+#: src/indicator.js:135
+msgid "Error unlocking OTP secrets."
+msgstr ""
+
+#: src/indicator.js:159
 msgid "Error retrieving OTP items."
 msgstr ""
 
-#: src/indicator.js:188
-msgid "Error copying the OTP code."
+#: src/indicator.js:191
+msgid "Error copying the OTP authentication code."
 msgstr ""
 
-#: src/secretUtils.js:141
+#: src/secretUtils.js:146
 msgid "Failed to retrieve secret."
 msgstr ""
 
-#: src/secretUtils.js:173
+#: src/secretUtils.js:178
 msgid "Failed to lookup secret."
 msgstr ""
 
-#: src/secretUtils.js:180
+#: src/secretUtils.js:185
 msgid "Failed to set label."
 msgstr ""
 
-#: src/secretUtils.js:187
+#: src/secretUtils.js:192
 msgid "Failed to set attributes."
 msgstr ""
 
-#: src/secretUtils.js:193
+#: src/secretUtils.js:198
 msgid "Failed to set secret."
 msgstr ""
 
@@ -108,10 +112,6 @@ msgstr ""
 
 #: src/totp.js:130
 msgid "Unexpected port number in URI."
-msgstr ""
-
-#: src/totp.js:133
-msgid "Unexpected userinfo in URI."
 msgstr ""
 
 #: prefs.js:86
