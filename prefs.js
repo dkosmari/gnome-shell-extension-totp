@@ -396,8 +396,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
                     let totp = new TOTP(args);
                     let fields = totp.fields();
                     await SecretUtils.create(fields);
-                    this.addRow(fields);
                     dialog.destroy();
+                    await this.refreshRows();
                 }
                 catch (e) {
                     await reportError(dialog, e, 'createSecret()/confirm');

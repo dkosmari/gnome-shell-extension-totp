@@ -57,17 +57,20 @@ class Indicator extends PanelMenu.Button {
         );
         this.add_child(icon);
 
-        this._lock_item = this.menu.addAction(_('Lock the keyring...'),
+        this._lock_item = this.menu.addAction(_('Lock OTP secrets'),
                                               this.lockSecrets.bind(this),
                                               'changes-prevent-symbolic');
 
-        this._unlock_item = this.menu.addAction(_('Unlock the keyring...'),
+        this._unlock_item = this.menu.addAction(_('Unlock OTP secrets'),
                                                 this.unlockSecrets.bind(this),
                                                 'changes-allow-symbolic');
 
-        this.menu.addAction(_('Edit secrets...'),
+        this.menu.addAction(_('Edit OTP secrets...'),
                             this.editSecrets.bind(this),
                             'document-edit-symbolic');
+
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(_('OTP Secrets')));
+
 
         Main.panel.addToStatusArea(ext.uuid, this);
     }
@@ -105,11 +108,11 @@ class Indicator extends PanelMenu.Button {
                 // Sometimes the keyring locks just fine, yet it reports incorrectly that
                 // nothing was locked. So we double check here.
                 if (!await SecretUtils.isCollectionLocked())
-                    Main.notify(_('Failed to lock the OTP keyring.'));
+                    Main.notify(_('Failed to lock OTP secrets.'));
         }
         catch (e) {
             logError(e, 'lockSecrets()');
-            Main.notifyError(_('Error locking the OTP keyring.'), _(e.message));
+            Main.notifyError(_('Error locking OTP secrets.'), _(e.message));
         }
     }
 
@@ -121,11 +124,11 @@ class Indicator extends PanelMenu.Button {
                 // Sometimes the keyring unlocks just fine, yet it reports incorrectly
                 // that nothing was unlocked. So we double check here.
                 if (await SecretUtils.isCollectionLocked())
-                    Main.notify(_('Failed to unlock the OTP keyring.'));
+                    Main.notify(_('Failed to unlock OTP secrets.'));
         }
         catch (e) {
             logError(e, 'unlockSecrets()');
-            Main.notifyError(_('Error unlocking the OTP keyring.'), _(e.message));
+            Main.notifyError(_('Error unlocking OTP secrets.'), _(e.message));
         }
     }
 
@@ -181,7 +184,7 @@ class Indicator extends PanelMenu.Button {
         }
         catch (e) {
             logError(e, 'copyCode()');
-            Main.notifyError(_('Error copying the OTP code.'), _(e.message));
+            Main.notifyError(_('Error copying the OTP authentication code.'), _(e.message));
         }
     }
 
