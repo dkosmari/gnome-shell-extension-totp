@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-18 01:12-0300\n"
+"POT-Creation-Date: 2024-03-20 17:37-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,8 +30,8 @@ msgstr ""
 msgid "Invalid padding."
 msgstr ""
 
-#: src/indicator.js:27
-msgid "OTP code copied."
+#: src/indicator.js:27 prefs.js:383
+msgid "OTP code copied to clipboard."
 msgstr ""
 
 #: src/indicator.js:60
@@ -42,31 +42,31 @@ msgstr ""
 msgid "Unlock OTP secrets"
 msgstr ""
 
-#: src/indicator.js:68
+#: src/indicator.js:69
 msgid "Edit OTP secrets..."
 msgstr ""
 
-#: src/indicator.js:72
+#: src/indicator.js:73
 msgid "OTP Secrets"
 msgstr ""
 
-#: src/indicator.js:111
+#: src/indicator.js:112
 msgid "Failed to lock OTP secrets."
 msgstr ""
 
-#: src/indicator.js:115
+#: src/indicator.js:116
 msgid "Error locking OTP secrets."
 msgstr ""
 
-#: src/indicator.js:127
+#: src/indicator.js:128
 msgid "Failed to unlock OTP secrets."
 msgstr ""
 
-#: src/indicator.js:131
+#: src/indicator.js:132
 msgid "Error unlocking OTP secrets."
 msgstr ""
 
-#: src/indicator.js:155
+#: src/indicator.js:156
 msgid "Error retrieving OTP items."
 msgstr ""
 
@@ -74,188 +74,204 @@ msgstr ""
 msgid "Error copying the OTP authentication code."
 msgstr ""
 
-#: src/secretUtils.js:149
-msgid "Failed to retrieve secret."
-msgstr ""
-
-#: src/secretUtils.js:182
+#: src/secretUtils.js:132 src/secretUtils.js:197
 msgid "Failed to lookup secret."
 msgstr ""
 
-#: src/secretUtils.js:189
+#: src/secretUtils.js:164
+msgid "Failed to retrieve secret."
+msgstr ""
+
+#: src/secretUtils.js:204
 msgid "Failed to set label."
 msgstr ""
 
-#: src/secretUtils.js:196
+#: src/secretUtils.js:211
 msgid "Failed to set attributes."
 msgstr ""
 
-#: src/secretUtils.js:202
+#: src/secretUtils.js:217
 msgid "Failed to set secret."
 msgstr ""
 
-#: src/totp.js:39 src/totp.js:56
+#: src/totp.js:34 src/totp.js:51
 msgid "Invalid algorithm."
 msgstr ""
 
-#: src/totp.js:123
+#: src/totp.js:118
 msgid "Failed to parse URI."
 msgstr ""
 
-#: src/totp.js:125
+#: src/totp.js:120
 msgid "URI scheme should be \"otpauth://...\""
 msgstr ""
 
-#: src/totp.js:127
+#: src/totp.js:122
 msgid "URI host should be \"totp\""
 msgstr ""
 
-#: src/totp.js:129
+#: src/totp.js:124
 msgid "Unexpected port number in URI."
 msgstr ""
 
-#: prefs.js:75
+#: prefs.js:100
 msgid "Error"
 msgstr ""
 
-#: prefs.js:80 prefs.js:518
+#: prefs.js:105 prefs.js:535
 msgid "_Close"
 msgstr ""
 
-#: prefs.js:108
-msgid "Copy code to clipboard."
-msgstr ""
-
-#: prefs.js:115
-msgid "Edit this secret."
-msgstr ""
-
-#: prefs.js:122
-msgid "Export secret to clipboard."
-msgstr ""
-
-#: prefs.js:129
-msgid "Export QR code."
-msgstr ""
-
-#: prefs.js:136
-msgid "Remove this secret."
-msgstr ""
-
-#: prefs.js:183
+#: prefs.js:161
 msgid "Issuer"
 msgstr ""
 
-#: prefs.js:185
+#: prefs.js:163
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr ""
 
-#: prefs.js:191
+#: prefs.js:169
 msgid "Name"
 msgstr ""
 
-#: prefs.js:198
+#: prefs.js:176
 msgid "Secret"
 msgstr ""
 
-#: prefs.js:200
+#: prefs.js:178
 msgid "The shared secret key."
 msgstr ""
 
-#: prefs.js:207
+#: prefs.js:185
 msgid "How the secret key is encoded."
 msgstr ""
 
-#: prefs.js:215
+#: prefs.js:193
 msgid "Digits"
 msgstr ""
 
-#: prefs.js:220
+#: prefs.js:198
 msgid "How many digits in the code."
 msgstr ""
 
-#: prefs.js:227
+#: prefs.js:205
 msgid "Period"
 msgstr ""
 
-#: prefs.js:228
+#: prefs.js:206
 msgid "Time between code updates, in seconds."
 msgstr ""
 
-#: prefs.js:239
+#: prefs.js:217
 msgid "Algorithm"
 msgstr ""
 
-#: prefs.js:244
+#: prefs.js:222
 msgid "The hash algorithm used to generate codes."
 msgstr ""
 
-#: prefs.js:250 prefs.js:456 prefs.js:560
+#: prefs.js:228 prefs.js:582 prefs.js:805
 msgid "_Cancel"
 msgstr ""
 
-#: prefs.js:251
+#: prefs.js:229
 msgid "_OK"
 msgstr ""
 
-#: prefs.js:317
-msgid "Secrets"
+#: prefs.js:282
+msgid "Copy code to clipboard."
 msgstr ""
 
-#: prefs.js:318
-msgid "A list of all TOTP secrets from the keyring."
+#: prefs.js:298 prefs.js:350
+msgid "Unlock"
 msgstr ""
 
-#: prefs.js:329
-msgid "Add secret..."
+#: prefs.js:409
+msgid "Edit this secret."
 msgstr ""
 
-#: prefs.js:339
-msgid "Import secrets..."
-msgstr ""
-
-#: prefs.js:349
-msgid "Export secrets..."
-msgstr ""
-
-#: prefs.js:392
-msgid "Creating new TOTP secret"
-msgstr ""
-
-#: prefs.js:421
+#: prefs.js:424
 msgid "Editing TOTP secret"
 msgstr ""
 
-#: prefs.js:449
+#: prefs.js:461
+msgid "Export secret to clipboard."
+msgstr ""
+
+#: prefs.js:474
+msgid "Copied secret URI to clipboard"
+msgstr ""
+
+#: prefs.js:500
+msgid "Export QR code."
+msgstr ""
+
+#: prefs.js:530
+msgid "QR code"
+msgstr ""
+
+#: prefs.js:562
+msgid "Remove this secret."
+msgstr ""
+
+#: prefs.js:575
 msgid "Deleting TOTP secret"
 msgstr ""
 
-#: prefs.js:450
+#: prefs.js:576
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr ""
 
-#: prefs.js:457
+#: prefs.js:583
 msgid "_Delete"
 msgstr ""
 
-#: prefs.js:465
+#: prefs.js:592
 msgid "Failed to remove secret. Is it locked?"
 msgstr ""
 
-#: prefs.js:513
-msgid "QR code"
+#: prefs.js:667
+msgid "Secrets"
 msgstr ""
 
-#: prefs.js:546
+#: prefs.js:668
+msgid "A list of all TOTP secrets from the keyring."
+msgstr ""
+
+#: prefs.js:690
+msgid "Add secret..."
+msgstr ""
+
+#: prefs.js:698
+msgid "Refresh secrets"
+msgstr ""
+
+#: prefs.js:707
+msgid "Import secrets..."
+msgstr ""
+
+#: prefs.js:715
+msgid "Export secrets"
+msgstr ""
+
+#: prefs.js:768
+msgid "Creating new TOTP secret"
+msgstr ""
+
+#: prefs.js:791
 msgid "Importing \"otpauth://\" URIs"
 msgstr ""
 
-#: prefs.js:547
-msgid "Paste all \"otpauth://\" URIs you want import, one per line."
+#: prefs.js:792
+msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr ""
 
-#: prefs.js:561
+#: prefs.js:806
 msgid "_Import"
+msgstr ""
+
+#: prefs.js:843
+msgid "Copied all OTP secrets to clipboard."
 msgstr ""

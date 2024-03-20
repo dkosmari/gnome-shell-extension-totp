@@ -44,13 +44,13 @@ function makeSchema()
 }
 
 
-async function findCollection()
+async function findOTPCollection()
 {
     let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
     let collections = service.get_collections();
-    // look for a collection called 'OTP'
+    // look for the 'OTP' at the hardcoded path
     for (let i = 0; i < collections.length; ++i)
-        if (collections[i].label == 'OTP')
+        if (collections[i].get_object_path() == OTP_COLLECTION_DBUS_PATH)
             return [service, collections[i]];
     return [service, null];
 }
@@ -58,7 +58,7 @@ async function findCollection()
 
 async function ensureCollection()
 {
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (collection)
         return;
 
@@ -72,11 +72,11 @@ async function ensureCollection()
 
 
 export
-async function isCollectionLocked()
+async function isOTPCollectionLocked()
 {
     // force a new connection, so we get reliable lock status
     Secret.Service.disconnect();
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return collection.locked;
@@ -84,9 +84,9 @@ async function isCollectionLocked()
 
 
 export
-async function lockCollection()
+async function lockOTPCollection()
 {
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return await service.lock([collection], null) > 0;
@@ -94,9 +94,9 @@ async function lockCollection()
 
 
 export
-async function unlockCollection()
+async function unlockOTPCollection()
 {
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return await service.unlock([collection], null) > 0;
@@ -104,7 +104,7 @@ async function unlockCollection()
 
 
 export
-async function getList()
+async function getOTPItems()
 {
     try {
         let items = await Secret.password_search(makeSchema(),
@@ -118,6 +118,19 @@ async function getList()
     catch (e) {
         return [];
     }
+}
+
+
+export
+async function getOTPItem(totp)
+{
+    let [item] = await Secret.password_search(makeSchema(),
+                                              makeAttributes(totp),
+                                              Secret.SearchFlags.LOAD_SECRETS, // don't unlock
+                                              null);
+    if (!item)
+        throw new Error(_('Failed to lookup secret.'));
+    return item;
 }
 
 
@@ -142,9 +155,11 @@ function makeLabel({issuer, name})
 
 
 export
-async function get(args)
+async function getSecret(args)
 {
-    let secret = await Secret.password_lookup(makeSchema(), makeAttributes(args), null);
+    let secret = await Secret.password_lookup(makeSchema(),
+                                              makeAttributes(args),
+                                              null);
     if (!secret)
         throw new Error(_('Failed to retrieve secret.'));
     return secret;
@@ -167,12 +182,12 @@ function equalDictionaries(a, b)
 
 
 export
-async function update(old_arg, new_arg)
+async function updateTOTPItem(old_totp, new_totp)
 {
     let service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    let old_attributes = makeAttributes(old_arg);
+    let old_attributes = makeAttributes(old_totp);
     let [item] = await service.search(makeSchema(),
                                       old_attributes,
                                       Secret.SearchFlags.UNLOCK
@@ -183,21 +198,21 @@ async function update(old_arg, new_arg)
 
     // check if label changed
     let old_label = item.get_label();
-    let new_label = makeLabel(new_arg);
+    let new_label = makeLabel(new_totp);
     if (old_label != new_label)
         if (!await item.set_label(new_label, null))
             throw new Error(_('Failed to set label.'));
 
     // check if attributes changed
-    let new_attributes = makeAttributes(new_arg);
+    let new_attributes = makeAttributes(new_totp);
 
     if (!equalDictionaries(old_attributes, new_attributes))
         if (!await item.set_attributes(makeSchema(), new_attributes, null))
             throw new Error(_('Failed to set attributes.'));
 
     // check if secret changed
-    if (old_arg.secret != new_arg.secret) {
-        let secret_value = new Secret.Value(new_arg.secret, -1, "text/plain");
+    if (old_totp.secret != new_totp.secret) {
+        let secret_value = new Secret.Value(new_totp.secret, -1, "text/plain");
         if (!await item.set_secret(secret_value, null))
             throw new Error(_('Failed to set secret.'));
     }
@@ -205,22 +220,22 @@ async function update(old_arg, new_arg)
 
 
 export
-async function create(args)
+async function createTOTPItem(totp)
 {
     await ensureCollection();
     return await Secret.password_store(makeSchema(),
-                                       makeAttributes(args),
+                                       makeAttributes(totp),
                                        OTP_COLLECTION_DBUS_PATH,
-                                       makeLabel(args),
-                                       args.secret,
+                                       makeLabel(totp),
+                                       totp.secret,
                                        null);
 }
 
 
 export
-async function remove(args)
+async function removeTOTPItem(totp)
 {
     return await Secret.password_clear(makeSchema(),
-                                       makeAttributes(args),
+                                       makeAttributes(totp),
                                        null);
 }
