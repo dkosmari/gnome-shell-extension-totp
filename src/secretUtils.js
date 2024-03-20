@@ -162,8 +162,6 @@ async function getSecret(args)
 }
 
 
-
-
 function equalDictionaries(a, b)
 {
     let ak = Object.keys(a);
