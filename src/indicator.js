@@ -96,7 +96,7 @@ var Indicator = class extends PanelMenu.Button {
                 let locked = await SecretUtils.isOTPCollectionLocked();
                 this._lock_item.visible = !locked;
                 this._unlock_item.visible = locked;
-                this.addItems();
+                await this.addItems();
             } else
                 this.clearItems();
         }
@@ -147,12 +147,12 @@ var Indicator = class extends PanelMenu.Button {
     async addItems()
     {
         try {
-            let secrets = await SecretUtils.getList();
+            let secrets = await SecretUtils.getOTPItems();
             this.clearItems();
             secrets.forEach(x => {
-                let attributes = x.get_attributes();
-                let label = makeLabel(attributes);
-                this.addItem(label, attributes);
+                let totp = new TOTP(x.get_attributes());
+                let label = makeLabel(totp);
+                this.addItem(label, totp);
             });
         }
         catch (e) {
@@ -179,11 +179,10 @@ var Indicator = class extends PanelMenu.Button {
     }
 
 
-    async copyCode(args)
+    async copyCode(totp)
     {
         try {
-            args.secret = await SecretUtils.getSecret(args);
-            let totp = new TOTP(args);
+            totp.secret = await SecretUtils.getSecret(totp);
             let code = totp.code();
             copyToClipboard(code);
         }

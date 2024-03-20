@@ -102,7 +102,7 @@ async function unlockOTPCollection()
 }
 
 
-async function getList()
+async function getOTPItems()
 {
     try {
         let items = await Secret.password_search(makeSchema(),
@@ -116,6 +116,18 @@ async function getList()
     catch (e) {
         return [];
     }
+}
+
+
+async function getOTPItem(totp)
+{
+    let [item] = await Secret.password_search(makeSchema(),
+                                              makeAttributes(totp),
+                                              Secret.SearchFlags.LOAD_SECRETS, // don't unlock
+                                              null);
+    if (!item)
+        throw new Error(_('Failed to lookup secret.'));
+    return item;
 }
 
 
@@ -141,11 +153,15 @@ function makeLabel({issuer, name})
 
 async function getSecret(args)
 {
-    let secret = await Secret.password_lookup(makeSchema(), makeAttributes(args), null);
+    let secret = await Secret.password_lookup(makeSchema(),
+                                              makeAttributes(args),
+                                              null);
     if (!secret)
         throw new Error(_('Failed to retrieve secret.'));
     return secret;
 }
+
+
 
 
 function equalDictionaries(a, b)

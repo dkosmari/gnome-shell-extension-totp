@@ -15,14 +15,9 @@ const Base32 = Me.imports.src.base32;
 const _ = x => x;
 
 
-var Algorithm = {
+class Algorithm {
 
-    SHA1: GLib.ChecksumType.SHA1,
-    SHA256: GLib.ChecksumType.SHA256,
-    SHA512: GLib.ChecksumType.SHA512,
-
-
-    parse(arg)
+    static parse(arg)
     {
         if (typeof arg != 'string')
             return arg;
@@ -30,27 +25,27 @@ var Algorithm = {
         switch (arg.toUpperCase()) {
         case 'SHA1':
         case 'SHA-1':
-            return Algorithm.SHA1;
+            return GLib.ChecksumType.SHA1;
         case 'SHA256':
         case 'SHA-256':
-            return Algorithm.SHA256;
+            return GLib.ChecksumType.SHA256;
         case 'SHA512':
         case 'SHA-512':
-            return Algorithm.SHA512;
+            return GLib.ChecksumType.SHA512;
         default:
             throw new Error(_('Invalid algorithm.'));
         }
-    },
+    }
 
 
-    str(arg)
+    static str(arg)
     {
         switch (arg) {
-        case Algorithm.SHA1:
+        case GLib.ChecksumType.SHA1:
             return 'SHA-1';
-        case Algorithm.SHA256:
+        case GLib.ChecksumType.SHA256:
             return 'SHA-256';
-        case Algorithm.SHA512:
+        case GLib.ChecksumType.SHA512:
             return 'SHA-512';
         default:
             if (typeof arg == 'string')
@@ -107,7 +102,7 @@ var TOTP = class {
         secret = '',
         digits = 6,
         period = 30,
-        algorithm = Algorithm.SHA1,
+        algorithm = 'SHA-1',
         uri = null
     } = {})
     {
@@ -138,7 +133,7 @@ var TOTP = class {
 
             let {
                 issuer = '',
-                secret,
+                secret = '',
                 digits = 6,
                 period = 30,
                 algorithm = 'SHA-1'
@@ -149,14 +144,14 @@ var TOTP = class {
             this.secret = secret;
             this.digits = parseInt(digits);
             this.period = parseInt(period);
-            this.algorithm = Algorithm.parse(algorithm);
+            this.algorithm = Algorithm.str(Algorithm.parse(algorithm));
         } else {
             this.issuer = issuer;
             this.name = name;
             this.secret = secret;
             this.digits = parseInt(digits);
             this.period = parseInt(period);
-            this.algorithm = Algorithm.parse(algorithm);
+            this.algorithm = Algorithm.str(Algorithm.parse(algorithm));
         }
     }
 
@@ -173,8 +168,9 @@ var TOTP = class {
         const counter = Math.trunc(time / this.period);
         const counter_hex = `${counter.toString(16)}`.padStart(16, '0');
         const counter_bytes = hex_to_bytes(counter_hex);
+        const algorithm = Algorithm.parse(this.algorithm);
 
-        const hmac_hex = GLib.compute_hmac_for_bytes(this.algorithm,
+        const hmac_hex = GLib.compute_hmac_for_bytes(algorithm,
                                                      secret_bytes,
                                                      counter_bytes);
         const hmac = hex_to_bytes(hmac_hex);
@@ -199,7 +195,7 @@ var TOTP = class {
             value_str = value.toString();
         }
 
-        // take the last digits characters of the string representation, pad with zeros
+        // take the last 'digits' characters of the string representation, pad with zeros
         let code = value_str.slice(-this.digits);
         this.wipe();
 
@@ -225,19 +221,18 @@ var TOTP = class {
         this.wipe();
 
         if (this.issuer != '')
-            query = query + `&issuer=${this.issuer}`;
+            query += `&issuer=${this.issuer}`;
 
         if (this.digits != 6)
-            query = query + `&digits=${this.digits}`;
+            query += `&digits=${this.digits}`;
 
         if (this.period != 30)
             query = query + `&period=${this.period}`;
 
-        if (this.algorithm != Algorithm.SHA1) {
-            let algo_str = Algorithm.str(this.algorithm);
+        if (this.algorithm != 'SHA-1') {
             // remove the '-' from the algorithm name
-            algo_str = algo_str.replaceAll(/-/g, '');
-            query = query + `&algorithm=${algo_str}`;
+            const algo_str = this.algorithm.replaceAll(/-/g, '');
+            query += `&algorithm=${algo_str}`;
         }
 
         return GLib.Uri.join(GLib.UriFlags.NON_DNS,
@@ -251,15 +246,15 @@ var TOTP = class {
     }
 
 
-    // return all members as strings, as required by libsecret
     fields()
     {
-        let result = this.fields_non_destructive();
+        const result = this.fields_non_destructive();
         this.wipe();
         return result;
     }
 
 
+    // return all members as strings, as required by libsecret
     fields_non_destructive()
     {
         return {
@@ -268,7 +263,7 @@ var TOTP = class {
             secret: this.secret,
             digits: this.digits.toString(),
             period: this.period.toString(),
-            algorithm: Algorithm.str(this.algorithm)
+            algorithm: this.algorithm
         };
     }
 

@@ -103,7 +103,7 @@ function makeMarkupLabel({issuer, name})
 }
 
 
-async function reportError(parent, e, where)
+async function reportError(parent, e, where = null)
 {
     logError(e, where);
     try {
@@ -124,57 +124,10 @@ async function reportError(parent, e, where)
 }
 
 
-class SecretRow extends Adw.ActionRow {
-
-    static {
-        GObject.registerClass(this);
-    }
-
-
-    constructor(args)
-    {
-        super({
-            title: makeMarkupLabel(args),
-            use_markup: true
-        });
-
-        this.add_suffix(new Gtk.Button({
-            icon_name: 'edit-copy-symbolic',
-            action_name: 'totp.copy',
-            action_target: makeVariant(args),
-            tooltip_text: _('Copy code to clipboard.')
-        }));
-
-        this.add_suffix(new Gtk.Button({
-            icon_name: 'document-edit-symbolic',
-            action_name: 'totp.edit',
-            action_target: makeVariant(args),
-            tooltip_text: _('Edit this secret.')
-        }));
-
-        this.add_suffix(new Gtk.Button({
-            icon_name: 'send-to-symbolic',
-            action_name: 'totp.export',
-            action_target: makeVariant(args),
-            tooltip_text: _('Export secret to clipboard.')
-        }));
-
-        this.add_suffix(new Gtk.Button({
-            icon_name: 'qrscanner-symbolic',
-            action_name: 'totp.export_qr',
-            action_target: makeVariant(args),
-            tooltip_text: _('Export QR code.')
-        }));
-
-        this.add_suffix(new Gtk.Button({
-            icon_name: 'edit-delete-symbolic',
-            action_name: 'totp.remove',
-            action_target: makeVariant(args),
-            tooltip_text: _('Remove this secret.')
-        }));
-
-    }
-};
+function now()
+{
+    return new Date().getTime() / 1000;
+}
 
 
 class SecretDialog extends Gtk.Dialog {
@@ -320,6 +273,212 @@ class SecretDialog extends Gtk.Dialog {
 };
 
 
+class CodeButton extends Gtk.Button {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #box;
+    #code = null;
+    #expiry = 0;
+    #icon;
+    #label;
+    #level;
+    #totp;
+    #update_source = 0;
+
+
+    constructor(totp)
+    {
+        super({
+            tooltip_text: _('Copy code to clipboard.')
+        });
+
+        this.#totp = totp;
+
+        this.#box = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6
+        });
+        this.set_child(this.#box);
+
+        this.#icon = new Gtk.Image({ icon_name: 'edit-copy-symbolic' });
+        this.#box.append(this.#icon);
+
+        this.#label = new Gtk.Label({
+            label: _('Unlock'),
+            use_markup: false,
+            width_chars: 8
+        });
+        this.#box.append(this.#label);
+
+        this.#level = new Gtk.LevelBar({
+            min_value: 0.0,
+            max_value: this.#totp.period,
+            inverted: true,
+            mode: Gtk.LevelBarMode.CONTINUOUS,
+            orientation: Gtk.Orientation.VERTICAL
+        });
+        this.#box.append(this.#level);
+
+        this.#update_source = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
+                                               1000,
+                                               async () => {
+                                                   await this.updateCode();
+                                                   return GLib.SOURCE_CONTINUE;
+                                               });
+
+    }
+
+
+    destroy()
+    {
+        // log('CodeButton::destroy()');
+        if (this.#update_source) {
+            GLib.source_remove(this.#update_source);
+            this.#update_source = 0;
+        }
+    }
+
+
+    on_unmap()
+    {
+        // log('CodeButton::on_unmap()');
+        this.destroy();
+    }
+
+
+    async updateCode()
+    {
+        try {
+            if (this.expired()) {
+                let item = await SecretUtils.getOTPItem(this.#totp);
+                if (item.locked) {
+                    this.#level.value = 0;
+                    this.#label.label = _('Unlock');
+                    this.#label.use_markup = false;
+                    return;
+                }
+
+                this.#totp.secret = await SecretUtils.getSecret(this.#totp);
+
+                let [code, expiry] = this.#totp.code_and_expiry();
+                this.#expiry = expiry;
+                this.#code = code;
+            }
+            this.#level.value = Math.max(this.#expiry - now(), 0);
+            this.#label.label = `<tt>${this.#code}</tt>`;
+            this.#label.use_markup = true;
+
+            //log(`${this.#totp.name} fraction ${fraction}`);
+        }
+        catch (e) {
+            // logError(e, 'updateCode()');
+            this.destroy();
+        }
+    }
+
+
+    expired()
+    {
+        if (!this.#expiry == 0 || !this._code)
+            return true;
+        if (this.#expiry < now())
+            return true;
+        return false;
+    }
+
+
+    async on_clicked()
+    {
+        try {
+            this.#totp.secret = await SecretUtils.getSecret(this.#totp);
+            let code = this.#totp.code();
+            copyToClipboard(code,
+                            _('OTP code copied to clipboard.'),
+                            true);
+        }
+        catch (e) {
+            await reportError(this.root, e);
+        }
+    }
+
+};
+
+
+class SecretRow extends Adw.ActionRow {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #code_button;
+
+
+    constructor(totp)
+    {
+        super({
+            title: makeMarkupLabel(totp),
+            use_markup: true
+        });
+
+        this.#code_button = new CodeButton(totp);
+        this.add_suffix(this.#code_button);
+
+        this.add_suffix(new Gtk.Button({
+            icon_name: 'document-edit-symbolic',
+            action_name: 'totp.edit',
+            action_target: makeVariant(totp),
+            tooltip_text: _('Edit this secret.')
+        }));
+
+        this.add_suffix(new Gtk.Button({
+            icon_name: 'send-to-symbolic',
+            action_name: 'totp.export',
+            action_target: makeVariant(totp),
+            tooltip_text: _('Export secret to clipboard.')
+        }));
+
+        this.add_suffix(new Gtk.Button({
+            icon_name: 'qrscanner-symbolic',
+            action_name: 'totp.export_qr',
+            action_target: makeVariant(totp),
+            tooltip_text: _('Export QR code.')
+        }));
+
+        this.add_suffix(new Gtk.Button({
+            icon_name: 'edit-delete-symbolic',
+            action_name: 'totp.remove',
+            action_target: makeVariant(totp),
+            tooltip_text: _('Remove this secret.')
+        }));
+
+    }
+
+
+    destroy()
+    {
+        this.remove(this.#code_button);
+        this.#code_button?.destroy();
+        this.#code_button = null;
+    }
+
+
+    expired()
+    {
+        if (this._expiry == 0 || this._code == null)
+            return true;
+        if (this._expiry < now())
+            return true;
+        return false;
+    }
+
+};
+
+
 class SecretsGroup extends Adw.PreferencesGroup {
 
     static {
@@ -334,8 +493,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.install_action('totp.export_all', null,
                             obj => obj.exportAllSecrets());
 
-        this.install_action('totp.copy', "a{sv}",
-                            (obj, _, arg) => obj.copyCode(arg.recursiveUnpack()));
+        // this.install_action('totp.copy', "a{sv}",
+        //                     (obj, _, arg) => obj.copyCode(arg.recursiveUnpack()));
         this.install_action('totp.edit', "a{sv}",
                             (obj, _, arg) => obj.editSecret(arg.recursiveUnpack()));
         this.install_action('totp.export', "a{sv}",
@@ -348,6 +507,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
+    #update_source = 0;
+
+
     constructor(application_id)
     {
         super({
@@ -355,7 +517,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             description: _('A list of all TOTP secrets from the keyring.')
         });
 
-
+        // Stuffs that needs cleanup later
         try {
             if (!Notify.is_initted())
                 this._initialized_notify = Notify.init(application_id);
@@ -392,7 +554,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 action_name: 'totp.export_all',
                 child: new Adw.ButtonContent({
-                    label: _("Export secrets..."),
+                    label: _("Export secrets"),
                     icon_name: 'send-to-symbolic'
                 })
             })
@@ -405,24 +567,21 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
     destroy()
     {
+        // log('SecretsGroup::destroy()');
+
+        this.clearRows();
+
         if (this._initialized_notify)
             Notify.uninit();
-
-        super.destroy();
-    }
-
-
-    addRow(args)
-    {
-        let row = new SecretRow(args);
-        this._rows.push(row);
-        this.add(row);
     }
 
 
     clearRows()
     {
-        this._rows.forEach(row => this.remove(row));
+        this._rows.forEach(row => {
+            this.remove(row);
+            row.destroy();
+        });
         this._rows = [];
     }
 
@@ -431,8 +590,14 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         this.clearRows();
         try {
-            let secrets = await SecretUtils.getList();
-            secrets.forEach(item => this.addRow(item.get_attributes()));
+            let items = await SecretUtils.getOTPItems();
+            items.forEach(item =>
+                {
+                    let totp = new TOTP(item.get_attributes());
+                    let row = new SecretRow(totp);
+                    this._rows.push(row);
+                    this.add(row);
+                });
         }
         catch (e) {
             logError(e, 'refreshRows()');
@@ -581,29 +746,13 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async copyCode(args)
-    {
-        try {
-            args.secret = await SecretUtils.getSecret(args);
-            let totp = new TOTP(args);
-            let code = totp.code();
-            copyToClipboard(code,
-                            _('OTP code copied to clipboard.'),
-                            true);
-        }
-        catch (e) {
-            await reportError(this.root, e, 'copyCode()');
-        }
-    }
-
-
     async importSecrets()
     {
         try {
             let dialog = new Adw.MessageDialog({
                 transient_for: this.root,
                 heading: _('Importing "otpauth://" URIs'),
-                body: _('Paste all "otpauth://" URIs you want import, one per line.'),
+                body: _('Paste all "otpauth://" URIs you want to import, one per line.'),
                 default_width: 500,
                 resizable: true,
                 default_response: 'import',
@@ -646,7 +795,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             let uris = [];
-            let list = await SecretUtils.getList();
+            let list = await SecretUtils.getOTPItems();
             for (let i = 0; i < list.length; ++i) {
                 let args = list[i].get_attributes();
                 args.secret = await SecretUtils.getSecret(args);
@@ -670,6 +819,10 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
         GObject.registerClass(this);
     }
 
+
+    #secrets;
+
+
     constructor(ext, application_id)
     {
         super();
@@ -679,8 +832,17 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
         if (!theme.get_search_path().includes(path))
             theme.add_search_path(path);
 
-        this.secrets = new SecretsGroup(application_id);
-        this.add(this.secrets);
+        this.#secrets = new SecretsGroup(application_id);
+        this.add(this.#secrets);
+    }
+
+
+    destroy()
+    {
+        // log('TOTPPreferencesPage::destroy()');
+        this.remove(this.#secrets);
+        this.#secrets.destroy();
+        this.#secrets = null;
     }
 
 };
@@ -688,7 +850,15 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
 function fillPreferencesWindow(window)
 {
-    //let app = window.get_application();
-    window.add(new TOTPPreferencesPage(Me,
-                                       'org.gnome.Extensions'));
+    let app = window.get_application();
+    let app_id = app?.application_id || 'org.gnome.Extensions';
+    let page = new TOTPPreferencesPage(Me, app_id);
+    window.add(page);
+    window.connect('close-request',
+                   () => {
+                       // log('window got close-request signal');
+                       window.remove(page);
+                       page.destroy();
+                       return false;
+                   });
 }
