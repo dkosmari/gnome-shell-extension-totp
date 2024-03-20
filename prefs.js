@@ -330,6 +330,7 @@ class CopyCodeButton extends Gtk.Button {
                                                    }
                                                    catch (e) {
                                                        this.destroy();
+                                                       return GLib.SOURCE_REMOVE;
                                                    }
                                                    return GLib.SOURCE_CONTINUE;
                                                });
@@ -689,43 +690,41 @@ class SecretsGroup extends Adw.PreferencesGroup {
         }
 
 
-        let edit_row = new Adw.ActionRow();
-        this.add(edit_row);
+        let box = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6
+        });
+        this.set_header_suffix(box);
 
-        edit_row.add_prefix(
+        box.append(
             new Gtk.Button({
-                action_name: 'totp.create',
-                child: new Adw.ButtonContent({
-                    label: _("Add secret..."),
-                    icon_name: 'list-add-symbolic'
-                })
+                icon_name: 'list-add-symbolic',
+                tooltip_text: _("Add secret..."),
+                action_name: 'totp.create'
             })
         );
 
-        edit_row.add_prefix(
+        box.append(
             new Gtk.Button({
+                icon_name: 'view-refresh-symbolic',
+                tooltip_text: _('Refresh secrets'),
                 action_name: 'totp.refresh',
-                icon_name: 'view-refresh-symbolic'
             })
         );
 
-        edit_row.add_suffix(
+        box.append(
             new Gtk.Button({
+                icon_name: 'document-revert-symbolic',
                 action_name: 'totp.import',
-                child: new Adw.ButtonContent({
-                    label: _("Import secrets..."),
-                    icon_name: 'document-revert-symbolic'
-                })
+                tooltip_text: _("Import secrets...")
             })
         );
 
-        edit_row.add_suffix(
+        box.append(
             new Gtk.Button({
+                icon_name: 'send-to-symbolic',
                 action_name: 'totp.export_all',
-                child: new Adw.ButtonContent({
-                    label: _("Export secrets"),
-                    icon_name: 'send-to-symbolic'
-                })
+                tooltip_text: _("Export secrets")
             })
         );
 
@@ -845,11 +844,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             let uris = [];
-            let list = await SecretUtils.getOTPItems();
-            for (let i = 0; i < list.length; ++i) {
-                let args = list[i].get_attributes();
-                args.secret = await SecretUtils.getSecret(args);
-                let totp = new TOTP(args);
+            let items = await SecretUtils.getOTPItems();
+            for (let i = 0; i < items.length; ++i) {
+                let attrs = items[i].get_attributes();
+                attrs.secret = await SecretUtils.getSecret(attrs);
+                let totp = new TOTP(attrs);
                 uris.push(totp.uri());
             }
             copyToClipboard(uris.join('\n'),
