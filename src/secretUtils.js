@@ -179,12 +179,12 @@ function equalDictionaries(a, b)
 }
 
 
-async function update(old_arg, new_arg)
+async function updateTOTPItem(old_totp, new_totp)
 {
     let service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    let old_attributes = makeAttributes(old_arg);
+    let old_attributes = makeAttributes(old_totp);
     let [item] = await service.search(makeSchema(),
                                       old_attributes,
                                       Secret.SearchFlags.UNLOCK
@@ -195,42 +195,42 @@ async function update(old_arg, new_arg)
 
     // check if label changed
     let old_label = item.get_label();
-    let new_label = makeLabel(new_arg);
+    let new_label = makeLabel(new_totp);
     if (old_label != new_label)
         if (!await item.set_label(new_label, null))
             throw new Error(_('Failed to set label.'));
 
     // check if attributes changed
-    let new_attributes = makeAttributes(new_arg);
+    let new_attributes = makeAttributes(new_totp);
 
     if (!equalDictionaries(old_attributes, new_attributes))
         if (!await item.set_attributes(makeSchema(), new_attributes, null))
             throw new Error(_('Failed to set attributes.'));
 
     // check if secret changed
-    if (old_arg.secret != new_arg.secret) {
-        let secret_value = new Secret.Value(new_arg.secret, -1, "text/plain");
+    if (old_totp.secret != new_totp.secret) {
+        let secret_value = new Secret.Value(new_totp.secret, -1, "text/plain");
         if (!await item.set_secret(secret_value, null))
             throw new Error(_('Failed to set secret.'));
     }
 }
 
 
-async function create(args)
+async function createTOTPItem(totp)
 {
     await ensureCollection();
     return await Secret.password_store(makeSchema(),
-                                       makeAttributes(args),
+                                       makeAttributes(totp),
                                        OTP_COLLECTION_DBUS_PATH,
-                                       makeLabel(args),
-                                       args.secret,
+                                       makeLabel(totp),
+                                       totp.secret,
                                        null);
 }
 
 
-async function remove(args)
+async function removeTOTPItem(totp)
 {
     return await Secret.password_clear(makeSchema(),
-                                       makeAttributes(args),
+                                       makeAttributes(totp),
                                        null);
 }
