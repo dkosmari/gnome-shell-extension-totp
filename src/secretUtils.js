@@ -46,13 +46,13 @@ function makeSchema()
 }
 
 
-async function findCollection()
+async function findOTPCollection()
 {
     let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
     let collections = service.get_collections();
-    // look for a collection called 'OTP'
+    // look for the 'OTP' at the hardcoded path
     for (let i = 0; i < collections.length; ++i)
-        if (collections[i].label == 'OTP')
+        if (collections[i].get_object_path() == OTP_COLLECTION_DBUS_PATH)
             return [service, collections[i]];
     return [service, null];
 }
@@ -60,7 +60,7 @@ async function findCollection()
 
 async function ensureCollection()
 {
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (collection)
         return;
 
@@ -73,29 +73,29 @@ async function ensureCollection()
 }
 
 
-async function isCollectionLocked()
+async function isOTPCollectionLocked()
 {
     // force a new connection, so we get reliable lock status
     Secret.Service.disconnect();
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return collection.locked;
 }
 
 
-async function lockCollection()
+async function lockOTPCollection()
 {
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return await service.lock([collection], null) > 0;
 }
 
 
-async function unlockCollection()
+async function unlockOTPCollection()
 {
-    let [service, collection] = await findCollection();
+    let [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return await service.unlock([collection], null) > 0;
@@ -139,7 +139,7 @@ function makeLabel({issuer, name})
 }
 
 
-async function get(args)
+async function getSecret(args)
 {
     let secret = await Secret.password_lookup(makeSchema(), makeAttributes(args), null);
     if (!secret)

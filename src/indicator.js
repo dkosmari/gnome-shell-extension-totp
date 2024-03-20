@@ -30,7 +30,7 @@ function copyToClipboard(text)
     let clipboard = St.Clipboard.get_default();
     clipboard.set_text(St.ClipboardType.PRIMARY, text);
     clipboard.set_text(St.ClipboardType.CLIPBOARD, text);
-    Main.notify(_('OTP code copied.'), text);
+    Main.notify(_('OTP code copied to clipboard.'), text);
 }
 
 
@@ -68,6 +68,7 @@ var Indicator = class extends PanelMenu.Button {
         this._unlock_item = this.menu.addAction(_('Unlock OTP secrets'),
                                                 this.unlockSecrets.bind(this),
                                                 'changes-allow-symbolic');
+        this._unlock_item.visible = !this._lock_item.visible;
 
         this.menu.addAction(_('Edit OTP secrets...'),
                             this.editSecrets.bind(this),
@@ -92,7 +93,7 @@ var Indicator = class extends PanelMenu.Button {
 
         try  {
             if (is_open) {
-                let locked = await SecretUtils.isCollectionLocked();
+                let locked = await SecretUtils.isOTPCollectionLocked();
                 this._lock_item.visible = !locked;
                 this._unlock_item.visible = locked;
                 this.addItems();
@@ -108,10 +109,10 @@ var Indicator = class extends PanelMenu.Button {
     async lockSecrets()
     {
         try {
-            if (!await SecretUtils.lockCollection())
+            if (!await SecretUtils.lockOTPCollection())
                 // Sometimes the keyring locks just fine, yet it reports incorrectly that
                 // nothing was locked. So we double check here.
-                if (!await SecretUtils.isCollectionLocked())
+                if (!await SecretUtils.isOTPCollectionLocked())
                     Main.notify(_('Failed to lock OTP secrets.'));
         }
         catch (e) {
@@ -124,10 +125,10 @@ var Indicator = class extends PanelMenu.Button {
     async unlockSecrets()
     {
         try {
-            if (!await SecretUtils.unlockCollection())
+            if (!await SecretUtils.unlockOTPCollection())
                 // Sometimes the keyring unlocks just fine, yet it reports incorrectly
                 // that nothing was unlocked. So we double check here.
-                if (await SecretUtils.isCollectionLocked())
+                if (await SecretUtils.isOTPCollectionLocked())
                     Main.notify(_('Failed to unlock OTP secrets.'));
         }
         catch (e) {
@@ -181,7 +182,7 @@ var Indicator = class extends PanelMenu.Button {
     async copyCode(args)
     {
         try {
-            args.secret = await SecretUtils.get(args);
+            args.secret = await SecretUtils.getSecret(args);
             let totp = new TOTP(args);
             let code = totp.code();
             copyToClipboard(code);

@@ -11,7 +11,8 @@ const {
     Gio,
     GLib,
     GObject,
-    Gtk
+    Gtk,
+    Notify
 } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -52,7 +53,9 @@ function makeVariant({issuer, name, secret, digits, period, algorithm})
 }
 
 
-function copyToClipboard(text)
+function copyToClipboard(text,
+                         title = null,
+                         show_text = false)
 {
     // this runs outside gnome-shell, so we use GDK
     let display = Gdk.Display.get_default();
@@ -60,6 +63,29 @@ function copyToClipboard(text)
     let clipboard2 = display.get_clipboard();
     clipboard1.set(text);
     clipboard2.set(text);
+
+    if (title) {
+        try {
+            if (Notify.is_initted()) {
+                let note = new Notify.Notification({
+                    summary: title,
+                    body: show_text ? text : null,
+                    icon_name: 'changes-prevent-symbolic'
+                });
+                note.show();
+                GLib.timeout_add(GLib.PRIORITY_LOW,
+                                 8000,
+                                 () =>
+                                 {
+                                     note.close();
+                                     return GLib.SOURCE_REMOVE;
+                                 });
+            }
+        }
+        catch (e) {
+            logError(e, 'copyToClipboard()');
+        }
+    }
 }
 
 
@@ -322,12 +348,21 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    constructor()
+    constructor(application_id)
     {
         super({
             title: _('Secrets'),
             description: _('A list of all TOTP secrets from the keyring.')
         });
+
+
+        try {
+            if (!Notify.is_initted())
+                this._initialized_notify = Notify.init(application_id);
+        }
+        catch (e) {
+            logError(e, 'constructor()');
+        }
 
 
         let edit_row = new Adw.ActionRow();
@@ -365,6 +400,15 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
         this._rows = [];
         this.refreshRows();
+    }
+
+
+    destroy()
+    {
+        if (this._initialized_notify)
+            Notify.uninit();
+
+        super.destroy();
     }
 
 
@@ -423,7 +467,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async editSecret(args)
     {
         try {
-            args.secret = await SecretUtils.get(args);
+            args.secret = await SecretUtils.getSecret(args);
 
             let old_totp = new TOTP(args);
 
@@ -486,10 +530,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async exportSecret(args)
     {
         try {
-            args.secret = await SecretUtils.get(args);
+            args.secret = await SecretUtils.getSecret(args);
             let totp = new TOTP(args);
             let uri = totp.uri();
-            copyToClipboard(uri);
+            copyToClipboard(uri,
+                            _('Copied URI to clipboard'),
+                            true);
         }
         catch (e) {
             await reportError(this.root, e, 'exportSecret()');
@@ -500,7 +546,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async exportSecretQR(args)
     {
         try {
-            args.secret = await SecretUtils.get(args);
+            args.secret = await SecretUtils.getSecret(args);
             let totp = new TOTP(args);
             let uri = totp.uri();
 
@@ -538,10 +584,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async copyCode(args)
     {
         try {
-            args.secret = await SecretUtils.get(args);
+            args.secret = await SecretUtils.getSecret(args);
             let totp = new TOTP(args);
             let code = totp.code();
-            copyToClipboard(code);
+            copyToClipboard(code,
+                            _('OTP code copied to clipboard.'),
+                            true);
         }
         catch (e) {
             await reportError(this.root, e, 'copyCode()');
@@ -601,11 +649,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
             let list = await SecretUtils.getList();
             for (let i = 0; i < list.length; ++i) {
                 let args = list[i].get_attributes();
-                args.secret = await SecretUtils.get(args);
+                args.secret = await SecretUtils.getSecret(args);
                 let totp = new TOTP(args);
                 uris.push(totp.uri());
             }
-            copyToClipboard(uris.join('\n'));
+            copyToClipboard(uris.join('\n'),
+                            _('Copied all OTP secrets to clipboard.'));
         }
         catch (e) {
             await reportError(this.root, e, 'exportAllSecrets()');
@@ -615,29 +664,31 @@ class SecretsGroup extends Adw.PreferencesGroup {
 };
 
 
-class SettingsPage extends Adw.PreferencesPage {
+class TOTPPreferencesPage extends Adw.PreferencesPage {
 
     static {
         GObject.registerClass(this);
     }
 
-    constructor()
+    constructor(ext, application_id)
     {
         super();
 
-        const path = `${Me.path}/icons`;
+        const path = `${ext.path}/icons`;
         const theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
         if (!theme.get_search_path().includes(path))
             theme.add_search_path(path);
 
-        this.secrets = new SecretsGroup();
+        this.secrets = new SecretsGroup(application_id);
         this.add(this.secrets);
     }
 
 };
 
 
-function buildPrefsWidget()
+function fillPreferencesWindow(window)
 {
-    return new SettingsPage();
+    //let app = window.get_application();
+    window.add(new TOTPPreferencesPage(Me,
+                                       'org.gnome.Extensions'));
 }

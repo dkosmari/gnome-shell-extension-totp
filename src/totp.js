@@ -207,6 +207,16 @@ var TOTP = class {
     }
 
 
+    // return code and expiry
+    code_and_expiry()
+    {
+        const t = now();
+        const code = this.code(t);
+        const expiry = (Math.trunc(t / this.period) + 1) * this.period;
+        return [code, expiry];
+    }
+
+
     uri()
     {
         // See https://github.com/google/google-authenticator/wiki/Key-Uri-Format
