@@ -330,7 +330,7 @@ class CopyCodeButton extends Gtk.Button {
     destroy()
     {
         if (this.#update_source) {
-            GLib.source_remove(this.#update_source);
+            GLib.Source.remove(this.#update_source);
             this.#update_source = 0;
         }
     }
