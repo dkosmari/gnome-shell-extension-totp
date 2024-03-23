@@ -26,13 +26,9 @@ website](https://extensions.gnome.org/extension/6793/totp/).
 Installing from sources
 -----------------------
 
-To create an installable .zip file, run:
+Run:
 
-    ./bundle.sh
-
-Then to install it, run:
-
-    ./install.sh
+    make install
 
 
 Importing and exporting URIs

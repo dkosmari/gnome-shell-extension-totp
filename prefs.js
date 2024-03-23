@@ -28,20 +28,6 @@ Gio._promisify(Adw.MessageDialog.prototype, 'choose', 'choose_finish');
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_async');
 
 
-function makeVariant({issuer, name, secret, digits, period, algorithm})
-{
-    let Variant = GLib.Variant;
-    return new Variant('a{sv}',
-                       {
-                           issuer: Variant.new_string(issuer),
-                           name: Variant.new_string(name),
-                           digits: Variant.new_double(digits),
-                           period: Variant.new_double(period),
-                           algorithm: Variant.new_string(algorithm)
-                       });
-}
-
-
 function copyToClipboard(text,
                          title = null,
                          show_text = false)
@@ -497,7 +483,7 @@ class ExportQRButton extends Gtk.Button {
     constructor(totp)
     {
         super({
-            icon_name: 'qrscanner-symbolic',
+            icon_name: 'qr-code-symbolic',
             tooltip_text: _('Export QR code.')
         });
 
@@ -687,7 +673,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
         box.append(
             new Gtk.Button({
-                icon_name: 'list-add-symbolic',
+                icon_name: 'document-new-symbolic',
                 tooltip_text: _("Add secret..."),
                 action_name: 'totp.create'
             })
@@ -703,7 +689,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
         box.append(
             new Gtk.Button({
-                icon_name: 'document-revert-symbolic',
+                icon_name: 'document-import-symbolic',
                 action_name: 'totp.import',
                 tooltip_text: _("Import secrets...")
             })
@@ -711,7 +697,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
         box.append(
             new Gtk.Button({
-                icon_name: 'send-to-symbolic',
+                icon_name: 'document-export-symbolic',
                 action_name: 'totp.export_all',
                 tooltip_text: _("Export secrets")
             })
@@ -858,6 +844,7 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
     }
 
 
+    #resources;
     #secrets;
 
 
@@ -865,10 +852,16 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
     {
         super();
 
-        const path = `${ext.path}/icons`;
-        const theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
-        if (!theme.get_search_path().includes(path))
-            theme.add_search_path(path);
+        /*
+         * Note: icons need to be loaded from gresource, not from filesystem, in order
+         * to be theme-recolored.
+         */
+        this.#resources = Gio.Resource.load(`${ext.path}/icons.gresource`);
+        Gio.resources_register(this.#resources);
+        let theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+        const res_path = '/com/github/dkosmari/totp/icons';
+        if (!theme.get_resource_path().includes(res_path))
+            theme.add_resource_path(res_path);
 
         this.#secrets = new SecretsGroup(application_id);
         this.add(this.#secrets);
@@ -877,7 +870,9 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
     destroy()
     {
-        // log('TOTPPreferencesPage::destroy()');
+        Gio.resources_unregister(this.#resources);
+        this.#resources = null;
+
         this.remove(this.#secrets);
         this.#secrets.destroy();
         this.#secrets = null;
@@ -897,7 +892,6 @@ class TOTPPreferences extends ExtensionPreferences {
         window.add(page);
         window.connect('close-request',
                        () => {
-                           // log('window got close-request signal');
                            window.remove(page);
                            page.destroy();
                            return false;
