@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/github/dkosmari/totp/icons/scalable/actions">
+    <file preprocess="xml-stripblanks" alias="qr-code-symbolic.svg">icons/qr-code-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="document-export-symbolic.svg">icons/document-export-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="document-import-symbolic.svg">icons/document-import-symbolic.svg</file>
+  </gresource>
+</gresources>
