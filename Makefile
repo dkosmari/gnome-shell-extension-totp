@@ -51,7 +51,7 @@ $(POT_NAME): $(SOURCES) $(EXTRA_SOURCES)
 	xgettext \
 		--from-code=UTF-8 \
 		--copyright-holder="Daniel K. O." \
-		--package-name=$(NAME) \
+		--package-name="$(NAME)" \
 		--msgid-bugs="$(URL)" \
 		--output=$@ \
 		$^
