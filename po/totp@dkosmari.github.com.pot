@@ -1,7 +1,6 @@
 # TOTP - A GNOME extension to generate TOTP/OTP/2FA authentication codes.
-# Copyright (C) YEAR Daniel K. O.
+# Copyright (C) 2024 Daniel K. O.
 # This file is distributed under the same license as the TOTP package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
@@ -9,14 +8,14 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-03-23 02:42-0300\n"
+"POT-Creation-Date: 2024-03-24 17:27-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: prefs.js:92
 msgid "Error"
