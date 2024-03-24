@@ -11,7 +11,7 @@ GETTEXT_DOMAIN := $(shell $(JQ) -r '.["gettext-domain"]' metadata.json)
 
 ZIP_FILE := $(UUID).shell-extension.zip
 
-POT_NAME := po/$(GETTEXT_DOMAIN).pot
+POT_FILE := po/$(GETTEXT_DOMAIN).pot
 PO_FILES := $(wildcard po/*.po)
 
 SOURCES := extension.js prefs.js
@@ -54,14 +54,14 @@ $(ZIP_FILE): $(SOURCES) $(EXTRA_SOURCES) $(EXTRA_DIST) $(PO_FILES)
 	glib-compile-resources $< --target=$@
 
 
-$(POT_NAME): $(SOURCES) $(EXTRA_SOURCES)
+$(POT_FILE): $(SOURCES) $(EXTRA_SOURCES)
 	xgettext --from-code=UTF-8 --output=$@ $^
 
 
 update-po: $(PO_FILES)
 
 
-%.po: $(POT_NAME)
+%.po: $(POT_FILE)
 	msgmerge --update $@ $^
 	touch $@
 
