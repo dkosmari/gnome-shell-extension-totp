@@ -1,11 +1,17 @@
-NAME := TOTP
-UUID := totp@dkosmari.github.com
-URL := https://github.com/dkosmari/gnome-shell-extension-totp
+JQ := jq
+
+ifeq (, $(shell which $(JQ)))
+$(error "$(JQ)" executable not found)
+endif
+
+
+UUID := $(shell $(JQ) -r ".uuid" metadata.json)
+GETTEXT_DOMAIN := $(shell $(JQ) -r '.["gettext-domain"]' metadata.json)
 
 
 ZIP_FILE := $(UUID).shell-extension.zip
 
-POT_NAME := po/$(UUID).pot
+POT_FILE := po/$(GETTEXT_DOMAIN).pot
 PO_FILES := $(wildcard po/*.po)
 
 SOURCES := extension.js prefs.js
@@ -29,6 +35,7 @@ all: $(ZIP_FILE)
 clean:
 	$(RM) $(ZIP_FILE)
 	$(RM) $(GRESOURCE_FILE)
+	$(RM) po/*.mo
 
 
 install: $(ZIP_FILE)
@@ -47,20 +54,14 @@ $(ZIP_FILE): $(SOURCES) $(EXTRA_SOURCES) $(EXTRA_DIST) $(PO_FILES)
 	glib-compile-resources $< --target=$@
 
 
-$(POT_NAME): $(SOURCES) $(EXTRA_SOURCES)
-	xgettext \
-		--from-code=UTF-8 \
-		--copyright-holder="Daniel K. O." \
-		--package-name=$(NAME) \
-		--msgid-bugs="$(URL)" \
-		--output=$@ \
-		$^
+$(POT_FILE): $(SOURCES) $(EXTRA_SOURCES)
+	xgettext --from-code=UTF-8 --output=$@ $^
 
 
 update-po: $(PO_FILES)
 
 
-%.po: $(POT_NAME)
+%.po: $(POT_FILE)
 	msgmerge --update $@ $^
 	touch $@
 
