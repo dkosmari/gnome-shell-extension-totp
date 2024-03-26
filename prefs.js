@@ -69,12 +69,6 @@ function copyToClipboard(text,
 }
 
 
-function makeLabel({issuer, name})
-{
-    return `${issuer}: ${name}`;
-}
-
-
 function makeMarkupLabel({issuer, name})
 {
     let safe_issuer = GLib.markup_escape_text(issuer, -1);
@@ -117,6 +111,11 @@ class SecretDialog extends Gtk.Dialog {
     }
 
 
+    #confirm_cb;
+    #cancel_cb;
+    #ui = {};
+
+
     constructor(parent,
                 title,
                 totp,
@@ -134,8 +133,8 @@ class SecretDialog extends Gtk.Dialog {
             use_header_bar: true
         });
 
-        this._confirm_cb = confirm;
-        this._cancel_cb = cancel;
+        this.#confirm_cb = confirm;
+        this.#cancel_cb = cancel;
 
         let group = new Adw.PreferencesGroup({
             title: title,
@@ -146,42 +145,40 @@ class SecretDialog extends Gtk.Dialog {
         });
         this.get_content_area().append(group);
 
-        this._ui = {};
-
         // UI: issuer
-        this._ui.issuer = new Adw.EntryRow({
+        this.#ui.issuer = new Adw.EntryRow({
             title: _('Issuer'),
             text: fields.issuer,
             tooltip_text: _('The name of the organization (Google, Facebook, etc) that issued the OTP.')
         });
-        group.add(this._ui.issuer);
+        group.add(this.#ui.issuer);
 
         // UI: name
-        this._ui.name = new Adw.EntryRow({
+        this.#ui.name = new Adw.EntryRow({
             title: _('Name'),
             text: fields.name
         });
-        group.add(this._ui.name);
+        group.add(this.#ui.name);
 
         // UI: secret
-        this._ui.secret = new Adw.EntryRow({
+        this.#ui.secret = new Adw.EntryRow({
             title: _('Secret'),
             text: fields.secret,
             tooltip_text: _("The shared secret key.")
         });
-        this._ui.secret_type = new Gtk.DropDown({
+        this.#ui.secret_type = new Gtk.DropDown({
             model: new Gtk.StringList({
                 strings: ['Base32', 'Base64']
             }),
             selected: 0,
             tooltip_text: _('How the secret key is encoded.')
         });
-        this._ui.secret.add_suffix(this._ui.secret_type);
-        group.add(this._ui.secret);
+        this.#ui.secret.add_suffix(this.#ui.secret_type);
+        group.add(this.#ui.secret);
 
         // UI: digits
         let digits_list = ['5', '6', '7', '8'];
-        this._ui.digits = new Adw.ComboRow({
+        this.#ui.digits = new Adw.ComboRow({
             title: _('Digits'),
             model: new Gtk.StringList({
                 strings: digits_list
@@ -189,11 +186,11 @@ class SecretDialog extends Gtk.Dialog {
             selected: digits_list.indexOf(fields.digits),
             tooltip_text: _('How many digits in the code.')
         });
-        group.add(this._ui.digits);
+        group.add(this.#ui.digits);
 
         // UI: period
         let period_list = ['15', '30', '60'];
-        this._ui.period = new Adw.ComboRow({
+        this.#ui.period = new Adw.ComboRow({
             title: _('Period'),
             subtitle: _('Time between code updates, in seconds.'),
             model: new Gtk.StringList({
@@ -201,11 +198,11 @@ class SecretDialog extends Gtk.Dialog {
             }),
             selected: period_list.indexOf(fields.period)
         });
-        group.add(this._ui.period);
+        group.add(this.#ui.period);
 
         // UI: algorithm
         let algorithm_list = ['SHA-1', 'SHA-256', 'SHA-512'];
-        this._ui.algorithm = new Adw.ComboRow({
+        this.#ui.algorithm = new Adw.ComboRow({
             title: _('Algorithm'),
             model: new Gtk.StringList({
                 strings: algorithm_list
@@ -213,7 +210,7 @@ class SecretDialog extends Gtk.Dialog {
             selected: algorithm_list.indexOf(fields.algorithm),
             tooltip_text: _('The hash algorithm used to generate codes.')
         });
-        group.add(this._ui.algorithm);
+        group.add(this.#ui.algorithm);
 
 
         // UI: confirm/cancel buttons
@@ -228,27 +225,27 @@ class SecretDialog extends Gtk.Dialog {
     on_response(response_id)
     {
         if (response_id == Gtk.ResponseType.OK) {
-            this._confirm_cb(this.getTOTP());
+            this.#confirm_cb(this.getTOTP());
         } else {
-            if (this._cancel_cb)
-                this._cancel_cb();
+            if (this.#cancel_cb)
+                this.#cancel_cb();
         }
     }
 
 
     getTOTP()
     {
-        let secret = this._ui.secret.text;
-        if (this._ui.secret_type.selected == 1) // base64 -> base32
+        let secret = this.#ui.secret.text;
+        if (this.#ui.secret_type.selected == 1) // base64 -> base32
             secret = Base32.encode(GLib.base64_decode(secret));
 
         return new TOTP({
-            issuer: this._ui.issuer.text,
-            name: this._ui.name.text,
+            issuer: this.#ui.issuer.text,
+            name: this.#ui.name.text,
             secret: secret,
-            digits: parseInt(this._ui.digits.selected_item.string),
-            period: parseInt(this._ui.period.selected_item.string),
-            algorithm: this._ui.algorithm.selected_item.string
+            digits: parseInt(this.#ui.digits.selected_item.string),
+            period: parseInt(this.#ui.period.selected_item.string),
+            algorithm: this.#ui.algorithm.selected_item.string
         });
     }
 
@@ -306,7 +303,7 @@ class CopyCodeButton extends Gtk.Button {
         box.append(this.#level);
 
         this.#update_source = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
-                                               1000,
+                                               250,
                                                async () => {
                                                    try {
                                                        await this.updateCode();
@@ -361,7 +358,7 @@ class CopyCodeButton extends Gtk.Button {
 
     expired()
     {
-        if (!this.#expiry == 0 || !this._code)
+        if (!this.#expiry == 0 || !this.#code)
             return true;
         if (this.#expiry < now())
             return true;
@@ -613,11 +610,12 @@ class UpButton extends Gtk.Button {
     #group;
 
 
-    constructor(group, row)
+    constructor(group, row, enabled)
     {
         super({
             icon_name: "go-up-symbolic",
-            css_classes: ['flat', 'small']
+            css_classes: ['flat', 'small'],
+            sensitive: enabled
         });
         this.#group = group;
         this.#row = row;
@@ -648,11 +646,12 @@ class DownButton extends Gtk.Button {
     #group;
 
 
-    constructor(group, row)
+    constructor(group, row, enabled)
     {
         super({
             icon_name: "go-down-symbolic",
-            css_classes: ['flat', 'small']
+            css_classes: ['flat', 'small'],
+            sensitive: enabled
         });
         this.#group = group;
         this.#row = row;
@@ -680,19 +679,20 @@ class SecretRow extends Adw.ActionRow {
 
 
     #children = [];
+    #totp;
 
 
-    constructor(totp, group)
+    constructor(totp, group, is_first, is_last)
     {
         super({
             title: totp.issuer,
             subtitle: totp.name,
             use_markup: true,
             title_lines: 1,
-            subtitle_lines: 2
+            subtitle_lines: 1
         });
 
-        this._totp = totp; // used for sorting
+        this.#totp = totp;
 
         let box = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
@@ -702,8 +702,8 @@ class SecretRow extends Adw.ActionRow {
         this.#children.push(box);
         this.add_prefix(box);
 
-        box.append(new UpButton(group, this));
-        box.append(new DownButton(group, this));
+        box.append(new UpButton(group, this, !is_first));
+        box.append(new DownButton(group, this, !is_last));
 
         // helper function
         let add_suffix = w => {
@@ -729,6 +729,13 @@ class SecretRow extends Adw.ActionRow {
         this.#children = null;
     }
 
+
+    // this is used to sort the rows
+    get totp()
+    {
+        return this.#totp;
+    }
+
 };
 
 
@@ -751,6 +758,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
+    #initialized_notify = false;
+    #rows = [];
     #update_source = 0;
 
 
@@ -764,7 +773,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         // Stuffs that needs cleanup later
         try {
             if (!Notify.is_initted())
-                this._initialized_notify = Notify.init(application_id);
+                this.#initialized_notify = Notify.init(application_id);
         }
         catch (e) {
             logError(e, 'constructor()');
@@ -809,29 +818,28 @@ class SecretsGroup extends Adw.PreferencesGroup {
             })
         );
 
-        this._rows = [];
         this.refreshSecrets();
     }
 
 
     destroy()
     {
-        // log('SecretsGroup::destroy()');
-
         this.clearSecrets();
 
-        if (this._initialized_notify)
+        if (this.#initialized_notify) {
             Notify.uninit();
+            this.#initialized_notify = false;
+        }
     }
 
 
     clearSecrets()
     {
-        this._rows.forEach(row => {
+        this.#rows.forEach(row => {
             this.remove(row);
             row.destroy();
         });
-        this._rows = [];
+        this.#rows = [];
     }
 
 
@@ -840,11 +848,14 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.clearSecrets();
         try {
             let items = await SecretUtils.getOTPItems();
-            items.forEach(item =>
+            items.forEach((item, idx) =>
                 {
                     let totp = new TOTP(item.get_attributes());
-                    let row = new SecretRow(totp, this);
-                    this._rows.push(row);
+                    let row = new SecretRow(totp,
+                                            this,
+                                            idx == 0,
+                                            idx == items.length - 1);
+                    this.#rows.push(row);
                     this.add(row);
                 });
         }
@@ -862,7 +873,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new TOTP(),
             async (totp) => {
                 try {
-                    const n = this._rows.length;
+                    const n = this.#rows.length;
                     await this.sortSecrets(); // ensure the orders are 0, 1, ..., n
                     await SecretUtils.createTOTPItem(totp, n);
                     dialog.destroy();
@@ -903,7 +914,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
             let response = await dialog.choose(null);
             if (response == 'import') {
-                const n = this._rows.length;
+                const n = this.#rows.length;
                 await this.sortSecrets(); // ensure the orders are 0, 1, ..., n
                 let text = dialog.extra_child.child.buffer.text;
                 let uris = GLib.Uri.list_extract_uris(text);
@@ -949,8 +960,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async sortSecrets()
     {
         try {
-            for (let i = 0; i < this._rows.length; ++i) {
-                const totp = this._rows[i]._totp;
+            for (let i = 0; i < this.#rows.length; ++i) {
+                const totp = this.#rows[i].totp;
                 await SecretUtils.updateTOTPOrder(totp, i);
             }
         }
@@ -962,14 +973,14 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
     async moveBy(row, offset)
     {
-        const i = this._rows.indexOf(row);
+        const i = this.#rows.indexOf(row);
         if (i == -1)
             throw Error(`Trying to move a row that was not found: ${row}`);
         const j = i + offset;
-        if (j < 0 || j >= this._rows.length)
+        if (j < 0 || j >= this.#rows.length)
             return;
         // swap them
-        [this._rows[i], this._rows[j]] = [this._rows[j], this._rows[i]];
+        [this.#rows[i], this.#rows[j]] = [this.#rows[j], this.#rows[i]];
         await this.sortSecrets();
         await this.refreshSecrets();
     }
