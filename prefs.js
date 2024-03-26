@@ -218,7 +218,9 @@ class SecretDialog extends Gtk.Dialog {
 
         // UI: confirm/cancel buttons
         this.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL);
+
         let ok_button = this.add_button(_('_OK'), Gtk.ResponseType.OK);
+        ok_button.add_css_class('suggested-action');
         this.set_default_widget(ok_button);
     }
 
@@ -271,7 +273,8 @@ class CopyCodeButton extends Gtk.Button {
     constructor(totp)
     {
         super({
-            tooltip_text: _('Copy code to clipboard.')
+            tooltip_text: _('Copy code to clipboard.'),
+            valign: Gtk.Align.CENTER
         });
 
         this.#totp = totp;
@@ -391,18 +394,19 @@ class EditSecretButton extends Gtk.Button {
 
 
     #totp;
-    #secrets_group;
+    #group;
 
 
-    constructor(totp, secrets_group)
+    constructor(totp, group)
     {
         super({
             icon_name: 'document-edit-symbolic',
-            tooltip_text: _('Edit this secret.')
+            tooltip_text: _('Edit this secret.'),
+            valign: Gtk.Align.CENTER
         });
 
         this.#totp = totp;
-        this.#secrets_group = secrets_group;
+        this.#group = group;
     }
 
 
@@ -419,7 +423,7 @@ class EditSecretButton extends Gtk.Button {
                     try {
                         await SecretUtils.updateTOTPItem(this.#totp, new_totp);
                         dialog.destroy();
-                        await this.#secrets_group.refreshSecrets();
+                        await this.#group.refreshSecrets();
                     }
                     catch (e) {
                         await reportError(dialog, e);
@@ -450,7 +454,8 @@ class ExportSecretButton extends Gtk.Button {
     {
         super({
             icon_name: 'send-to-symbolic',
-            tooltip_text: _('Export secret to clipboard.')
+            tooltip_text: _('Export secret to clipboard.'),
+            valign: Gtk.Align.CENTER
         });
 
         this.#totp = totp;
@@ -489,7 +494,8 @@ class ExportQRButton extends Gtk.Button {
     {
         super({
             icon_name: 'qr-code-symbolic',
-            tooltip_text: _('Export QR code.')
+            tooltip_text: _('Export QR code.'),
+            valign: Gtk.Align.CENTER
         });
 
         this.#totp = totp;
@@ -544,18 +550,20 @@ class RemoveSecretButton extends Gtk.Button {
 
 
     #totp;
-    #secrets_group;
+    #group;
 
 
-    constructor(totp, secrets_group)
+    constructor(totp, group)
     {
         super({
             icon_name: 'edit-delete-symbolic',
-            tooltip_text: _('Remove this secret.')
+            tooltip_text: _('Remove this secret.'),
+            // css_classes: ['destructive-action'],
+            valign: Gtk.Align.CENTER
         });
 
         this.#totp = totp;
-        this.#secrets_group = secrets_group;
+        this.#group = group;
     }
 
 
@@ -578,11 +586,11 @@ class RemoveSecretButton extends Gtk.Button {
             let response = await dialog.choose(null);
 
             if (response == 'delete') {
-                this.#secrets_group.clearSecrets();
+                this.#group.clearSecrets();
                 let success = await SecretUtils.removeTOTPItem(this.#totp);
                 if (!success)
                     throw new Error(_('Failed to remove secret. Is it locked?'));
-                await this.#secrets_group.refreshSecrets();
+                await this.#group.refreshSecrets();
             }
         }
         catch (e) {
@@ -594,6 +602,76 @@ class RemoveSecretButton extends Gtk.Button {
 
 
 
+class UpButton extends Gtk.Button {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #row;
+    #group;
+
+
+    constructor(group, row)
+    {
+        super({
+            icon_name: "go-up-symbolic",
+            css_classes: ['flat', 'small']
+        });
+        this.#group = group;
+        this.#row = row;
+    }
+
+
+    async on_clicked()
+    {
+        try {
+            await this.#group.moveBy(this.#row, -1);
+        }
+        catch (e) {
+            logError(e);
+        }
+    }
+
+};
+
+
+class DownButton extends Gtk.Button {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #row;
+    #group;
+
+
+    constructor(group, row)
+    {
+        super({
+            icon_name: "go-down-symbolic",
+            css_classes: ['flat', 'small']
+        });
+        this.#group = group;
+        this.#row = row;
+    }
+
+
+    async on_clicked()
+    {
+        try {
+            await this.#group.moveBy(this.#row, +1);
+        }
+        catch (e) {
+            logError(e);
+        }
+    }
+
+};
+
+
 class SecretRow extends Adw.ActionRow {
 
     static {
@@ -601,31 +679,54 @@ class SecretRow extends Adw.ActionRow {
     }
 
 
-    #copy_code_button;
+    #children = [];
 
 
-    constructor(totp, secrets_group)
+    constructor(totp, group)
     {
         super({
-            title: makeMarkupLabel(totp),
-            use_markup: true
+            title: totp.issuer,
+            subtitle: totp.name,
+            use_markup: true,
+            title_lines: 1,
+            subtitle_lines: 2
         });
 
-        this.#copy_code_button = new CopyCodeButton(totp);
-        this.add_suffix(this.#copy_code_button);
-        this.add_suffix(new EditSecretButton(totp, secrets_group));
-        this.add_suffix(new ExportSecretButton(totp));
-        this.add_suffix(new ExportQRButton(totp));
-        this.add_suffix(new RemoveSecretButton(totp, secrets_group));
+        this._totp = totp; // used for sorting
 
+        let box = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 0,
+            homogeneous: true
+        });
+        this.#children.push(box);
+        this.add_prefix(box);
+
+        box.append(new UpButton(group, this));
+        box.append(new DownButton(group, this));
+
+        // helper function
+        let add_suffix = w => {
+            this.add_suffix(w);
+            this.#children.push(w);
+        };
+
+        add_suffix(new CopyCodeButton(totp));
+        add_suffix(new EditSecretButton(totp, group));
+        add_suffix(new ExportSecretButton(totp));
+        add_suffix(new ExportQRButton(totp));
+        add_suffix(new RemoveSecretButton(totp, group));
     }
 
 
     destroy()
     {
-        this.remove(this.#copy_code_button);
-        this.#copy_code_button?.destroy();
-        this.#copy_code_button = null;
+        this.#children.forEach(w => {
+            this.remove(w);
+            if (w.destroy)
+                w.destroy();
+        });
+        this.#children = null;
     }
 
 };
@@ -761,7 +862,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new TOTP(),
             async (totp) => {
                 try {
-                    await SecretUtils.createTOTPItem(totp);
+                    const n = this._rows.length;
+                    await this.sortSecrets(); // ensure the orders are 0, 1, ..., n
+                    await SecretUtils.createTOTPItem(totp, n);
                     dialog.destroy();
                     await this.refreshSecrets();
                 }
@@ -800,12 +903,14 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
             let response = await dialog.choose(null);
             if (response == 'import') {
+                const n = this._rows.length;
+                await this.sortSecrets(); // ensure the orders are 0, 1, ..., n
                 let text = dialog.extra_child.child.buffer.text;
                 let uris = GLib.Uri.list_extract_uris(text);
                 for (let i = 0; i < uris.length; ++i) {
                     try {
                         let totp = new TOTP({uri: uris[i]});
-                        await SecretUtils.createTOTPItem(totp);
+                        await SecretUtils.createTOTPItem(totp, n + i);
                     }
                     catch (e) {
                         await reportError(dialog, e, 'importSecrets()');
@@ -839,6 +944,36 @@ class SecretsGroup extends Adw.PreferencesGroup {
         }
     }
 
+
+    // Store the UI order in the keyring as their labels
+    async sortSecrets()
+    {
+        try {
+            for (let i = 0; i < this._rows.length; ++i) {
+                const totp = this._rows[i]._totp;
+                await SecretUtils.updateTOTPOrder(totp, i);
+            }
+        }
+        catch (e) {
+            logError(e, 'sortSecrets()');
+        }
+    }
+
+
+    async moveBy(row, offset)
+    {
+        const i = this._rows.indexOf(row);
+        if (i == -1)
+            throw Error(`Trying to move a row that was not found: ${row}`);
+        const j = i + offset;
+        if (j < 0 || j >= this._rows.length)
+            return;
+        // swap them
+        [this._rows[i], this._rows[j]] = [this._rows[j], this._rows[i]];
+        await this.sortSecrets();
+        await this.refreshSecrets();
+    }
+
 };
 
 
@@ -867,6 +1002,12 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
         const res_path = '/com/github/dkosmari/totp/icons';
         if (!theme.get_resource_path().includes(res_path))
             theme.add_resource_path(res_path);
+
+        let provider = new Gtk.CssProvider();
+        provider.load_from_path(`${ext.path}/prefs.css`);
+        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(),
+                                                  provider,
+                                                  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
         this.#secrets = new SecretsGroup(application_id);
         this.add(this.#secrets);

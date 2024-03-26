@@ -64,22 +64,3 @@ You can generate Steam Guard Mobile Authenticator codes.
   4. The issuer must be `Steam`, to activate the special OTP encoding that Steam Guard
      uses. Otherwise it will generate plain decimal code.
 
-
-Sorting secrets
----------------
-
-Secrets are sorted alphabetically by their keyring label. When an OTP secret is created or
-edited, its label is set to the string `Issuer:Name`. There is currently no mechanism in
-the extension to set the label, it will always be reset to `Issuer:Name` when you edit the
-secret. The label is not shown in the user interface, and does not affect any other
-functionality, other than sorting.
-
-Using a tool like [Seahorse](https://wiki.gnome.org/Apps/Seahorse) it's possible manually
-edit the labels (Seahorse calls them "Description") in your OTP collection. You can add
-numbers in front of the label, to affect their ordering. For instance:
-
-   - `00 Google:myname`
-
-   - `01 Yahoo:myothername`
-
-   - `02 Facebook:yetanothername`

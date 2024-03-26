@@ -23,7 +23,8 @@ EXTRA_DIST := \
 	AUTHORS \
 	COPYING \
 	README.md \
-	$(GRESOURCE_FILE)
+	$(GRESOURCE_FILE) \
+	prefs.css
 
 
 .PHONY: all clean install update-po

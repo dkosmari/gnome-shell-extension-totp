@@ -102,6 +102,18 @@ async function unlockOTPCollection()
 }
 
 
+function getOrder(label)
+{
+    const [token] = label.split(':', 1);
+    if (!token)
+        return 0;
+    const value = parseFloat(token);
+    if (isNaN(value))
+        return 0;
+    return value;
+}
+
+
 async function getOTPItems()
 {
     try {
@@ -109,8 +121,8 @@ async function getOTPItems()
                                                  { type: 'TOTP' },
                                                  Secret.SearchFlags.ALL,
                                                  null);
-        // return them sorted by label
-        items.sort((a, b) => a.get_label().localeCompare(b.get_label()));
+        // return them sorted, using the label
+        items.sort((a, b) => getOrder(a.get_label()) - getOrder(b.get_label()));
         return items;
     }
     catch (e) {
@@ -145,9 +157,12 @@ function makeAttributes({issuer, name, digits, period, algorithm})
 }
 
 
-function makeLabel({issuer, name})
+function makeLabel({issuer, name}, order = -1)
 {
-    return `${issuer}:${name}`;
+    let prefix = "-";
+    if (order > -1)
+        prefix = order.toString();
+    return `${prefix}:${issuer}:${name}`;
 }
 
 
@@ -193,7 +208,7 @@ async function updateTOTPItem(old_totp, new_totp)
 
     // check if label changed
     let old_label = item.get_label();
-    let new_label = makeLabel(new_totp);
+    let new_label = makeLabel(new_totp, getOrder(old_label));
     if (old_label != new_label)
         if (!await item.set_label(new_label, null))
             throw new Error(_('Failed to set label.'));
@@ -214,13 +229,30 @@ async function updateTOTPItem(old_totp, new_totp)
 }
 
 
-async function createTOTPItem(totp)
+async function updateTOTPOrder(totp, order)
+{
+    let service = await Secret.Service.get(
+        Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
+        null);
+    let [item] = await service.search(makeSchema(),
+                                      makeAttributes(totp),
+                                      Secret.SearchFlags.NONE,
+                                      null);
+    if (!item)
+        throw new Error(_('Failed to lookup secret.'));
+
+    if (!await item.set_label(makeLabel(totp, order), null))
+        throw new Error(_('Failed to set label.'));
+}
+
+
+async function createTOTPItem(totp, order)
 {
     await ensureCollection();
     return await Secret.password_store(makeSchema(),
                                        makeAttributes(totp),
                                        OTP_COLLECTION_DBUS_PATH,
-                                       makeLabel(totp),
+                                       makeLabel(totp, order),
                                        totp.secret,
                                        null);
 }
