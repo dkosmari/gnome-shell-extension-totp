@@ -1,0 +1,16 @@
+button.totp-sort-button {
+    padding: 0px 4px 0px 4px;
+    min-height: 16px;
+}
+
+levelbar.totp-code-level > trough > block.filled.full {
+    background-color: @success_color;
+}
+
+levelbar.totp-code-level > trough > block.filled.high {
+    background-color: @warning_color;
+}
+
+levelbar.totp-code-level > trough > block.filled.low {
+    background-color: @error_color;
+}
