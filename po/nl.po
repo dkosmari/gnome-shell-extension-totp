@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 20:15-0300\n"
+"POT-Creation-Date: 2024-03-26 21:45-0300\n"
 "PO-Revision-Date: 2024-03-24 17:46+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Error"
 msgstr "Foutmelding"
 
-#: prefs.js:91 prefs.js:530
+#: prefs.js:91 prefs.js:536
 msgid "_Close"
 msgstr "_Sluiten"
 
@@ -76,7 +76,7 @@ msgstr "Algoritme"
 msgid "The hash algorithm used to generate codes."
 msgstr "Het controlesomalgoritme van de gegenereerde codes."
 
-#: prefs.js:217 prefs.js:579 prefs.js:911
+#: prefs.js:217 prefs.js:585 prefs.js:919
 msgid "_Cancel"
 msgstr "_Annuleren"
 
@@ -88,100 +88,100 @@ msgstr "_Oké"
 msgid "Copy code to clipboard."
 msgstr "Kopieer de code naar het klembord."
 
-#: prefs.js:290 prefs.js:342
+#: prefs.js:290 prefs.js:348
 msgid "Unlock"
 msgstr "Ontgrendelen"
 
-#: prefs.js:375 src/indicator.js:33
+#: prefs.js:381 src/indicator.js:33
 msgid "OTP code copied to clipboard."
 msgstr "De code is gekopieerd naar het klembord."
 
-#: prefs.js:401
+#: prefs.js:407
 msgid "Edit this secret."
 msgstr "Bewerk dit geheim."
 
-#: prefs.js:417
+#: prefs.js:423
 msgid "Editing TOTP secret"
 msgstr "Bewerken van totp-geheim"
 
-#: prefs.js:454
+#: prefs.js:460
 msgid "Export secret to clipboard."
 msgstr "Het geheim is geëxporteerd naar het klembord."
 
-#: prefs.js:468
+#: prefs.js:474
 msgid "Copied secret URI to clipboard"
 msgstr "De geheime uri is gekopieerd naar het klembord."
 
-#: prefs.js:494
+#: prefs.js:500
 msgid "Export QR code."
 msgstr "Exporteer de QR-code."
 
-#: prefs.js:525
+#: prefs.js:531
 msgid "QR code"
 msgstr "QR-code"
 
-#: prefs.js:557
+#: prefs.js:563
 msgid "Remove this secret."
 msgstr "Verwijder dit geheim."
 
-#: prefs.js:572
+#: prefs.js:578
 msgid "Deleting TOTP secret"
 msgstr "Verwijderen van totp-geheim"
 
-#: prefs.js:573
+#: prefs.js:579
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr "Bezig met verwijderen van"
 
-#: prefs.js:580
+#: prefs.js:586
 msgid "_Delete"
 msgstr "Verwij_deren"
 
-#: prefs.js:589
+#: prefs.js:595
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Het geheim kan niet worden verwijderd. Is het geheim vergrendeld?"
 
-#: prefs.js:769
+#: prefs.js:777
 msgid "Secrets"
 msgstr "Geheimen"
 
-#: prefs.js:770
+#: prefs.js:778
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Een lijst met totp-geheimen uit de sleutelbos."
 
-#: prefs.js:792
+#: prefs.js:800
 msgid "Add secret..."
 msgstr "Geheim toevoegen…"
 
-#: prefs.js:800
+#: prefs.js:808
 msgid "Refresh secrets"
 msgstr "Geheimen herladen"
 
-#: prefs.js:809
+#: prefs.js:817
 msgid "Import secrets..."
 msgstr "Geheimen importeren…"
 
-#: prefs.js:817
+#: prefs.js:825
 msgid "Export secrets"
 msgstr "Geheimen exporteren"
 
-#: prefs.js:872
+#: prefs.js:880
 msgid "Creating new TOTP secret"
 msgstr "Totp-geheim aanmaken"
 
-#: prefs.js:897
+#: prefs.js:905
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Bezig met importeren van ‘otpauth://’-uri's…"
 
-#: prefs.js:898
+#: prefs.js:906
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Plak alle te importeren ‘otpauth://’-uri's, een per regel."
 
-#: prefs.js:912
+#: prefs.js:920
 msgid "_Import"
 msgstr "_Importeren"
 
-#: prefs.js:951
+#: prefs.js:959
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Alle otp-geheimen zijn gekopieerd naar het klembord."
 

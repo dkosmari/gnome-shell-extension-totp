@@ -298,12 +298,18 @@ class CopyCodeButton extends Gtk.Button {
             max_value: this.#totp.period,
             inverted: true,
             mode: Gtk.LevelBarMode.CONTINUOUS,
-            orientation: Gtk.Orientation.VERTICAL
+            orientation: Gtk.Orientation.VERTICAL,
+
         });
+        this.#level.add_css_class('totp-code-level');
+        this.#level.add_offset_value("full", this.#totp.period);
+        this.#level.add_offset_value("high", this.#totp.period - 5);
+        this.#level.add_offset_value("low", 5);
+
         box.append(this.#level);
 
         this.#update_source = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
-                                               250,
+                                               500,
                                                async () => {
                                                    try {
                                                        await this.updateCode();
@@ -555,9 +561,9 @@ class RemoveSecretButton extends Gtk.Button {
         super({
             icon_name: 'edit-delete-symbolic',
             tooltip_text: _('Remove this secret.'),
-            // css_classes: ['destructive-action'],
             valign: Gtk.Align.CENTER
         });
+
 
         this.#totp = totp;
         this.#group = group;
@@ -614,9 +620,10 @@ class UpButton extends Gtk.Button {
     {
         super({
             icon_name: "go-up-symbolic",
-            css_classes: ['flat', 'small'],
             sensitive: enabled
         });
+        this.add_css_class('flat');
+        this.add_css_class('totp-sort-button');
         this.#group = group;
         this.#row = row;
     }
@@ -650,9 +657,10 @@ class DownButton extends Gtk.Button {
     {
         super({
             icon_name: "go-down-symbolic",
-            css_classes: ['flat', 'small'],
             sensitive: enabled
         });
+        this.add_css_class('flat');
+        this.add_css_class('totp-sort-button');
         this.#group = group;
         this.#row = row;
     }
