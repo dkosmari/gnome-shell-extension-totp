@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 21:45-0300\n"
+"POT-Creation-Date: 2024-03-26 22:32-0300\n"
 "PO-Revision-Date: 2024-03-20 17:13-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -197,43 +197,43 @@ msgstr "Carattere base32 non valido nella posizione:"
 msgid "Invalid padding."
 msgstr "Imbottitura non valida."
 
-#: src/indicator.js:64
+#: src/indicator.js:66
 msgid "Lock OTP secrets"
 msgstr "Blocca i segreti OTP"
 
-#: src/indicator.js:68
+#: src/indicator.js:70
 msgid "Unlock OTP secrets"
 msgstr "Sblocca i segreti OTP"
 
-#: src/indicator.js:73
+#: src/indicator.js:75
 msgid "Edit OTP secrets..."
 msgstr "Modifica segreti OTP..."
 
-#: src/indicator.js:77
+#: src/indicator.js:79
 msgid "OTP Secrets"
 msgstr "Segreti dell'OTP"
 
-#: src/indicator.js:116
+#: src/indicator.js:131
 msgid "Failed to lock OTP secrets."
 msgstr "Impossibile bloccare i segreti OTP."
 
-#: src/indicator.js:120
+#: src/indicator.js:135
 msgid "Error locking OTP secrets."
 msgstr "Errore durante il blocco dei segreti OTP."
 
-#: src/indicator.js:132
+#: src/indicator.js:147
 msgid "Failed to unlock OTP secrets."
 msgstr "Impossibile sbloccare i segreti OTP."
 
-#: src/indicator.js:136
+#: src/indicator.js:151
 msgid "Error unlocking OTP secrets."
 msgstr "Errore durante lo sblocco dei segreti OTP."
 
-#: src/indicator.js:160
+#: src/indicator.js:178
 msgid "Error retrieving OTP items."
 msgstr "Errore durante il recupero degli elementi OTP."
 
-#: src/indicator.js:191
+#: src/indicator.js:199
 msgid "Error copying the OTP authentication code."
 msgstr "Errore durante la copia del codice di autenticazione OTP."
 

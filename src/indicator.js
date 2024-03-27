@@ -47,31 +47,33 @@ var Indicator = class extends PanelMenu.Button {
     }
 
 
+    #lock_item;
+    #totp_items = [];
+    #unlock_item;
+
+
     constructor(ext)
     {
         super();
 
-        this._totp_items = [];
-
-        let icon = new St.Icon(
-            {
+        this.add_child(
+            new St.Icon({
                 icon_name: 'changes-prevent-symbolic',
                 style_class: 'system-status-icon'
-            }
+            })
         );
-        this.add_child(icon);
 
-        this._lock_item = this.menu.addAction(_('Lock OTP secrets'),
-                                              this.lockSecrets.bind(this),
+        this.#lock_item = this.menu.addAction(_('Lock OTP secrets'),
+                                              this.lockTOTPSecrets.bind(this),
                                               'changes-prevent-symbolic');
 
-        this._unlock_item = this.menu.addAction(_('Unlock OTP secrets'),
-                                                this.unlockSecrets.bind(this),
+        this.#unlock_item = this.menu.addAction(_('Unlock OTP secrets'),
+                                                this.unlockTOTPSecrets.bind(this),
                                                 'changes-allow-symbolic');
-        this._unlock_item.visible = !this._lock_item.visible;
+        this.#unlock_item.visible = !this.#lock_item.visible;
 
         this.menu.addAction(_('Edit OTP secrets...'),
-                            this.editSecrets.bind(this),
+                            this.editTOTPSecrets.bind(this),
                             'document-edit-symbolic');
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(_('OTP Secrets')));
@@ -87,6 +89,19 @@ var Indicator = class extends PanelMenu.Button {
     }
 
 
+    destroy()
+    {
+        this.#lock_item.destroy();
+        this.#lock_item = null;
+
+        this.#unlock_item.destroy();
+        this.#unlock_item = null;
+
+        this.clearTOTPItems();
+        super.destroy();
+    }
+
+
     async _onOpenStateChanged(menu, is_open)
     {
         super._onOpenStateChanged(menu, is_open);
@@ -94,11 +109,11 @@ var Indicator = class extends PanelMenu.Button {
         try  {
             if (is_open) {
                 let locked = await SecretUtils.isOTPCollectionLocked();
-                this._lock_item.visible = !locked;
-                this._unlock_item.visible = locked;
-                await this.addItems();
+                this.#lock_item.visible = !locked;
+                this.#unlock_item.visible = locked;
+                await this.refreshTOTPItems();
             } else
-                this.clearItems();
+                this.clearTOTPItems();
         }
         catch (e) {
             logError(e, '_onOpenStateChanged()');
@@ -106,7 +121,7 @@ var Indicator = class extends PanelMenu.Button {
     }
 
 
-    async lockSecrets()
+    async lockTOTPSecrets()
     {
         try {
             if (!await SecretUtils.lockOTPCollection())
@@ -116,13 +131,13 @@ var Indicator = class extends PanelMenu.Button {
                     Main.notify(_('Failed to lock OTP secrets.'));
         }
         catch (e) {
-            logError(e, 'lockSecrets()');
+            logError(e, 'lockTOTPSecrets()');
             Main.notifyError(_('Error locking OTP secrets.'), _(e.message));
         }
     }
 
 
-    async unlockSecrets()
+    async unlockTOTPSecrets()
     {
         try {
             if (!await SecretUtils.unlockOTPCollection())
@@ -132,50 +147,43 @@ var Indicator = class extends PanelMenu.Button {
                     Main.notify(_('Failed to unlock OTP secrets.'));
         }
         catch (e) {
-            logError(e, 'unlockSecrets()');
+            logError(e, 'unlockTOTPSecrets()');
             Main.notifyError(_('Error unlocking OTP secrets.'), _(e.message));
         }
     }
 
 
-    editSecrets()
+    editTOTPSecrets()
     {
         ExtensionUtils.openPrefs();
     }
 
 
-    async addItems()
+    async refreshTOTPItems()
     {
         try {
             let secrets = await SecretUtils.getOTPItems();
-            this.clearItems();
+            this.clearTOTPItems();
             secrets.forEach(x => {
                 let totp = new TOTP(x.get_attributes());
                 let label = makeLabel(totp);
-                this.addItem(label, totp);
+                let item = this.menu.addAction(label,
+                                               this.copyCode.bind(this, totp),
+                                               'edit-copy-symbolic');
+                this.#totp_items.push(item);
             });
         }
         catch (e) {
-            logError(e, 'addSecretItems()');
+            logError(e, 'refreshTOTPItems()');
             Main.notifyError(_('Error retrieving OTP items.'), _(e.message));
         }
     }
 
 
-    addItem(label, attributes)
+    clearTOTPItems()
     {
-        let item = this.menu.addAction(label,
-                                       this.copyCode.bind(this, attributes),
-                                       'edit-copy-symbolic');
-
-        this._totp_items.push(item);
-    }
-
-
-    clearItems()
-    {
-        this._totp_items.forEach(x => x.destroy());
-        this._totp_items = [];
+        this.#totp_items.forEach(x => x.destroy());
+        this.#totp_items = [];
     }
 
 
@@ -183,7 +191,7 @@ var Indicator = class extends PanelMenu.Button {
     {
         try {
             totp.secret = await SecretUtils.getSecret(totp);
-            let code = totp.code();
+            const code = totp.code();
             copyToClipboard(code);
         }
         catch (e) {
