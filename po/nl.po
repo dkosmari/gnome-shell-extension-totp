@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 22:59-0300\n"
+"POT-Creation-Date: 2024-03-26 23:49-0300\n"
 "PO-Revision-Date: 2024-03-24 17:46+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -76,7 +76,7 @@ msgstr "Algoritme"
 msgid "The hash algorithm used to generate codes."
 msgstr "Het controlesomalgoritme van de gegenereerde codes."
 
-#: prefs.js:217 prefs.js:583 prefs.js:916
+#: prefs.js:217 prefs.js:583 prefs.js:919
 msgid "_Cancel"
 msgstr "_Annuleren"
 
@@ -149,39 +149,39 @@ msgstr "Geheimen"
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Een lijst met totp-geheimen uit de sleutelbos."
 
-#: prefs.js:797
+#: prefs.js:800
 msgid "Add secret..."
 msgstr "Geheim toevoegen…"
 
-#: prefs.js:805
+#: prefs.js:808
 msgid "Refresh secrets"
 msgstr "Geheimen herladen"
 
-#: prefs.js:814
+#: prefs.js:817
 msgid "Import secrets..."
 msgstr "Geheimen importeren…"
 
-#: prefs.js:822
+#: prefs.js:825
 msgid "Export secrets"
 msgstr "Geheimen exporteren"
 
-#: prefs.js:877
+#: prefs.js:880
 msgid "Creating new TOTP secret"
 msgstr "Totp-geheim aanmaken"
 
-#: prefs.js:902
+#: prefs.js:905
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Bezig met importeren van ‘otpauth://’-uri's…"
 
-#: prefs.js:903
+#: prefs.js:906
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Plak alle te importeren ‘otpauth://’-uri's, een per regel."
 
-#: prefs.js:917
+#: prefs.js:920
 msgid "_Import"
 msgstr "_Importeren"
 
-#: prefs.js:956
+#: prefs.js:959
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Alle otp-geheimen zijn gekopieerd naar het klembord."
 

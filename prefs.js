@@ -775,6 +775,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
             description: _('A list of all TOTP secrets from the keyring.')
         });
 
+        // UI tweak: relax the clamp so the group can grow wider.
+        this.connect('notify::parent', () => this.get_ancestor(Adw.Clamp)?.set_maximum_size(1000));
+
         // Stuffs that needs cleanup later
         try {
             if (!Notify.is_initted())

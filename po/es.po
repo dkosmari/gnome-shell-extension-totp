@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 22:59-0300\n"
+"POT-Creation-Date: 2024-03-26 23:49-0300\n"
 "PO-Revision-Date: 2024-03-20 17:14-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -75,7 +75,7 @@ msgstr "Algoritmo"
 msgid "The hash algorithm used to generate codes."
 msgstr "El algoritmo hash utilizado para generar códigos."
 
-#: prefs.js:217 prefs.js:583 prefs.js:916
+#: prefs.js:217 prefs.js:583 prefs.js:919
 msgid "_Cancel"
 msgstr "_Cancelar"
 
@@ -148,39 +148,39 @@ msgstr "Secreto"
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Una lista de todos los secretos TOTP del llavero."
 
-#: prefs.js:797
+#: prefs.js:800
 msgid "Add secret..."
 msgstr "Añadir secreto..."
 
-#: prefs.js:805
+#: prefs.js:808
 msgid "Refresh secrets"
 msgstr "Actualizar secretos"
 
-#: prefs.js:814
+#: prefs.js:817
 msgid "Import secrets..."
 msgstr "Importar secretos..."
 
-#: prefs.js:822
+#: prefs.js:825
 msgid "Export secrets"
 msgstr "Exportar secretos"
 
-#: prefs.js:877
+#: prefs.js:880
 msgid "Creating new TOTP secret"
 msgstr "Creando nuevo secreto TOTP"
 
-#: prefs.js:902
+#: prefs.js:905
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Importación de URI \"otpauth://\""
 
-#: prefs.js:903
+#: prefs.js:906
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Pegue todos los URI \"otpauth://\" que desee importar, uno por línea."
 
-#: prefs.js:917
+#: prefs.js:920
 msgid "_Import"
 msgstr "_Importar"
 
-#: prefs.js:956
+#: prefs.js:959
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copié todos los secretos de OTP al portapapeles."
 
