@@ -298,8 +298,7 @@ class CopyCodeButton extends Gtk.Button {
             max_value: this.#totp.period,
             inverted: true,
             mode: Gtk.LevelBarMode.CONTINUOUS,
-            orientation: Gtk.Orientation.VERTICAL,
-
+            orientation: Gtk.Orientation.VERTICAL
         });
         this.#level.add_css_class('totp-code-level');
         this.#level.add_offset_value("full", this.#totp.period);
@@ -564,7 +563,6 @@ class RemoveSecretButton extends Gtk.Button {
             valign: Gtk.Align.CENTER
         });
 
-
         this.#totp = totp;
         this.#group = group;
     }
@@ -602,7 +600,6 @@ class RemoveSecretButton extends Gtk.Button {
     }
 
 };
-
 
 
 class UpButton extends Gtk.Button {
@@ -882,7 +879,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             async (totp) => {
                 try {
                     const n = this.#rows.length;
-                    await this.sortSecrets(); // ensure the orders are 0, 1, ..., n
+                    await this.sortSecrets(); // ensure the orders are 0, ..., n-1
                     await SecretUtils.createTOTPItem(totp, n);
                     dialog.destroy();
                     await this.refreshSecrets();
@@ -923,7 +920,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             let response = await dialog.choose(null);
             if (response == 'import') {
                 const n = this.#rows.length;
-                await this.sortSecrets(); // ensure the orders are 0, 1, ..., n
+                await this.sortSecrets(); // ensure the orders are 0, ..., n-1
                 let text = dialog.extra_child.child.buffer.text;
                 let uris = GLib.Uri.list_extract_uris(text);
                 for (let i = 0; i < uris.length; ++i) {
@@ -1003,8 +1000,8 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
     }
 
 
-    #resources;
-    #secrets;
+    #group;
+    #resource;
 
 
     constructor(ext, application_id)
@@ -1015,8 +1012,8 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
          * Note: icons need to be loaded from gresource, not from filesystem, in order
          * to be theme-recolored.
          */
-        this.#resources = Gio.Resource.load(`${ext.path}/icons.gresource`);
-        Gio.resources_register(this.#resources);
+        this.#resource = Gio.Resource.load(`${ext.path}/icons.gresource`);
+        Gio.resources_register(this.#resource);
         let theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
         const res_path = '/com/github/dkosmari/totp/icons';
         if (!theme.get_resource_path().includes(res_path))
@@ -1028,19 +1025,19 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
                                                   provider,
                                                   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-        this.#secrets = new SecretsGroup(application_id);
-        this.add(this.#secrets);
+        this.#group = new SecretsGroup(application_id);
+        this.add(this.#group);
     }
 
 
     destroy()
     {
-        Gio.resources_unregister(this.#resources);
-        this.#resources = null;
+        Gio.resources_unregister(this.#resource);
+        this.#resource = null;
 
-        this.remove(this.#secrets);
-        this.#secrets.destroy();
-        this.#secrets = null;
+        this.remove(this.#group);
+        this.#group.destroy();
+        this.#group = null;
     }
 
 };

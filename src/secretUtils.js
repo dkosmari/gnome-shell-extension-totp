@@ -159,9 +159,7 @@ function makeAttributes({issuer, name, digits, period, algorithm})
 
 function makeLabel({issuer, name}, order = -1)
 {
-    let prefix = "-";
-    if (order > -1)
-        prefix = order.toString();
+    const prefix = order > -1 ? order : "-";
     return `${prefix}:${issuer}:${name}`;
 }
 
@@ -241,7 +239,7 @@ async function updateTOTPOrder(totp, order)
     if (!item)
         throw new Error(_('Failed to lookup secret.'));
 
-    if (!await item.set_label(makeLabel(totp, order), null))
+    if (!await item.set_label(makeLabel(totp, order)))
         throw new Error(_('Failed to set label.'));
 }
 
