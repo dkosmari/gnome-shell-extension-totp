@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 23:49-0300\n"
+"POT-Creation-Date: 2024-03-27 01:30-0300\n"
 "PO-Revision-Date: 2024-03-20 17:14-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -75,7 +75,7 @@ msgstr "Algoritmo"
 msgid "The hash algorithm used to generate codes."
 msgstr "El algoritmo hash utilizado para generar códigos."
 
-#: prefs.js:217 prefs.js:583 prefs.js:919
+#: prefs.js:217 prefs.js:583 prefs.js:896
 msgid "_Cancel"
 msgstr "_Cancelar"
 
@@ -140,47 +140,55 @@ msgstr "_Eliminar"
 msgid "Failed to remove secret. Is it locked?"
 msgstr "No se pudo eliminar el secreto. ¿Está bloqueado?"
 
-#: prefs.js:774
+#: prefs.js:624
+msgid "Move up; hold SHIFT to move to the top."
+msgstr ""
+
+#: prefs.js:625
+msgid "Move down; hold SHIFT to move to the bottom."
+msgstr ""
+
+#: prefs.js:751
 msgid "Secrets"
 msgstr "Secreto"
 
-#: prefs.js:775
+#: prefs.js:752
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Una lista de todos los secretos TOTP del llavero."
 
-#: prefs.js:800
+#: prefs.js:777
 msgid "Add secret..."
 msgstr "Añadir secreto..."
 
-#: prefs.js:808
+#: prefs.js:785
 msgid "Refresh secrets"
 msgstr "Actualizar secretos"
 
-#: prefs.js:817
+#: prefs.js:794
 msgid "Import secrets..."
 msgstr "Importar secretos..."
 
-#: prefs.js:825
+#: prefs.js:802
 msgid "Export secrets"
 msgstr "Exportar secretos"
 
-#: prefs.js:880
+#: prefs.js:857
 msgid "Creating new TOTP secret"
 msgstr "Creando nuevo secreto TOTP"
 
-#: prefs.js:905
+#: prefs.js:882
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Importación de URI \"otpauth://\""
 
-#: prefs.js:906
+#: prefs.js:883
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Pegue todos los URI \"otpauth://\" que desee importar, uno por línea."
 
-#: prefs.js:920
+#: prefs.js:897
 msgid "_Import"
 msgstr "_Importar"
 
-#: prefs.js:959
+#: prefs.js:936
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copié todos los secretos de OTP al portapapeles."
 

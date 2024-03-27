@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 23:49-0300\n"
+"POT-Creation-Date: 2024-03-27 01:30-0300\n"
 "PO-Revision-Date: 2024-03-24 17:28-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -74,7 +74,7 @@ msgstr "Algorítimo"
 msgid "The hash algorithm used to generate codes."
 msgstr "O algorítimo usado para gerar códigos."
 
-#: prefs.js:217 prefs.js:583 prefs.js:919
+#: prefs.js:217 prefs.js:583 prefs.js:896
 msgid "_Cancel"
 msgstr "_Cancelar"
 
@@ -139,47 +139,55 @@ msgstr "_Apagar"
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Falha em remover o segredo. Está bloqueado?"
 
-#: prefs.js:774
+#: prefs.js:624
+msgid "Move up; hold SHIFT to move to the top."
+msgstr ""
+
+#: prefs.js:625
+msgid "Move down; hold SHIFT to move to the bottom."
+msgstr ""
+
+#: prefs.js:751
 msgid "Secrets"
 msgstr "Segredos"
 
-#: prefs.js:775
+#: prefs.js:752
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Uma lista de todos os segredos do chaveiro."
 
-#: prefs.js:800
+#: prefs.js:777
 msgid "Add secret..."
 msgstr "Adicionar segredo..."
 
-#: prefs.js:808
+#: prefs.js:785
 msgid "Refresh secrets"
 msgstr "Atualizar segredos"
 
-#: prefs.js:817
+#: prefs.js:794
 msgid "Import secrets..."
 msgstr "Importar segredos..."
 
-#: prefs.js:825
+#: prefs.js:802
 msgid "Export secrets"
 msgstr "Exportar segredos"
 
-#: prefs.js:880
+#: prefs.js:857
 msgid "Creating new TOTP secret"
 msgstr "Criando novo segredo TOTP"
 
-#: prefs.js:905
+#: prefs.js:882
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Importar URIs \"otpauth://\""
 
-#: prefs.js:906
+#: prefs.js:883
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Cole todas as URIs \"otpauth://\", uma por linha."
 
-#: prefs.js:920
+#: prefs.js:897
 msgid "_Import"
 msgstr "_Importar"
 
-#: prefs.js:959
+#: prefs.js:936
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copiado todos os segredos OTP para a área de transferência."
 
