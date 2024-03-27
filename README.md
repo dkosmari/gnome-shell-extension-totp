@@ -1,7 +1,7 @@
 TOTP
 ====
 
-This is a gnome-shell extension to generate TOTP (Time-based OTP) authentication codes
+This is a GNOME Shell extension to generate TOTP (Time-based OTP) authentication codes
 (such as the ones used by Google, Facebook, Github, Steam, etc).
 
 
@@ -56,11 +56,12 @@ You can generate Steam Guard Mobile Authenticator codes.
      rooted status, Steam Mobile version, etc.
 
   2. The `shared_secret` is encoded in `Base64`, not `Base32`; so when you import it,
-     select `base64`. The secret will still be stored in the keyring in `base32` encoding,
-     so don't be alarmed that it "changed."
+     select `Base64`. The secret will still be stored in the keyring in `Base32` encoding,
+     so don't be alarmed that it "changed" after you saved it.
 
   3. Set `Digits = 5`. Everything else is the default: `Period = 30`, `Algorithm = SHA-1`.
 
   4. The issuer must be `Steam`, to activate the special OTP encoding that Steam Guard
-     uses. Otherwise it will generate plain decimal code.
+     uses, using letters. Otherwise it will generate authentication codes in decimal,
+     which are not recognized by Steam.
 
