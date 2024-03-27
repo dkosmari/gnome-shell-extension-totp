@@ -602,7 +602,6 @@ class RemoveSecretButton extends Gtk.Button {
 };
 
 
-
 class MoveButton extends Gtk.Button {
 
     static {
