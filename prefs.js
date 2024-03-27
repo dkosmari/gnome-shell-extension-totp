@@ -289,15 +289,15 @@ class CopyCodeButton extends Gtk.Button {
         box.append(this.#label);
 
         this.#level = new Gtk.LevelBar({
-            min_value: 0.0,
-            max_value: this.#totp.period,
             inverted: true,
+            max_value: this.#totp.period,
+            min_value: 0.0,
             mode: Gtk.LevelBarMode.CONTINUOUS,
             orientation: Gtk.Orientation.VERTICAL
         });
         this.#level.add_css_class('totp-code-level');
         this.#level.add_offset_value("full", this.#totp.period);
-        this.#level.add_offset_value("high", this.#totp.period - 5);
+        this.#level.add_offset_value("high", 10);
         this.#level.add_offset_value("low", 5);
 
         box.append(this.#level);
@@ -451,7 +451,7 @@ class ExportSecretButton extends Gtk.Button {
     {
         super({
             icon_name: 'send-to-symbolic',
-            tooltip_text: _('Export secret to clipboard.'),
+            tooltip_text: _('Export this secret to clipboard.'),
             valign: Gtk.Align.CENTER
         });
 
@@ -465,7 +465,7 @@ class ExportSecretButton extends Gtk.Button {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             let uri = this.#totp.uri();
             copyToClipboard(uri,
-                            _('Copied secret URI to clipboard'),
+                            _('Copied secret URI to clipboard.'),
                             true);
         }
         catch (e) {
@@ -491,7 +491,7 @@ class ExportQRButton extends Gtk.Button {
     {
         super({
             icon_name: 'qr-code-symbolic',
-            tooltip_text: _('Export QR code.'),
+            tooltip_text: _('Export this secret as QR code.'),
             valign: Gtk.Align.CENTER
         });
 
@@ -597,71 +597,47 @@ class RemoveSecretButton extends Gtk.Button {
 };
 
 
-class UpButton extends Gtk.Button {
+class MoveButton extends Gtk.Button {
 
     static {
         GObject.registerClass(this);
     }
 
 
-    #row;
+    #direction;
     #group;
+    #row;
 
 
-    constructor(group, row, enabled)
+    constructor(group, row, direction, enabled)
     {
         super({
-            icon_name: "go-up-symbolic",
-            sensitive: enabled
+            icon_name: (direction < 0 ? 'go-up-symbolic' : 'go-down-symbolic'),
+            sensitive: enabled,
+            tooltip_text: (direction < 0
+                           ? _('Move this secret up; hold down the SHIFT key to move to the top of the list.')
+                           : _('Move this secret down; hold down the SHIFT key to move to the bottom of the list.'))
         });
         this.add_css_class('flat');
         this.add_css_class('totp-sort-button');
         this.#group = group;
         this.#row = row;
+        this.#direction = direction;
     }
 
 
     async on_clicked()
     {
         try {
-            await this.#group.moveBy(this.#row, -1);
-        }
-        catch (e) {
-            logError(e);
-        }
-    }
-
-};
-
-
-class DownButton extends Gtk.Button {
-
-    static {
-        GObject.registerClass(this);
-    }
-
-
-    #row;
-    #group;
-
-
-    constructor(group, row, enabled)
-    {
-        super({
-            icon_name: "go-down-symbolic",
-            sensitive: enabled
-        });
-        this.add_css_class('flat');
-        this.add_css_class('totp-sort-button');
-        this.#group = group;
-        this.#row = row;
-    }
-
-
-    async on_clicked()
-    {
-        try {
-            await this.#group.moveBy(this.#row, +1);
+            let display = Gdk.Display.get_default();
+            let seat = display.get_default_seat();
+            let kb = seat.get_keyboard();
+            let modifier = kb.modifier_state;
+            let shift_pressed = !!(modifier & Gdk.ModifierType.SHIFT_MASK);
+            let offset = this.#direction;
+            if (shift_pressed)
+                offset *= Infinity;
+            await this.#group.moveBy(this.#row, offset);
         }
         catch (e) {
             logError(e);
@@ -702,8 +678,8 @@ class SecretRow extends Adw.ActionRow {
         this.#children.push(box);
         this.add_prefix(box);
 
-        box.append(new UpButton(group, this, !is_first));
-        box.append(new DownButton(group, this, !is_last));
+        box.append(new MoveButton(group, this, -1, !is_first));
+        box.append(new MoveButton(group, this, +1, !is_last));
 
         // helper function
         let add_suffix = w => {
@@ -800,7 +776,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         box.append(
             new Gtk.Button({
                 icon_name: 'view-refresh-symbolic',
-                tooltip_text: _('Refresh secrets'),
+                tooltip_text: _('Refresh secrets.'),
                 action_name: 'totp.refresh',
             })
         );
@@ -817,7 +793,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 icon_name: 'document-export-symbolic',
                 action_name: 'totp.export_all',
-                tooltip_text: _("Export secrets")
+                tooltip_text: _("Export all secrets to the clipboard.")
             })
         );
 
@@ -979,11 +955,23 @@ class SecretsGroup extends Adw.PreferencesGroup {
         const i = this.#rows.indexOf(row);
         if (i == -1)
             throw Error(`Trying to move a row that was not found: ${row}`);
-        const j = i + offset;
-        if (j < 0 || j >= this.#rows.length)
-            return;
-        // swap them
-        [this.#rows[i], this.#rows[j]] = [this.#rows[j], this.#rows[i]];
+
+        if (isFinite(offset)) {
+            const j = i + offset;
+            if (j < 0 || j >= this.#rows.length)
+                return;
+            // swap them
+            [this.#rows[i], this.#rows[j]] = [this.#rows[j], this.#rows[i]];
+        } else {
+            this.#rows.splice(i, 1);
+            if (offset < 0) {
+                // move all the way to the front
+                this.#rows.unshift(row);
+            } else {
+                // move all the way to the back
+                this.#rows.push(row);
+            }
+        }
         await this.sortSecrets();
         await this.refreshSecrets();
     }
