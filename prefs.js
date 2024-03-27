@@ -456,7 +456,7 @@ class ExportSecretButton extends Gtk.Button {
     {
         super({
             icon_name: 'send-to-symbolic',
-            tooltip_text: _('Export secret to clipboard.'),
+            tooltip_text: _('Export this secret to clipboard.'),
             valign: Gtk.Align.CENTER
         });
 
@@ -470,7 +470,7 @@ class ExportSecretButton extends Gtk.Button {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             let uri = this.#totp.uri();
             copyToClipboard(uri,
-                            _('Copied secret URI to clipboard'),
+                            _('Copied secret URI to clipboard.'),
                             true);
         }
         catch (e) {
@@ -496,7 +496,7 @@ class ExportQRButton extends Gtk.Button {
     {
         super({
             icon_name: 'qr-code-symbolic',
-            tooltip_text: _('Export QR code.'),
+            tooltip_text: _('Export this secret as QR code.'),
             valign: Gtk.Align.CENTER
         });
 
@@ -620,8 +620,8 @@ class MoveButton extends Gtk.Button {
             icon_name: (direction < 0 ? 'go-up-symbolic' : 'go-down-symbolic'),
             sensitive: enabled,
             tooltip_text: (direction < 0
-                           ? _('Move up; hold SHIFT to move to the top.')
-                           : _('Move down; hold SHIFT to move to the bottom.'))
+                           ? _('Move this secret up; hold down the SHIFT key to move to the top of the list.')
+                           : _('Move this secret down; hold down the SHIFT key to move to the bottom of the list.'))
         });
         this.add_css_class('flat');
         this.add_css_class('totp-sort-button');
@@ -781,7 +781,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         box.append(
             new Gtk.Button({
                 icon_name: 'view-refresh-symbolic',
-                tooltip_text: _('Refresh secrets'),
+                tooltip_text: _('Refresh secrets.'),
                 action_name: 'totp.refresh',
             })
         );
@@ -798,7 +798,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 icon_name: 'document-export-symbolic',
                 action_name: 'totp.export_all',
-                tooltip_text: _("Export secrets")
+                tooltip_text: _("Export all secrets to the clipboard.")
             })
         );
 
