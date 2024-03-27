@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 22:32-0300\n"
+"POT-Creation-Date: 2024-03-26 22:59-0300\n"
 "PO-Revision-Date: 2024-03-24 17:46+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Error"
 msgstr "Foutmelding"
 
-#: prefs.js:91 prefs.js:536
+#: prefs.js:91 prefs.js:535
 msgid "_Close"
 msgstr "_Sluiten"
 
@@ -76,7 +76,7 @@ msgstr "Algoritme"
 msgid "The hash algorithm used to generate codes."
 msgstr "Het controlesomalgoritme van de gegenereerde codes."
 
-#: prefs.js:217 prefs.js:585 prefs.js:919
+#: prefs.js:217 prefs.js:583 prefs.js:916
 msgid "_Cancel"
 msgstr "_Annuleren"
 
@@ -88,100 +88,100 @@ msgstr "_Oké"
 msgid "Copy code to clipboard."
 msgstr "Kopieer de code naar het klembord."
 
-#: prefs.js:290 prefs.js:348
+#: prefs.js:290 prefs.js:347
 msgid "Unlock"
 msgstr "Ontgrendelen"
 
-#: prefs.js:381 src/indicator.js:33
+#: prefs.js:380 src/indicator.js:33
 msgid "OTP code copied to clipboard."
 msgstr "De code is gekopieerd naar het klembord."
 
-#: prefs.js:407
+#: prefs.js:406
 msgid "Edit this secret."
 msgstr "Bewerk dit geheim."
 
-#: prefs.js:423
+#: prefs.js:422
 msgid "Editing TOTP secret"
 msgstr "Bewerken van totp-geheim"
 
-#: prefs.js:460
+#: prefs.js:459
 msgid "Export secret to clipboard."
 msgstr "Het geheim is geëxporteerd naar het klembord."
 
-#: prefs.js:474
+#: prefs.js:473
 msgid "Copied secret URI to clipboard"
 msgstr "De geheime uri is gekopieerd naar het klembord."
 
-#: prefs.js:500
+#: prefs.js:499
 msgid "Export QR code."
 msgstr "Exporteer de QR-code."
 
-#: prefs.js:531
+#: prefs.js:530
 msgid "QR code"
 msgstr "QR-code"
 
-#: prefs.js:563
+#: prefs.js:562
 msgid "Remove this secret."
 msgstr "Verwijder dit geheim."
 
-#: prefs.js:578
+#: prefs.js:576
 msgid "Deleting TOTP secret"
 msgstr "Verwijderen van totp-geheim"
 
-#: prefs.js:579
+#: prefs.js:577
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr "Bezig met verwijderen van"
 
-#: prefs.js:586
+#: prefs.js:584
 msgid "_Delete"
 msgstr "Verwij_deren"
 
-#: prefs.js:595
+#: prefs.js:593
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Het geheim kan niet worden verwijderd. Is het geheim vergrendeld?"
 
-#: prefs.js:777
+#: prefs.js:774
 msgid "Secrets"
 msgstr "Geheimen"
 
-#: prefs.js:778
+#: prefs.js:775
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Een lijst met totp-geheimen uit de sleutelbos."
 
-#: prefs.js:800
+#: prefs.js:797
 msgid "Add secret..."
 msgstr "Geheim toevoegen…"
 
-#: prefs.js:808
+#: prefs.js:805
 msgid "Refresh secrets"
 msgstr "Geheimen herladen"
 
-#: prefs.js:817
+#: prefs.js:814
 msgid "Import secrets..."
 msgstr "Geheimen importeren…"
 
-#: prefs.js:825
+#: prefs.js:822
 msgid "Export secrets"
 msgstr "Geheimen exporteren"
 
-#: prefs.js:880
+#: prefs.js:877
 msgid "Creating new TOTP secret"
 msgstr "Totp-geheim aanmaken"
 
-#: prefs.js:905
+#: prefs.js:902
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Bezig met importeren van ‘otpauth://’-uri's…"
 
-#: prefs.js:906
+#: prefs.js:903
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Plak alle te importeren ‘otpauth://’-uri's, een per regel."
 
-#: prefs.js:920
+#: prefs.js:917
 msgid "_Import"
 msgstr "_Importeren"
 
-#: prefs.js:959
+#: prefs.js:956
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Alle otp-geheimen zijn gekopieerd naar het klembord."
 
@@ -237,23 +237,23 @@ msgstr "De otp-items kunnen niet worden opgehaald."
 msgid "Error copying the OTP authentication code."
 msgstr "De otp-verificatiecode kan niet worden gekopieerd."
 
-#: src/secretUtils.js:141 src/secretUtils.js:207 src/secretUtils.js:242
+#: src/secretUtils.js:141 src/secretUtils.js:205 src/secretUtils.js:240
 msgid "Failed to lookup secret."
 msgstr "Het geheim kan niet worden opgevraagd."
 
-#: src/secretUtils.js:175
+#: src/secretUtils.js:173
 msgid "Failed to retrieve secret."
 msgstr "Het geheim kan niet worden opgehaald."
 
-#: src/secretUtils.js:214 src/secretUtils.js:245
+#: src/secretUtils.js:212 src/secretUtils.js:243
 msgid "Failed to set label."
 msgstr "Het label kan niet worden ingesteld."
 
-#: src/secretUtils.js:221
+#: src/secretUtils.js:219
 msgid "Failed to set attributes."
 msgstr "De eigenschappen kunnen niet worden ingesteld."
 
-#: src/secretUtils.js:227
+#: src/secretUtils.js:225
 msgid "Failed to set secret."
 msgstr "Het geheim kan niet worden ingesteld."
 

@@ -239,7 +239,7 @@ async function updateTOTPOrder(totp, order)
     if (!item)
         throw new Error(_('Failed to lookup secret.'));
 
-    if (!await item.set_label(makeLabel(totp, order)))
+    if (!await item.set_label(makeLabel(totp, order), null))
         throw new Error(_('Failed to set label.'));
 }
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 22:32-0300\n"
+"POT-Creation-Date: 2024-03-26 23:02-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: prefs.js:91 prefs.js:536
+#: prefs.js:91 prefs.js:535
 msgid "_Close"
 msgstr ""
 
@@ -74,7 +74,7 @@ msgstr ""
 msgid "The hash algorithm used to generate codes."
 msgstr ""
 
-#: prefs.js:217 prefs.js:585 prefs.js:919
+#: prefs.js:217 prefs.js:583 prefs.js:916
 msgid "_Cancel"
 msgstr ""
 
@@ -86,100 +86,100 @@ msgstr ""
 msgid "Copy code to clipboard."
 msgstr ""
 
-#: prefs.js:290 prefs.js:348
+#: prefs.js:290 prefs.js:347
 msgid "Unlock"
 msgstr ""
 
-#: prefs.js:381 src/indicator.js:33
+#: prefs.js:380 src/indicator.js:33
 msgid "OTP code copied to clipboard."
 msgstr ""
 
-#: prefs.js:407
+#: prefs.js:406
 msgid "Edit this secret."
 msgstr ""
 
-#: prefs.js:423
+#: prefs.js:422
 msgid "Editing TOTP secret"
 msgstr ""
 
-#: prefs.js:460
+#: prefs.js:459
 msgid "Export secret to clipboard."
 msgstr ""
 
-#: prefs.js:474
+#: prefs.js:473
 msgid "Copied secret URI to clipboard"
 msgstr ""
 
-#: prefs.js:500
+#: prefs.js:499
 msgid "Export QR code."
 msgstr ""
 
-#: prefs.js:531
+#: prefs.js:530
 msgid "QR code"
 msgstr ""
 
-#: prefs.js:563
+#: prefs.js:562
 msgid "Remove this secret."
 msgstr ""
 
-#: prefs.js:578
+#: prefs.js:576
 msgid "Deleting TOTP secret"
 msgstr ""
 
-#: prefs.js:579
+#: prefs.js:577
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr ""
 
-#: prefs.js:586
+#: prefs.js:584
 msgid "_Delete"
 msgstr ""
 
-#: prefs.js:595
+#: prefs.js:593
 msgid "Failed to remove secret. Is it locked?"
 msgstr ""
 
-#: prefs.js:777
+#: prefs.js:774
 msgid "Secrets"
 msgstr ""
 
-#: prefs.js:778
+#: prefs.js:775
 msgid "A list of all TOTP secrets from the keyring."
 msgstr ""
 
-#: prefs.js:800
+#: prefs.js:797
 msgid "Add secret..."
 msgstr ""
 
-#: prefs.js:808
+#: prefs.js:805
 msgid "Refresh secrets"
 msgstr ""
 
-#: prefs.js:817
+#: prefs.js:814
 msgid "Import secrets..."
 msgstr ""
 
-#: prefs.js:825
+#: prefs.js:822
 msgid "Export secrets"
 msgstr ""
 
-#: prefs.js:880
+#: prefs.js:877
 msgid "Creating new TOTP secret"
 msgstr ""
 
-#: prefs.js:905
+#: prefs.js:902
 msgid "Importing \"otpauth://\" URIs"
 msgstr ""
 
-#: prefs.js:906
+#: prefs.js:903
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr ""
 
-#: prefs.js:920
+#: prefs.js:917
 msgid "_Import"
 msgstr ""
 
-#: prefs.js:959
+#: prefs.js:956
 msgid "Copied all OTP secrets to clipboard."
 msgstr ""
 
@@ -235,23 +235,23 @@ msgstr ""
 msgid "Error copying the OTP authentication code."
 msgstr ""
 
-#: src/secretUtils.js:141 src/secretUtils.js:207 src/secretUtils.js:242
+#: src/secretUtils.js:141 src/secretUtils.js:205 src/secretUtils.js:240
 msgid "Failed to lookup secret."
 msgstr ""
 
-#: src/secretUtils.js:175
+#: src/secretUtils.js:173
 msgid "Failed to retrieve secret."
 msgstr ""
 
-#: src/secretUtils.js:214 src/secretUtils.js:245
+#: src/secretUtils.js:212 src/secretUtils.js:243
 msgid "Failed to set label."
 msgstr ""
 
-#: src/secretUtils.js:221
+#: src/secretUtils.js:219
 msgid "Failed to set attributes."
 msgstr ""
 
-#: src/secretUtils.js:227
+#: src/secretUtils.js:225
 msgid "Failed to set secret."
 msgstr ""
 
