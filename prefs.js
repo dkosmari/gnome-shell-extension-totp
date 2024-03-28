@@ -99,6 +99,22 @@ function now()
 }
 
 
+function findListBox(w)
+{
+    if (w instanceof Gtk.ListBox)
+        return w;
+
+    let child = w.get_first_child();
+    while (child) {
+        let r = findListBox(child);
+        if (r)
+            return r;
+        child = child.get_next_sibling();
+    }
+    return null;
+}
+
+
 class SecretDialog extends Gtk.Dialog {
 
     static {
@@ -304,9 +320,9 @@ class CopyCodeButton extends Gtk.Button {
 
         this.#update_source = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
                                                500,
-                                               async () => {
+                                               () => {
                                                    try {
-                                                       await this.updateCode();
+                                                       this.updateCode();
                                                    }
                                                    catch (e) {
                                                        this.destroy();
@@ -324,12 +340,6 @@ class CopyCodeButton extends Gtk.Button {
             GLib.Source.remove(this.#update_source);
             this.#update_source = 0;
         }
-    }
-
-
-    on_unmap()
-    {
-        this.destroy();
     }
 
 
@@ -609,11 +619,10 @@ class MoveButton extends Gtk.Button {
     #row;
 
 
-    constructor(group, row, direction, enabled)
+    constructor(group, row, direction)
     {
         super({
             icon_name: (direction < 0 ? 'go-up-symbolic' : 'go-down-symbolic'),
-            sensitive: enabled,
             tooltip_text: (direction < 0
                            ? _('Move this secret up; hold down the SHIFT key to move to the top of the list.')
                            : _('Move this secret down; hold down the SHIFT key to move to the bottom of the list.'))
@@ -626,22 +635,17 @@ class MoveButton extends Gtk.Button {
     }
 
 
-    async on_clicked()
+    on_clicked()
     {
-        try {
-            let display = Gdk.Display.get_default();
-            let seat = display.get_default_seat();
-            let kb = seat.get_keyboard();
-            let modifier = kb.modifier_state;
-            let shift_pressed = !!(modifier & Gdk.ModifierType.SHIFT_MASK);
-            let offset = this.#direction;
-            if (shift_pressed)
-                offset *= Infinity;
-            await this.#group.moveBy(this.#row, offset);
-        }
-        catch (e) {
-            logError(e);
-        }
+        let display = Gdk.Display.get_default();
+        let seat = display.get_default_seat();
+        let kb = seat.get_keyboard();
+        let modifier = kb.modifier_state;
+        let shift_pressed = !!(modifier & Gdk.ModifierType.SHIFT_MASK);
+        let offset = this.#direction;
+        if (shift_pressed)
+            offset *= Infinity;
+        this.#group.moveBy(this.#row, offset);
     }
 
 };
@@ -655,10 +659,12 @@ class SecretRow extends Adw.ActionRow {
 
 
     #children = [];
+    #down_button;
     #totp;
+    #up_button;
 
 
-    constructor(totp, group, is_first, is_last)
+    constructor(totp, group)
     {
         super({
             title: totp.issuer,
@@ -678,8 +684,10 @@ class SecretRow extends Adw.ActionRow {
         this.#children.push(box);
         this.add_prefix(box);
 
-        box.append(new MoveButton(group, this, -1, !is_first));
-        box.append(new MoveButton(group, this, +1, !is_last));
+        this.#up_button = new MoveButton(group, this, -1);
+        this.#down_button = new MoveButton(group, this, +1);
+        box.append(this.#up_button);
+        box.append(this.#down_button);
 
         // helper function
         let add_suffix = w => {
@@ -697,12 +705,22 @@ class SecretRow extends Adw.ActionRow {
 
     destroy()
     {
+        this.#up_button = null;
+        this.#down_button = null;
+
         this.#children.forEach(w => {
             this.remove(w);
             if (w.destroy)
                 w.destroy();
         });
         this.#children = null;
+    }
+
+
+    updateButtons()
+    {
+        this.#up_button.sensitive = !!this.get_prev_sibling();
+        this.#down_button.sensitive = !!this.get_next_sibling();
     }
 
 
@@ -735,6 +753,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
 
     #initialized_notify = false;
+    #listbox;
     #rows = [];
     #update_source = 0;
 
@@ -745,6 +764,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
             title: _('Secrets'),
             description: _('A list of all TOTP secrets from the keyring.')
         });
+
+        this.#listbox = findListBox(this);
+        this.#listbox.set_sort_func(this.rowSortFunc.bind(this));
 
         // UI tweak: relax the clamp so the group can grow wider.
         this.connect('notify::parent', () => this.get_ancestor(Adw.Clamp)?.set_maximum_size(1000));
@@ -809,6 +831,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
             Notify.uninit();
             this.#initialized_notify = false;
         }
+
+        this.#listbox = null;
     }
 
 
@@ -827,16 +851,14 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.clearSecrets();
         try {
             let items = await SecretUtils.getOTPItems();
-            items.forEach((item, idx) =>
+            items.forEach(item =>
                 {
                     let totp = new TOTP(item.get_attributes());
-                    let row = new SecretRow(totp,
-                                            this,
-                                            idx == 0,
-                                            idx == items.length - 1);
+                    let row = new SecretRow(totp, this);
                     this.#rows.push(row);
                     this.add(row);
                 });
+            this.#rows.forEach(r => r.updateButtons());
         }
         catch (e) {
             logError(e, 'refreshSecrets()');
@@ -853,7 +875,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             async (totp) => {
                 try {
                     const n = this.#rows.length;
-                    await this.sortSecrets(); // ensure the orders are 0, ..., n-1
+                    await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
                     await SecretUtils.createTOTPItem(totp, n);
                     dialog.destroy();
                     await this.refreshSecrets();
@@ -894,7 +916,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             let response = await dialog.choose(null);
             if (response == 'import') {
                 const n = this.#rows.length;
-                await this.sortSecrets(); // ensure the orders are 0, ..., n-1
+                await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
                 let text = dialog.extra_child.child.buffer.text;
                 let uris = GLib.Uri.list_extract_uris(text);
                 for (let i = 0; i < uris.length; ++i) {
@@ -936,7 +958,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
 
     // Store the UI order in the keyring as their labels
-    async sortSecrets()
+    async storeSecretsOrder()
     {
         try {
             for (let i = 0; i < this.#rows.length; ++i) {
@@ -945,12 +967,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
             }
         }
         catch (e) {
-            logError(e, 'sortSecrets()');
+            logError(e, 'storeSecretsOrder()');
         }
     }
 
 
-    async moveBy(row, offset)
+    moveBy(row, offset)
     {
         const i = this.#rows.indexOf(row);
         if (i == -1)
@@ -972,8 +994,18 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 this.#rows.push(row);
             }
         }
-        await this.sortSecrets();
-        await this.refreshSecrets();
+
+        this.#listbox?.invalidate_sort();
+        this.#rows.forEach(r => r.updateButtons());
+        this.storeSecretsOrder();
+    }
+
+
+    rowSortFunc(rowI, rowJ)
+    {
+        const i = this.#rows.indexOf(rowI);
+        const j = this.#rows.indexOf(rowJ);
+        return i - j;
     }
 
 };
@@ -987,6 +1019,7 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
 
     #group;
+    #provider;
     #resource;
 
 
@@ -1005,10 +1038,10 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
         if (!theme.get_resource_path().includes(res_path))
             theme.add_resource_path(res_path);
 
-        let provider = new Gtk.CssProvider();
-        provider.load_from_path(`${ext.path}/prefs.css`);
+        this.#provider = new Gtk.CssProvider();
+        this.#provider.load_from_path(`${ext.path}/prefs.css`);
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(),
-                                                  provider,
+                                                  this.#provider,
                                                   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
         this.#group = new SecretsGroup(application_id);
@@ -1018,12 +1051,22 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
     destroy()
     {
-        Gio.resources_unregister(this.#resource);
-        this.#resource = null;
+        if (this.#provider) {
+            Gtk.StyleContext.remove_provider_for_display(Gdk.Display.get_default(),
+                                                         this.#provider);
+            this.#provider = null;
+        }
 
-        this.remove(this.#group);
-        this.#group.destroy();
-        this.#group = null;
+        if (this.#group) {
+            this.remove(this.#group);
+            this.#group?.destroy();
+            this.#group = null;
+        }
+
+        if (this.#resource) {
+            Gio.resources_unregister(this.#resource);
+            this.#resource = null;
+        }
     }
 
 };
