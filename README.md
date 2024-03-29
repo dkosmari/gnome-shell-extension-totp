@@ -26,6 +26,12 @@ website](https://extensions.gnome.org/extension/6793/totp/).
 Installing from sources
 -----------------------
 
+Prerequisites:
+
+  - [make](https://www.gnu.org/software/make/)
+
+  - [jq](https://stedolan.github.io/jq/)
+
 Run:
 
     make install
