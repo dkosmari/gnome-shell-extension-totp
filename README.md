@@ -10,8 +10,9 @@ This is a GNOME Shell extension to generate TOTP (Time-based OTP) authentication
 Security
 --------
 
-The OTP secret is stored in the GNOME Keyring, in a separate collection called "OTP". For
-improved security, users can lock this collection with its own password.
+The OTP secret is stored in the [GNOME
+Keyring](https://wiki.gnome.org/Projects/GnomeKeyring), in a separate collection called
+"OTP". For improved security, users can lock this collection with its own password.
 
 During normal usage, the extension will load the specific OTP secret (unlocking the
 Keyring if necessary), copy the authentication code to the clipboard, and immediately wipe
@@ -73,3 +74,11 @@ You can generate Steam Guard Mobile Authenticator codes.
      uses, using letters. Otherwise it will generate authentication codes in decimal,
      which are not recognized by Steam.
 
+
+Related extensions
+------------------
+
+When using this extension on a laptop, it's a good idea to also install [Keyring
+Autolock](https://extensions.gnome.org/extension/6846/keyring-autolock/). It will ensure
+your Keyring gets locked after a period of time, so you never forget to keep your OTP
+secrets protected.
