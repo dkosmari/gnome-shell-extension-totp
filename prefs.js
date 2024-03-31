@@ -29,8 +29,10 @@ const {
 const _ = gettext;
 
 
-Gio._promisify(Adw.MessageDialog.prototype, 'choose', 'choose_finish');
-Gio._promisify(Gio.Subprocess.prototype, 'communicate_async');
+Gio._promisify(Gtk.AlertDialog.prototype, 'choose', 'choose_finish');
+Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
+Gio._promisify(Gio.Subprocess.prototype, 'wait_async', 'wait_finish');
+Gio._promisify(Gio.Subprocess.prototype, 'wait_check_async', 'wait_check_finish');
 
 
 function copyToClipboard(text,
@@ -69,28 +71,27 @@ function copyToClipboard(text,
 }
 
 
-function makeMarkupLabel({issuer, name})
+function makeLabel({issuer, name})
 {
     let safe_issuer = GLib.markup_escape_text(issuer, -1);
     let safe_name = GLib.markup_escape_text(name, -1);
-    return `<b>${safe_issuer}:</b> ${safe_name}`;
+    return `${safe_issuer}: ${safe_name}`;
 }
 
 
-async function reportError(parent, e, where = null)
+function reportError(parent, e, where = null)
 {
-    logError(e, where);
+    if (where)
+        logError(e, where);
+    else
+        logError(e);
     try {
-        let dialog = new Adw.MessageDialog({
-            transient_for: parent,
-            title: _('Error'),
-            heading: where,
-            body: _(e.message),
+        let dialog = new Gtk.AlertDialog({
             modal: true,
+            detail: _(e.message),
+            message: where || _('Error')
         });
-        dialog.add_response('close', _('_Close'));
-        await dialog.choose(null);
-        dialog.destroy();
+        dialog.show(parent);
     }
     catch (ee) {
         logError(ee, 'reportError()');
@@ -391,7 +392,7 @@ class CopyCodeButton extends Gtk.Button {
                             true);
         }
         catch (e) {
-            await reportError(this.root, e);
+            reportError(this.root, e);
         }
     }
 
@@ -438,7 +439,7 @@ class EditSecretButton extends Gtk.Button {
                         await this.#group.refreshSecrets();
                     }
                     catch (e) {
-                        await reportError(dialog, e);
+                        reportError(dialog, e);
                     }
                 },
                 () => dialog.destroy()
@@ -446,7 +447,7 @@ class EditSecretButton extends Gtk.Button {
             dialog.present();
         }
         catch (e) {
-            await reportError(this.root, e);
+            reportError(this.root, e);
         }
     }
 };
@@ -484,9 +485,50 @@ class ExportSecretButton extends Gtk.Button {
                             true);
         }
         catch (e) {
-            await reportError(this.root, e);
+            reportError(this.root, e);
         }
 
+    }
+
+};
+
+
+class ExportQRWindow extends Gtk.Window {
+    static {
+        GObject.registerClass(this);
+    }
+
+    constructor(parent, img_stream)
+    {
+        super({
+            transient_for: parent,
+            modal: true,
+            title: _('QR code'),
+        });
+        this.add_css_class('qr-export-window');
+
+        let box = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL
+        });
+        this.set_child(box);
+
+        let pbuf = GdkPixbuf.Pixbuf.new_from_stream(img_stream, null);
+
+        let img = new Gtk.Image({
+            hexpand: true,
+            vexpand: true,
+            height_request: 400,
+            width_request: 400,
+        });
+        img.set_from_pixbuf(pbuf);
+        box.append(img);
+
+        let button = new Gtk.Button({
+            label: _("_Close"),
+            use_underline: true
+        });
+        button.connect('clicked', () => this.destroy());
+        box.append(button);
     }
 
 };
@@ -499,10 +541,11 @@ class ExportQRButton extends Gtk.Button {
     }
 
 
+    #settings;
     #totp;
 
 
-    constructor(totp)
+    constructor(totp, settings)
     {
         super({
             icon_name: 'qr-code-symbolic',
@@ -510,7 +553,14 @@ class ExportQRButton extends Gtk.Button {
             valign: Gtk.Align.CENTER
         });
 
+        this.#settings = settings;
         this.#totp = totp;
+    }
+
+
+    destroy()
+    {
+        this.#settings = null;
     }
 
 
@@ -523,30 +573,28 @@ class ExportQRButton extends Gtk.Button {
             let te = new TextEncoder();
             const uri_data = te.encode(uri);
 
-            let qrencode_proc = Gio.Subprocess.new(['qrencode', '-s', '10', '-o', '-'],
-                                                   Gio.SubprocessFlags.STDIN_PIPE |
-                                                   Gio.SubprocessFlags.STDOUT_PIPE);
-            let [stdout, stderr] = await qrencode_proc.communicate_async(uri_data, null);
+            const qrencode_cmd = this.#settings.get_string('qrencode-cmd');
+            const [parsed, args] = GLib.shell_parse_argv(qrencode_cmd);
+            if (!parsed)
+                throw new Error(_('Failed to parse "qrencode-cmd" option.'));
+
+            let qrencode_proc = Gio.Subprocess.new(args,
+                                                   Gio.SubprocessFlags.STDIN_PIPE
+                                                   | Gio.SubprocessFlags.STDOUT_PIPE
+                                                   | Gio.SubprocessFlags.STDERR_PIPE);
+
+            let [stdout, stderr] =
+                await qrencode_proc.communicate_async(uri_data, null);
+
+            if (!stdout)
+                throw new Error('Got no stdout');
 
             let img_stream = Gio.MemoryInputStream.new_from_bytes(stdout);
-            let pbuf = GdkPixbuf.Pixbuf.new_from_stream(img_stream, null);
-            let img = Gtk.Image.new_from_pixbuf(pbuf);
-            img.vexpand = true;
-            img.hexpand = true;
-            img.set_size_request(400, 400);
-
-            let dialog = new Adw.MessageDialog({
-                transient_for: this.root,
-                title: _('QR code'),
-                modal: true,
-                resizable: true,
-                extra_child: img
-            });
-            dialog.add_response('close', _('_Close'));
-            await dialog.choose(null);
+            let export_window = new ExportQRWindow(this.root, img_stream);
+            export_window.show();
         }
         catch (e) {
-            await reportError(this.root, e);
+            reportError(this.root, e);
         }
 
     }
@@ -581,23 +629,22 @@ class RemoveSecretButton extends Gtk.Button {
     async on_clicked()
     {
         try {
-            let dialog = new Adw.MessageDialog({
-                transient_for: this.root,
-                heading: _('Deleting TOTP secret'),
-                body: pgettext('Deleting: "SECRET"', 'Deleting:')
-                    + ` "${makeMarkupLabel(this.#totp)}"`,
-                body_use_markup: true,
-                default_response: 'delete',
-                close_response: 'cancel'
+            const cancel_response = 0;
+            const delete_response = 1;
+            const buttons = [_('_Cancel'), _('_Delete')];
+
+            let dialog = new Gtk.AlertDialog({
+                message: _('Deleting TOTP secret'),
+                detail: pgettext('Deleting: "SECRET"', 'Deleting:')
+                    + ` "${makeLabel(this.#totp)}"`,
+                modal: true,
+                default_button: delete_response,
+                cancel_button: cancel_response,
+                buttons: buttons
             });
-            dialog.add_response('cancel', _('_Cancel'));
-            dialog.add_response('delete', _('_Delete'));
-            dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
 
-            let response = await dialog.choose(null);
-
-            if (response == 'delete') {
-                this.#group.clearSecrets();
+            let response = await dialog.choose(this.root, null);
+            if (response == delete_response) {
                 let success = await SecretUtils.removeTOTPItem(this.#totp);
                 if (!success)
                     throw new Error(_('Failed to remove secret. Is it locked?'));
@@ -605,7 +652,7 @@ class RemoveSecretButton extends Gtk.Button {
             }
         }
         catch (e) {
-            await reportError(this.root, e);
+            reportError(this.root, e);
         }
     }
 
@@ -669,7 +716,7 @@ class SecretRow extends Adw.ActionRow {
     #up_button;
 
 
-    constructor(totp, group)
+    constructor(totp, group, settings)
     {
         super({
             title: totp.issuer,
@@ -703,7 +750,7 @@ class SecretRow extends Adw.ActionRow {
         add_suffix(new CopyCodeButton(totp));
         add_suffix(new EditSecretButton(totp, group));
         add_suffix(new ExportSecretButton(totp));
-        add_suffix(new ExportQRButton(totp));
+        add_suffix(new ExportQRButton(totp, settings));
         add_suffix(new RemoveSecretButton(totp, group));
     }
 
@@ -738,6 +785,101 @@ class SecretRow extends Adw.ActionRow {
 };
 
 
+class ImportURIsWindow extends Gtk.Window {
+
+    static {
+        GObject.registerClass(this);
+
+        this.install_action('import.cancel', null,
+                            obj => obj.responseCancel());
+
+        this.install_action('import.import', null,
+                            obj => obj.responseImport());
+    }
+
+
+    #buffer;
+    #response_handler;
+
+
+    constructor(parent)
+    {
+        super({
+            transient_for: parent,
+            modal: true,
+            title: _('Importing "otpauth://" URIs'),
+            default_width: 600,
+            default_height: 400,
+            deletable: false,
+            titlebar: new Gtk.HeaderBar()
+        });
+        this.add_css_class('import-uris');
+
+        let vbox = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 6
+        });
+        this.set_child(vbox);
+
+        let heading = new Gtk.Label({
+            label: _('Paste all "otpauth://" URIs you want to import, one per line.')
+        });
+        vbox.append(heading);
+
+        this.#buffer = new Gtk.TextBuffer();
+
+        let scroll = new Gtk.ScrolledWindow({
+            vexpand: true,
+            hexpand: true,
+            child: new Gtk.TextView({
+                monospace: true,
+                buffer: this.#buffer
+            })
+        });
+        vbox.append(scroll);
+
+        let cancel_button = new Gtk.Button({
+            label: _('_Cancel'),
+            use_underline: true,
+            action_name: 'import.cancel'
+        });
+        this.titlebar.pack_start(cancel_button);
+
+        let import_button = new Gtk.Button({
+            label: _('_Import'),
+            use_underline: true,
+            action_name: 'import.import'
+        });
+        import_button.add_css_class('suggested-action');
+        this.titlebar.pack_end(import_button);
+    }
+
+
+    choose(handler)
+    {
+        this.#response_handler = handler;
+        this.present();
+    }
+
+
+    responseCancel()
+    {
+        if (this.#response_handler)
+            this.#response_handler('cancel', null);
+        this.close();
+    }
+
+
+    responseImport()
+    {
+        if (this.#response_handler)
+            this.#response_handler('import', this.#buffer.text);
+        this.close();
+    }
+
+};
+
+
 class SecretsGroup extends Adw.PreferencesGroup {
 
     static {
@@ -760,15 +902,18 @@ class SecretsGroup extends Adw.PreferencesGroup {
     #initialized_notify = false;
     #listbox;
     #rows = [];
+    #settings;
     #update_source = 0;
 
 
-    constructor(application_id)
+    constructor(application_id, settings)
     {
         super({
             title: _('Secrets'),
             description: _('A list of all TOTP secrets from the keyring.')
         });
+
+        this.#settings = settings;
 
         this.#listbox = findListBox(this);
         this.#listbox.set_sort_func(this.rowSortFunc.bind(this));
@@ -838,6 +983,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
         }
 
         this.#listbox = null;
+
+        this.#settings = null;
     }
 
 
@@ -859,7 +1006,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             items.forEach(item =>
                 {
                     let totp = new TOTP(item.get_attributes());
-                    let row = new SecretRow(totp, this);
+                    let row = new SecretRow(totp, this, this.#settings);
                     this.#rows.push(row);
                     this.add(row);
                 });
@@ -886,7 +1033,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                     await this.refreshSecrets();
                 }
                 catch (e) {
-                    await reportError(dialog, e, 'createSecret()');
+                    reportError(dialog, e, 'createSecret()');
                 }
             },
             () => dialog.destroy()
@@ -898,46 +1045,27 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async importSecrets()
     {
         try {
-            let dialog = new Adw.MessageDialog({
-                transient_for: this.root,
-                heading: _('Importing "otpauth://" URIs'),
-                body: _('Paste all "otpauth://" URIs you want to import, one per line.'),
-                default_width: 500,
-                resizable: true,
-                default_response: 'import',
-                close_response: 'cancel',
-                extra_child: new Gtk.ScrolledWindow({
-                    vexpand: true,
-                    hexpand: true,
-                    child: new Gtk.TextView({
-                        monospace: true
-                    })
-                })
-            });
-            dialog.add_response('cancel', _('_Cancel'));
-            dialog.add_response('import', _('_Import'));
-            dialog.set_response_appearance('import', Adw.ResponseAppearance.SUGGESTED);
-
-            let response = await dialog.choose(null);
-            if (response == 'import') {
-                const n = this.#rows.length;
-                await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
-                let text = dialog.extra_child.child.buffer.text;
-                let uris = GLib.Uri.list_extract_uris(text);
-                for (let i = 0; i < uris.length; ++i) {
+            let import_window = new ImportURIsWindow(this.root);
+            import_window.choose(async (response, text) => {
+                if (response == 'import') {
+                    const n = this.#rows.length;
+                    await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
+                    let uris = GLib.Uri.list_extract_uris(text);
                     try {
-                        let totp = new TOTP({uri: uris[i]});
-                        await SecretUtils.createTOTPItem(totp, n + i);
+                        for (let i = 0; i < uris.length; ++i) {
+                            let totp = new TOTP({uri: uris[i]});
+                            await SecretUtils.createTOTPItem(totp, n + i);
+                        }
                     }
                     catch (e) {
-                        await reportError(dialog, e, 'importSecrets()');
+                        reportError(this.root, e, 'importSecrets()');
                     }
+                    await this.refreshSecrets();
                 }
-                await this.refreshSecrets();
-            }
+            });
         }
         catch (e) {
-            await reportError(this.root, e, 'importSecrets()');
+            reportError(this.root, e, 'importSecrets()');
         }
     }
 
@@ -957,7 +1085,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                             _('Copied all OTP secrets to clipboard.'));
         }
         catch (e) {
-            await reportError(this.root, e, 'exportAllSecrets()');
+            reportError(this.root, e, 'exportAllSecrets()');
         }
     }
 
@@ -1016,6 +1144,64 @@ class SecretsGroup extends Adw.PreferencesGroup {
 };
 
 
+class OptionsGroup extends Adw.PreferencesGroup {
+
+    static {
+        GObject.registerClass(this);
+
+        this.install_action('totp.reset-qrencode-cmd', null,
+                            obj => obj.resetQREncodeCMD());
+    }
+
+
+    #settings;
+
+
+    constructor(settings)
+    {
+        super({
+            title: _('Options')
+        });
+
+        this.#settings = settings;
+
+        let qrencode_cmd_row = new Adw.EntryRow({
+            title: _('qrencode command'),
+            tooltip_text: _('This command should read UTF-8 text from standard input, and write an image to the standard output.')
+        });
+        qrencode_cmd_row.add_css_class('monospace');
+
+        this.#settings.bind('qrencode-cmd',
+                            qrencode_cmd_row, 'text',
+                            Gio.SettingsBindFlags.DEFAULT);
+
+        qrencode_cmd_row.add_suffix(new Gtk.Button({
+            icon_name: 'edit-clear-symbolic',
+            tooltip_text: _('Revert back to default.'),
+            action_name: 'totp.reset-qrencode-cmd',
+            valign: Gtk.Align.CENTER,
+
+        }));
+
+        this.add(qrencode_cmd_row);
+
+    }
+
+
+    destroy()
+    {
+        this.#settings = null;
+    }
+
+
+    resetQREncodeCMD()
+    {
+        this.#settings.reset('qrencode-cmd');
+    }
+
+}
+
+
 class TOTPPreferencesPage extends Adw.PreferencesPage {
 
     static {
@@ -1023,12 +1209,14 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
     }
 
 
-    #group;
+    #options_group;
     #provider;
     #resource;
+    #secrets_group;
+    #settings;
 
 
-    constructor(ext, application_id)
+    constructor(path, application_id, settings)
     {
         super();
 
@@ -1036,7 +1224,7 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
          * Note: icons need to be loaded from gresource, not from filesystem, in order
          * to be theme-recolored.
          */
-        this.#resource = Gio.Resource.load(`${ext.path}/icons.gresource`);
+        this.#resource = Gio.Resource.load(`${path}/icons.gresource`);
         Gio.resources_register(this.#resource);
         let theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
         const res_path = '/com/github/dkosmari/totp/icons';
@@ -1044,28 +1232,41 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
             theme.add_resource_path(res_path);
 
         this.#provider = new Gtk.CssProvider();
-        this.#provider.load_from_path(`${ext.path}/prefs.css`);
+        this.#provider.load_from_path(`${path}/prefs.css`);
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(),
                                                   this.#provider,
                                                   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-        this.#group = new SecretsGroup(application_id);
-        this.add(this.#group);
+        this.#settings = settings;
+
+        this.#secrets_group = new SecretsGroup(application_id, this.#settings);
+        this.add(this.#secrets_group);
+
+        this.#options_group = new OptionsGroup(this.#settings);
+        this.add(this.#options_group);
     }
 
 
     destroy()
     {
+        this.#settings = null;
+
+        if (this.#options_group) {
+            this.remove(this.#options_group);
+            this.#options_group?.destroy();
+            this.#options_group = null;
+        }
+
+        if (this.#secrets_group) {
+            this.remove(this.#secrets_group);
+            this.#secrets_group?.destroy();
+            this.#secrets_group = null;
+        }
+
         if (this.#provider) {
             Gtk.StyleContext.remove_provider_for_display(Gdk.Display.get_default(),
                                                          this.#provider);
             this.#provider = null;
-        }
-
-        if (this.#group) {
-            this.remove(this.#group);
-            this.#group?.destroy();
-            this.#group = null;
         }
 
         if (this.#resource) {
@@ -1081,7 +1282,11 @@ function fillPreferencesWindow(window)
 {
     let app = window.get_application();
     let app_id = app?.application_id || 'org.gnome.Extensions';
-    let page = new TOTPPreferencesPage(Me, app_id);
+
+    let page = new TOTPPreferencesPage(Me.path,
+                                       app_id,
+                                       ExtensionUtils.getSettings());
+
     window.add(page);
     window.connect('close-request',
                    () => {

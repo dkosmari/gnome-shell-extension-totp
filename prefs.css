@@ -14,3 +14,11 @@ levelbar.totp-code-level > trough > block.filled.high {
 levelbar.totp-code-level > trough > block.filled.low {
     background-color: @error_color;
 }
+
+window.qr-export-window {
+    padding: 12px;
+}
+
+window.import-uris {
+    padding: 12px;
+}

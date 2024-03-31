@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-28 16:37-0300\n"
+"POT-Creation-Date: 2024-03-31 13:10-0300\n"
 "PO-Revision-Date: 2024-03-24 17:46+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -17,189 +17,212 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: prefs.js:86
+#: prefs.js:92
 msgid "Error"
 msgstr "Foutmelding"
 
-#: prefs.js:91 prefs.js:545
-msgid "_Close"
-msgstr "_Sluiten"
-
-#: prefs.js:166
+#: prefs.js:167
 msgid "Issuer"
 msgstr "Verstrekt door"
 
-#: prefs.js:168
+#: prefs.js:169
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr ""
 "De naam van de organisatie (Google, Facebook, etc.) die het otp verstrekt "
 "heeft."
 
-#: prefs.js:174
+#: prefs.js:175
 msgid "Name"
 msgstr "Naam"
 
-#: prefs.js:181
+#: prefs.js:182
 msgid "Secret"
 msgstr "Geheim"
 
-#: prefs.js:183
+#: prefs.js:184
 msgid "The shared secret key."
 msgstr "De gedeelde geheime sleutel."
 
-#: prefs.js:190
+#: prefs.js:191
 msgid "How the secret key is encoded."
 msgstr "Hoe de geheime sleutel is geëncodeerd."
 
-#: prefs.js:198
+#: prefs.js:199
 msgid "Digits"
 msgstr "Aantal getallen"
 
-#: prefs.js:203
+#: prefs.js:204
 msgid "How many digits in the code."
 msgstr "Hoeveel getallen de code bevat."
 
-#: prefs.js:210
+#: prefs.js:211
 msgid "Period"
 msgstr "Periode"
 
-#: prefs.js:211
+#: prefs.js:212
 msgid "Time between code updates, in seconds."
 msgstr "De tijd tussen codebijwerkingen (in seconden)."
 
-#: prefs.js:222
+#: prefs.js:223
 msgid "Algorithm"
 msgstr "Algoritme"
 
-#: prefs.js:227
+#: prefs.js:228
 msgid "The hash algorithm used to generate codes."
 msgstr "Het controlesomalgoritme van de gegenereerde codes."
 
-#: prefs.js:233 prefs.js:593 prefs.js:917
+#: prefs.js:234 prefs.js:634 prefs.js:842
 msgid "_Cancel"
 msgstr "_Annuleren"
 
-#: prefs.js:235
+#: prefs.js:236
 msgid "_OK"
 msgstr "_Oké"
 
-#: prefs.js:289
+#: prefs.js:290
 msgid "Copy code to clipboard."
 msgstr "Kopieer de code naar het klembord."
 
-#: prefs.js:306 prefs.js:357
+#: prefs.js:307 prefs.js:358
 msgid "Unlock"
 msgstr "Ontgrendelen"
 
-#: prefs.js:390 src/indicator.js:33
+#: prefs.js:391 src/indicator.js:33
 msgid "OTP code copied to clipboard."
 msgstr "De code is gekopieerd naar het klembord."
 
-#: prefs.js:416
+#: prefs.js:417
 msgid "Edit this secret."
 msgstr "Bewerk dit geheim."
 
-#: prefs.js:432
+#: prefs.js:433
 msgid "Editing TOTP secret"
 msgstr "Bewerken van totp-geheim"
 
-#: prefs.js:469
+#: prefs.js:470
 #, fuzzy
 msgid "Export this secret to clipboard."
 msgstr "Het geheim is geëxporteerd naar het klembord."
 
-#: prefs.js:483
+#: prefs.js:484
 #, fuzzy
 msgid "Copied secret URI to clipboard."
 msgstr "De geheime uri is gekopieerd naar het klembord."
 
-#: prefs.js:509
+#: prefs.js:506
+msgid "QR code"
+msgstr "QR-code"
+
+#: prefs.js:527
+msgid "_Close"
+msgstr "_Sluiten"
+
+#: prefs.js:552
 #, fuzzy
 msgid "Export this secret as QR code."
 msgstr "Het geheim is geëxporteerd naar het klembord."
 
-#: prefs.js:540
-msgid "QR code"
-msgstr "QR-code"
+#: prefs.js:579
+#, fuzzy
+msgid "Failed to parse \"qrencode-cmd\" option."
+msgstr "Het geheim kan niet worden ingesteld."
 
-#: prefs.js:572
+#: prefs.js:620
 msgid "Remove this secret."
 msgstr "Verwijder dit geheim."
 
-#: prefs.js:586
+#: prefs.js:634
+msgid "_Delete"
+msgstr "Verwij_deren"
+
+#: prefs.js:637
 msgid "Deleting TOTP secret"
 msgstr "Verwijderen van totp-geheim"
 
-#: prefs.js:587
+#: prefs.js:638
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
 msgstr "Bezig met verwijderen van"
 
-#: prefs.js:594
-msgid "_Delete"
-msgstr "Verwij_deren"
-
-#: prefs.js:603
+#: prefs.js:650
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Het geheim kan niet worden verwijderd. Is het geheim vergrendeld?"
 
-#: prefs.js:632
+#: prefs.js:679
 msgid ""
 "Move this secret up; hold down the SHIFT key to move to the top of the list."
 msgstr ""
 
-#: prefs.js:633
+#: prefs.js:680
 msgid ""
 "Move this secret down; hold down the SHIFT key to move to the bottom of the "
 "list."
 msgstr ""
 
-#: prefs.js:769
+#: prefs.js:810
+msgid "Importing \"otpauth://\" URIs"
+msgstr "Bezig met importeren van ‘otpauth://’-uri's…"
+
+#: prefs.js:825
+msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
+msgstr "Plak alle te importeren ‘otpauth://’-uri's, een per regel."
+
+#: prefs.js:849
+msgid "_Import"
+msgstr "_Importeren"
+
+#: prefs.js:912
 msgid "Secrets"
 msgstr "Geheimen"
 
-#: prefs.js:770
+#: prefs.js:913
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Een lijst met totp-geheimen uit de sleutelbos."
 
-#: prefs.js:798
+#: prefs.js:943
 msgid "Add secret..."
 msgstr "Geheim toevoegen…"
 
-#: prefs.js:806
+#: prefs.js:951
 #, fuzzy
 msgid "Refresh secrets."
 msgstr "Geheimen herladen"
 
-#: prefs.js:815
+#: prefs.js:960
 msgid "Import secrets..."
 msgstr "Geheimen importeren…"
 
-#: prefs.js:823
+#: prefs.js:968
 #, fuzzy
 msgid "Export all secrets to the clipboard."
 msgstr "Het geheim is geëxporteerd naar het klembord."
 
-#: prefs.js:878
+#: prefs.js:1025
 msgid "Creating new TOTP secret"
 msgstr "Totp-geheim aanmaken"
 
-#: prefs.js:903
-msgid "Importing \"otpauth://\" URIs"
-msgstr "Bezig met importeren van ‘otpauth://’-uri's…"
-
-#: prefs.js:904
-msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
-msgstr "Plak alle te importeren ‘otpauth://’-uri's, een per regel."
-
-#: prefs.js:918
-msgid "_Import"
-msgstr "_Importeren"
-
-#: prefs.js:957
+#: prefs.js:1085
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Alle otp-geheimen zijn gekopieerd naar het klembord."
+
+#: prefs.js:1163
+msgid "Options"
+msgstr ""
+
+#: prefs.js:1169
+msgid "qrencode command"
+msgstr ""
+
+#: prefs.js:1170
+msgid ""
+"This command should read UTF-8 text from standard input, and write an image "
+"to the standard output."
+msgstr ""
+
+#: prefs.js:1180
+msgid "Revert back to default."
+msgstr ""
 
 #: src/base32.js:26
 msgid "Invalid base32 input; missing padding."

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.totp"
+          path="/org/gnome/shell/extensions/totp/">
+    <key name="qrencode-cmd" type="s">
+      <default>"qrencode -s 10 -o -"</default>
+      <summary>How to invoke qrencode to generate QR codes.</summary>
+      <description>
+        If "qrencode" is not in the default path, or a different utility is used, you can
+        customize its invokation. The data to be encoded is provided as text through the
+        standard input, and it should produce an image in the standard output, that
+        GdkPixbuf can parse.
+      </description>
+    </key>
+  </schema>
+</schemalist>
