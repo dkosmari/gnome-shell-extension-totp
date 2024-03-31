@@ -1177,8 +1177,8 @@ class OptionsGroup extends Adw.PreferencesGroup {
         this.#settings = settings;
 
         let qrencode_cmd_row = new Adw.EntryRow({
-            title: _('qrencode command'),
-            tooltip_text: _('This command should read UTF-8 text from standard input, and write an image to the standard output.')
+            title: _('Command to generate QR codes'),
+            tooltip_text: _('This command must read text from standard input, and write an image to the standard output.')
         });
         qrencode_cmd_row.add_css_class('monospace');
 
@@ -1188,7 +1188,7 @@ class OptionsGroup extends Adw.PreferencesGroup {
 
         qrencode_cmd_row.add_suffix(new Gtk.Button({
             icon_name: 'edit-clear-symbolic',
-            tooltip_text: _('Revert back to default.'),
+            tooltip_text: _('Revert option back to the default value.'),
             action_name: 'totp.reset-qrencode-cmd',
             valign: Gtk.Align.CENTER,
 

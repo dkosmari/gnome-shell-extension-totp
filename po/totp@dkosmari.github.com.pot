@@ -1,14 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR Daniel K. O.
+# This file is distributed under the same license as the TOTP package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-31 19:54-0300\n"
+"Project-Id-Version: TOTP\n"
+"Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
+"totp\n"
+"POT-Creation-Date: 2024-03-31 20:50-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -203,17 +204,17 @@ msgid "Options"
 msgstr ""
 
 #: prefs.js:1180
-msgid "qrencode command"
+msgid "Command to generate QR codes"
 msgstr ""
 
 #: prefs.js:1181
 msgid ""
-"This command should read UTF-8 text from standard input, and write an image "
-"to the standard output."
+"This command must read text from standard input, and write an image to the "
+"standard output."
 msgstr ""
 
 #: prefs.js:1191
-msgid "Revert back to default."
+msgid "Revert option back to the default value."
 msgstr ""
 
 #: src/base32.js:26

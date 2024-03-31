@@ -5,9 +5,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-31 19:52-0300\n"
-"PO-Revision-Date: 2024-03-27 02:06-0300\n"
+"Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
+"totp\n"
+"POT-Creation-Date: 2024-03-31 20:49-0300\n"
+"PO-Revision-Date: 2024-03-31 20:42-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -119,9 +120,8 @@ msgid "Export this secret as QR code."
 msgstr "Exportez ce secret sous forme de code QR."
 
 #: prefs.js:577
-#, fuzzy
 msgid "Failed to parse \"qrencode-cmd\" option."
-msgstr "Échec de la définition du secret."
+msgstr "Échec de l'analyse de l'option \"qrencode-cmd\"."
 
 #: prefs.js:631
 msgid "Remove this secret."
@@ -206,21 +206,23 @@ msgstr "Copié tous les secrets OTP dans le presse-papiers."
 
 #: prefs.js:1174
 msgid "Options"
-msgstr ""
+msgstr "Options"
 
 #: prefs.js:1180
-msgid "qrencode command"
-msgstr ""
+msgid "Command to generate QR codes"
+msgstr "Commande pour générer des codes QR"
 
 #: prefs.js:1181
 msgid ""
-"This command should read UTF-8 text from standard input, and write an image "
-"to the standard output."
+"This command must read text from standard input, and write an image to the "
+"standard output."
 msgstr ""
+"Cette commande doit lire le texte de l'entrée standard et écrire une image "
+"sur la sortie standard."
 
 #: prefs.js:1191
-msgid "Revert back to default."
-msgstr ""
+msgid "Revert option back to the default value."
+msgstr "Rétablir l'option à la valeur par défaut."
 
 #: src/base32.js:26
 msgid "Invalid base32 input; missing padding."
@@ -313,10 +315,3 @@ msgstr "L'hôte URI doit être \"totp\""
 #: src/totp.js:125
 msgid "Unexpected port number in URI."
 msgstr "Numéro de port inattendu dans l'URI."
-
-#~ msgid "Export QR code."
-#~ msgstr "Exportez le code QR."
-
-#, fuzzy
-#~ msgid "Export secrets."
-#~ msgstr "Exporter les secrets"

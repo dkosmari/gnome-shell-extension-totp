@@ -66,7 +66,12 @@ $(ZIP_FILE):	$(EXTRA_DIST) \
 
 
 $(POT_FILE): $(SOURCES) $(EXTRA_SOURCES)
-	xgettext --from-code=UTF-8 --output=$@ $^
+	xgettext --from-code=UTF-8 \
+		--copyright-holder="Daniel K. O." \
+		--package-name="$(PACKAGE)" \
+		--msgid-bugs-address="$(URL)" \
+		--output=$@ \
+		$^
 
 
 update-po: $(PO_FILES)

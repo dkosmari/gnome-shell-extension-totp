@@ -5,10 +5,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-31 19:52-0300\n"
-"PO-Revision-Date: 2024-03-24 17:46+0100\n"
-"Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
+"Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
+"totp\n"
+"POT-Creation-Date: 2024-03-31 20:49-0300\n"
+"PO-Revision-Date: 2024-03-31 20:32-0300\n"
+"Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -101,14 +102,12 @@ msgid "Editing TOTP secret"
 msgstr "Bewerken van totp-geheim"
 
 #: prefs.js:468
-#, fuzzy
 msgid "Export this secret to clipboard."
-msgstr "Het geheim is geëxporteerd naar het klembord."
+msgstr "Exporteer dit geheim naar het klembord."
 
 #: prefs.js:482
-#, fuzzy
 msgid "Copied secret URI to clipboard."
-msgstr "De geheime uri is gekopieerd naar het klembord."
+msgstr "Geheime URI naar klembord gekopieerd."
 
 #: prefs.js:504
 msgid "QR code"
@@ -119,14 +118,12 @@ msgid "_Close"
 msgstr "_Sluiten"
 
 #: prefs.js:550
-#, fuzzy
 msgid "Export this secret as QR code."
-msgstr "Het geheim is geëxporteerd naar het klembord."
+msgstr "Exporteer dit geheim als QR-code."
 
 #: prefs.js:577
-#, fuzzy
 msgid "Failed to parse \"qrencode-cmd\" option."
-msgstr "Het geheim kan niet worden ingesteld."
+msgstr "Kan de optie \"qrencode-cmd\" niet parseren."
 
 #: prefs.js:631
 msgid "Remove this secret."
@@ -143,7 +140,7 @@ msgstr "Verwijderen van totp-geheim"
 #: prefs.js:649
 msgctxt "Deleting: \"SECRET\""
 msgid "Deleting:"
-msgstr "Bezig met verwijderen van"
+msgstr "Verwijderen:"
 
 #: prefs.js:661
 msgid "Failed to remove secret. Is it locked?"
@@ -153,16 +150,20 @@ msgstr "Het geheim kan niet worden verwijderd. Is het geheim vergrendeld?"
 msgid ""
 "Move this secret up; hold down the SHIFT key to move to the top of the list."
 msgstr ""
+"Verplaats dit geheim naar boven; Houd de SHIFT-toets ingedrukt om naar de "
+"bovenkant van de lijst te gaan."
 
 #: prefs.js:691
 msgid ""
 "Move this secret down; hold down the SHIFT key to move to the bottom of the "
 "list."
 msgstr ""
+"Verplaats dit geheim naar beneden; Houd de SHIFT-toets ingedrukt om naar het "
+"einde van de lijst te gaan."
 
 #: prefs.js:821
 msgid "Importing \"otpauth://\" URIs"
-msgstr "Bezig met importeren van ‘otpauth://’-uri's…"
+msgstr "'otpauth://'-URI's importeren"
 
 #: prefs.js:836
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
@@ -185,18 +186,16 @@ msgid "Add secret..."
 msgstr "Geheim toevoegen…"
 
 #: prefs.js:962
-#, fuzzy
 msgid "Refresh secrets."
-msgstr "Geheimen herladen"
+msgstr "Vernieuw geheimen."
 
 #: prefs.js:971
 msgid "Import secrets..."
 msgstr "Geheimen importeren…"
 
 #: prefs.js:979
-#, fuzzy
 msgid "Export all secrets to the clipboard."
-msgstr "Het geheim is geëxporteerd naar het klembord."
+msgstr "Exporteer alle geheimen naar het klembord."
 
 #: prefs.js:1036
 msgid "Creating new TOTP secret"
@@ -208,21 +207,23 @@ msgstr "Alle otp-geheimen zijn gekopieerd naar het klembord."
 
 #: prefs.js:1174
 msgid "Options"
-msgstr ""
+msgstr "Opties"
 
 #: prefs.js:1180
-msgid "qrencode command"
-msgstr ""
+msgid "Command to generate QR codes"
+msgstr "Commando om QR-codes te genereren"
 
 #: prefs.js:1181
 msgid ""
-"This command should read UTF-8 text from standard input, and write an image "
-"to the standard output."
+"This command must read text from standard input, and write an image to the "
+"standard output."
 msgstr ""
+"Deze opdracht moet tekst uit de standaardinvoer lezen en een afbeelding naar "
+"de standaarduitvoer schrijven."
 
 #: prefs.js:1191
-msgid "Revert back to default."
-msgstr ""
+msgid "Revert option back to the default value."
+msgstr "Zet de optie terug naar de standaardwaarde."
 
 #: src/base32.js:26
 msgid "Invalid base32 input; missing padding."
@@ -230,7 +231,7 @@ msgstr "Ongeldige base32-invoer - de opvulling ontbreekt."
 
 #: src/base32.js:42
 msgid "Invalid base32 character at position:"
-msgstr "Ongeldig base32-teken op positie"
+msgstr "Ongeldig base32-teken op positie:"
 
 #: src/base32.js:49
 msgid "Invalid padding."
@@ -315,10 +316,3 @@ msgstr "De uri-host dient ‘totp’ te zijn"
 #: src/totp.js:125
 msgid "Unexpected port number in URI."
 msgstr "Ongeldig poortnummer in uri."
-
-#~ msgid "Export QR code."
-#~ msgstr "Exporteer de QR-code."
-
-#, fuzzy
-#~ msgid "Export secrets."
-#~ msgstr "Geheimen exporteren"
