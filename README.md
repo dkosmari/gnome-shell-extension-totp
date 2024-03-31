@@ -4,6 +4,8 @@ TOTP
 This is a GNOME Shell extension to generate TOTP (Time-based OTP) authentication codes
 (such as the ones used by Google, Facebook, Github, Steam, etc).
 
+![screenshot](screenshot.png)
+
 
 Security
 --------
