@@ -3,7 +3,7 @@
   <schema id="org.gnome.shell.extensions.totp"
           path="/org/gnome/shell/extensions/totp/">
     <key name="qrencode-cmd" type="s">
-      <default>"qrencode -s 10 -o -"</default>
+      <default>"qrencode --size=10 --output=-"</default>
       <summary>How to invoke qrencode to generate QR codes.</summary>
       <description>
         If "qrencode" is not in the default path, or a different utility is used, you can

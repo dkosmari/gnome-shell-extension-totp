@@ -29,10 +29,8 @@ const {
 const _ = gettext;
 
 
+//Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
 Gio._promisify(Gtk.AlertDialog.prototype, 'choose', 'choose_finish');
-Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
-Gio._promisify(Gio.Subprocess.prototype, 'wait_async', 'wait_finish');
-Gio._promisify(Gio.Subprocess.prototype, 'wait_check_async', 'wait_check_finish');
 
 
 function copyToClipboard(text,
@@ -570,7 +568,7 @@ class ExportQRButton extends Gtk.Button {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             const uri = this.#totp.uri();
 
-            let te = new TextEncoder();
+            const te = new TextEncoder();
             const uri_data = te.encode(uri);
 
             const qrencode_cmd = this.#settings.get_string('qrencode-cmd');
@@ -578,16 +576,29 @@ class ExportQRButton extends Gtk.Button {
             if (!parsed)
                 throw new Error(_('Failed to parse "qrencode-cmd" option.'));
 
-            let qrencode_proc = Gio.Subprocess.new(args,
-                                                   Gio.SubprocessFlags.STDIN_PIPE
-                                                   | Gio.SubprocessFlags.STDOUT_PIPE
-                                                   | Gio.SubprocessFlags.STDERR_PIPE);
+            let proc = Gio.Subprocess.new(args,
+                                          Gio.SubprocessFlags.STDIN_PIPE
+                                          | Gio.SubprocessFlags.STDOUT_PIPE
+                                          | Gio.SubprocessFlags.STDERR_PIPE);
 
-            let [stdout, stderr] =
-                await qrencode_proc.communicate_async(uri_data, null);
+            /*
+             * WORKAROUND: `.communicate_async()` will randomly fail with a broken pipe
+             * error, so we have to use the blocking API instead.
+             */
+            const [success, stdout, stderr] = proc.communicate(uri_data, null);
+
+            const status = proc.get_exit_status();
+            if (status) {
+                if (stderr) {
+                    const td = new TextDecoder();
+                    const stderr_text = td.decode(stderr.get_data());
+                    throw new Error(stderr_text);
+                } else
+                    throw new Error(`Process exited with status: ${status}`);
+            }
 
             if (!stdout)
-                throw new Error('Got no stdout');
+                throw new Error('Empty stdout');
 
             let img_stream = Gio.MemoryInputStream.new_from_bytes(stdout);
             let export_window = new ExportQRWindow(this.root, img_stream);

@@ -16,7 +16,7 @@ levelbar.totp-code-level > trough > block.filled.low {
 }
 
 window.qr-export-window {
-    padding: 12px;
+    padding: 0px;
 }
 
 window.import-uris {
