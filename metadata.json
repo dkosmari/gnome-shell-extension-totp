@@ -4,6 +4,7 @@
     "uuid": "totp@dkosmari.github.com",
     "url": "https://github.com/dkosmari/gnome-shell-extension-totp",
     "gettext-domain": "totp@dkosmari.github.com",
+    "settings-schema": "org.gnome.shell.extensions.totp",
     "shell-version": [
         "45",
         "46"
