@@ -1323,22 +1323,44 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 };
 
 
+class TOTPPreferences {
+
+    get path()
+    {
+        return Me.path;
+    }
+
+
+    getSettings()
+    {
+        return ExtensionUtils.getSettings();
+    }
+
+
+    fillPreferencesWindow(window)
+    {
+        let app = window.get_application();
+        let app_id = app?.application_id ?? 'org.gnome.Extensions';
+
+        let page = new TOTPPreferencesPage(this.path,
+                                           app_id,
+                                           this.getSettings());
+
+        window.add(page);
+        window.connect('close-request',
+                       () => {
+                           window.remove(page);
+                           page.destroy();
+                           return false;
+                       });
+    }
+
+};
+
+
 function fillPreferencesWindow(window)
 {
-    const app = window.get_application();
-    const app_id = app?.application_id ?? 'org.gnome.Extensions';
-
-    const page = new TOTPPreferencesPage(Me.path,
-                                         app_id,
-                                         ExtensionUtils.getSettings());
-
-    window.add(page);
-    window.connect('close-request',
-                   () => {
-                       window.remove(page);
-                       page.destroy();
-                       return false;
-                   });
+    return new TOTPPreferences().fillPreferencesWindow(window);
 }
 
 
