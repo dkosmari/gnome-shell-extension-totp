@@ -19,8 +19,8 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const Base32        = Me.imports.base32;
-const MyEntryRow    = Me.imports.myEntryRow.EntryRow;
 const MyAlertDialog = Me.imports.myAlertDialog.AlertDialog;
+const MyEntryRow    = Me.imports.myEntryRow.EntryRow;
 const SecretUtils   = Me.imports.secretUtils;
 const TOTP          = Me.imports.totp.TOTP;
 
@@ -140,6 +140,7 @@ function makeStringList(...strings)
 }
 
 
+/*
 function adwCheckVersion(req_major, req_minor)
 {
     const major = Adw.get_major_version();
@@ -149,6 +150,7 @@ function adwCheckVersion(req_major, req_minor)
         return true;
     return Adw.get_minor_version() >= req_minor;
 }
+*/
 
 
 class SecretDialog extends Gtk.Dialog {
@@ -233,7 +235,7 @@ class SecretDialog extends Gtk.Dialog {
         group.add(this.#ui.digits);
 
         // UI: period
-        let period_list = ['15', '30', '60'];
+        const period_list = ['15', '30', '60'];
         this.#ui.period = new Adw.ComboRow({
             title: _('Period'),
             title_lines: 1,
@@ -245,7 +247,7 @@ class SecretDialog extends Gtk.Dialog {
         group.add(this.#ui.period);
 
         // UI: algorithm
-        let algorithm_list = ['SHA-1', 'SHA-256', 'SHA-512'];
+        const algorithm_list = ['SHA-1', 'SHA-256', 'SHA-512'];
         this.#ui.algorithm = new Adw.ComboRow({
             title: _('Algorithm'),
             title_lines: 1,
@@ -401,6 +403,7 @@ class CopyCodeButton extends Gtk.Button {
             logError(e);
         }
     }
+
 
     expired()
     {
@@ -1323,7 +1326,7 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 function fillPreferencesWindow(window)
 {
     const app = window.get_application();
-    const app_id = app?.application_id || 'org.gnome.Extensions';
+    const app_id = app?.application_id ?? 'org.gnome.Extensions';
 
     const page = new TOTPPreferencesPage(Me.path,
                                          app_id,

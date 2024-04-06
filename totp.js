@@ -94,7 +94,8 @@ function splitQuery(query)
 }
 
 
-var TOTP = class {
+var TOTP =
+class TOTP {
 
     constructor({
         issuer = '',

@@ -40,7 +40,8 @@ function makeLabel({issuer, name})
 }
 
 
-var Indicator = class extends PanelMenu.Button {
+var Indicator =
+class Indicator extends PanelMenu.Button {
 
     static {
         GObject.registerClass(this);
