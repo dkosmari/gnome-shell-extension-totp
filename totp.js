@@ -8,7 +8,7 @@ const {GLib} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Base32 = Me.imports.src.base32;
+const Base32 = Me.imports.base32;
 
 
 // strings will be translated by gettext in the frontend

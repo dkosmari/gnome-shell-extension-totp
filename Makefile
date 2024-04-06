@@ -18,7 +18,13 @@ POT_FILE := po/$(GETTEXT_DOMAIN).pot
 PO_FILES := $(wildcard po/*.po)
 
 SOURCES := extension.js prefs.js
-EXTRA_SOURCES := $(wildcard src/*.js)
+EXTRA_SOURCES := \
+	base32.js \
+	indicator.js \
+	myAlertDialog.js \
+	secretUtils.js \
+	totp.js
+
 
 GRESOURCE_XML := icons.gresource.xml
 GRESOURCE_FILE := $(GRESOURCE_XML:.xml=)
@@ -54,9 +60,8 @@ $(ZIP_FILE):	$(EXTRA_DIST) \
 		$(GSCHEMA_XML_FILE) \
 		$(PO_FILES) \
 		$(SOURCES)
-	gnome-extensions pack \
-		--force \
-		--extra-source=src \
+	gnome-extensions pack --force \
+		$(patsubst %,--extra-source=%,$(EXTRA_SOURCES)) \
 		$(patsubst %,--extra-source=%,$(EXTRA_DIST))
 
 

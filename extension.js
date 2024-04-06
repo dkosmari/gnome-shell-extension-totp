@@ -6,7 +6,7 @@
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Indicator = Me.imports.src.indicator.Indicator;
+const Indicator = Me.imports.indicator.Indicator;
 
 
 class Extension {

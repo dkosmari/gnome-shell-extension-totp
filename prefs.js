@@ -18,9 +18,11 @@ const {
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const Base32      = Me.imports.src.base32;
-const SecretUtils = Me.imports.src.secretUtils;
-const TOTP        = Me.imports.src.totp.TOTP;
+const Base32        = Me.imports.base32;
+const MyAlertDialog = Me.imports.myAlertDialog.AlertDialog;
+const SecretUtils   = Me.imports.secretUtils;
+const TOTP          = Me.imports.totp.TOTP;
+
 
 const {
     gettext,
@@ -29,8 +31,8 @@ const {
 const _ = gettext;
 
 
-//Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
-Gio._promisify(Gtk.AlertDialog.prototype, 'choose', 'choose_finish');
+let AlertDialog = Gtk.AlertDialog ?? MyAlertDialog;
+Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
 
 
 function copyToClipboard(text,
@@ -84,7 +86,7 @@ function reportError(parent, e, where = null)
     else
         logError(e);
     try {
-        let dialog = new Gtk.AlertDialog({
+        const dialog = new AlertDialog({
             modal: true,
             detail: _(e.message),
             message: where || _('Error')
@@ -644,7 +646,7 @@ class RemoveSecretButton extends Gtk.Button {
             const delete_response = 1;
             const buttons = [_('_Cancel'), _('_Delete')];
 
-            let dialog = new Gtk.AlertDialog({
+            let dialog = new AlertDialog({
                 message: _('Deleting TOTP secret'),
                 detail: pgettext('Deleting: "SECRET"', 'Deleting:')
                     + ` "${makeLabel(this.#totp)}"`,
@@ -1085,7 +1087,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             let uris = [];
-            let items = await SecretUtils.getOTPItems();
+            const items = await SecretUtils.getOTPItems();
             for (let i = 0; i < items.length; ++i) {
                 let attrs = items[i].get_attributes();
                 attrs.secret = await SecretUtils.getSecret(attrs);
@@ -1176,7 +1178,7 @@ class OptionsGroup extends Adw.PreferencesGroup {
 
         this.#settings = settings;
 
-        let qrencode_cmd_row = new Adw.EntryRow({
+        const qrencode_cmd_row = new Adw.EntryRow({
             title: _('Command to generate QR codes'),
             tooltip_text: _('This command must read text from standard input, and write an image to the standard output.')
         });
@@ -1237,7 +1239,7 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
          */
         this.#resource = Gio.Resource.load(`${path}/icons.gresource`);
         Gio.resources_register(this.#resource);
-        let theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+        const theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
         const res_path = '/com/github/dkosmari/totp/icons';
         if (!theme.get_resource_path().includes(res_path))
             theme.add_resource_path(res_path);
@@ -1291,12 +1293,12 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
 function fillPreferencesWindow(window)
 {
-    let app = window.get_application();
-    let app_id = app?.application_id || 'org.gnome.Extensions';
+    const app = window.get_application();
+    const app_id = app?.application_id || 'org.gnome.Extensions';
 
-    let page = new TOTPPreferencesPage(Me.path,
-                                       app_id,
-                                       ExtensionUtils.getSettings());
+    const page = new TOTPPreferencesPage(Me.path,
+                                         app_id,
+                                         ExtensionUtils.getSettings());
 
     window.add(page);
     window.connect('close-request',

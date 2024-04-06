@@ -5,5 +5,9 @@
     "url": "https://github.com/dkosmari/gnome-shell-extension-totp",
     "gettext-domain": "totp@dkosmari.github.com",
     "settings-schema": "org.gnome.shell.extensions.totp",
-    "shell-version": [ "44" ]
+    "shell-version": [
+        "42",
+        "43",
+        "44"
+    ]
 }
