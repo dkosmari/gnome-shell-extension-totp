@@ -19,6 +19,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const Base32        = Me.imports.base32;
+const MyEntryRow    = Me.imports.myEntryRow.EntryRow;
 const MyAlertDialog = Me.imports.myAlertDialog.AlertDialog;
 const SecretUtils   = Me.imports.secretUtils;
 const TOTP          = Me.imports.totp.TOTP;
@@ -31,8 +32,10 @@ const {
 const _ = gettext;
 
 
-let AlertDialog = Gtk.AlertDialog ?? MyAlertDialog;
+const AlertDialog = Gtk.AlertDialog ?? MyAlertDialog;
 Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
+
+const EntryRow = Adw.EntryRow ?? MyEntryRow;
 
 
 function copyToClipboard(text,
@@ -163,7 +166,7 @@ class SecretDialog extends Gtk.Dialog {
         this.get_content_area().append(group);
 
         // UI: issuer
-        this.#ui.issuer = new Adw.EntryRow({
+        this.#ui.issuer = new EntryRow({
             title: _('Issuer'),
             text: fields.issuer,
             tooltip_text: _('The name of the organization (Google, Facebook, etc) that issued the OTP.')
@@ -171,14 +174,14 @@ class SecretDialog extends Gtk.Dialog {
         group.add(this.#ui.issuer);
 
         // UI: name
-        this.#ui.name = new Adw.EntryRow({
+        this.#ui.name = new EntryRow({
             title: _('Name'),
             text: fields.name
         });
         group.add(this.#ui.name);
 
         // UI: secret
-        this.#ui.secret = new Adw.EntryRow({
+        this.#ui.secret = new EntryRow({
             title: _('Secret'),
             text: fields.secret,
             tooltip_text: _("The shared secret key.")
@@ -197,6 +200,7 @@ class SecretDialog extends Gtk.Dialog {
         let digits_list = ['5', '6', '7', '8'];
         this.#ui.digits = new Adw.ComboRow({
             title: _('Digits'),
+            title_lines: 1,
             model: new Gtk.StringList({
                 strings: digits_list
             }),
@@ -209,7 +213,9 @@ class SecretDialog extends Gtk.Dialog {
         let period_list = ['15', '30', '60'];
         this.#ui.period = new Adw.ComboRow({
             title: _('Period'),
+            title_lines: 1,
             subtitle: _('Time between code updates, in seconds.'),
+            subtitle_lines: 1,
             model: new Gtk.StringList({
                 strings: period_list
             }),
@@ -221,6 +227,7 @@ class SecretDialog extends Gtk.Dialog {
         let algorithm_list = ['SHA-1', 'SHA-256', 'SHA-512'];
         this.#ui.algorithm = new Adw.ComboRow({
             title: _('Algorithm'),
+            title_lines: 1,
             model: new Gtk.StringList({
                 strings: algorithm_list
             }),
@@ -733,10 +740,10 @@ class SecretRow extends Adw.ActionRow {
     {
         super({
             title: totp.issuer,
-            subtitle: totp.name,
-            use_markup: true,
             title_lines: 1,
-            subtitle_lines: 1
+            subtitle: totp.name,
+            subtitle_lines: 1,
+            use_markup: true,
         });
 
         this.#totp = totp;
@@ -1178,11 +1185,11 @@ class OptionsGroup extends Adw.PreferencesGroup {
 
         this.#settings = settings;
 
-        const qrencode_cmd_row = new Adw.EntryRow({
-            title: _('Command to generate QR codes'),
+        const qrencode_cmd_row = new EntryRow({
+            title: _('QR generator'),
             tooltip_text: _('This command must read text from standard input, and write an image to the standard output.')
         });
-        qrencode_cmd_row.add_css_class('monospace');
+        qrencode_cmd_row.add_css_class('qr-command-row');
 
         this.#settings.bind('qrencode-cmd',
                             qrencode_cmd_row, 'text',

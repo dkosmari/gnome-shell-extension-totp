@@ -22,6 +22,7 @@ EXTRA_SOURCES := \
 	base32.js \
 	indicator.js \
 	myAlertDialog.js \
+	myEntryRow.js \
 	secretUtils.js \
 	totp.js
 
@@ -59,7 +60,8 @@ $(ZIP_FILE):	$(EXTRA_DIST) \
 		$(EXTRA_SOURCES) \
 		$(GSCHEMA_XML_FILE) \
 		$(PO_FILES) \
-		$(SOURCES)
+		$(SOURCES) \
+		Makefile
 	gnome-extensions pack --force \
 		$(patsubst %,--extra-source=%,$(EXTRA_SOURCES)) \
 		$(patsubst %,--extra-source=%,$(EXTRA_DIST))
