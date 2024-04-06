@@ -140,6 +140,17 @@ function makeStringList(...strings)
 }
 
 
+function adwCheckVersion(req_major, req_minor)
+{
+    const major = Adw.get_major_version();
+    if (major < req_major)
+        return false;
+    if (major > req_major)
+        return true;
+    return Adw.get_minor_version() >= req_minor;
+}
+
+
 class SecretDialog extends Gtk.Dialog {
 
     static {
@@ -366,26 +377,30 @@ class CopyCodeButton extends Gtk.Button {
 
     async updateCode()
     {
-        if (this.expired()) {
-            let item = await SecretUtils.getOTPItem(this.#totp);
-            if (item.locked) {
-                this.#level.value = 0;
-                this.#label.label = _('Unlock');
-                this.#label.use_markup = false;
-                return;
+        try {
+            if (this.expired()) {
+                let item = await SecretUtils.getOTPItem(this.#totp);
+                if (item.locked) {
+                    this.#level.value = 0;
+                    this.#label.label = _('Unlock');
+                    this.#label.use_markup = false;
+                    return;
+                }
+
+                this.#totp.secret = await SecretUtils.getSecret(this.#totp);
+
+                let [code, expiry] = this.#totp.code_and_expiry();
+                this.#expiry = expiry;
+                this.#code = code;
             }
-
-            this.#totp.secret = await SecretUtils.getSecret(this.#totp);
-
-            let [code, expiry] = this.#totp.code_and_expiry();
-            this.#expiry = expiry;
-            this.#code = code;
+            this.#level.value = Math.max(this.#expiry - now(), 0);
+            this.#label.label = `<tt>${this.#code}</tt>`;
+            this.#label.use_markup = true;
         }
-        this.#level.value = Math.max(this.#expiry - now(), 0);
-        this.#label.label = `<tt>${this.#code}</tt>`;
-        this.#label.use_markup = true;
+        catch (e) {
+            logError(e);
+        }
     }
-
 
     expired()
     {
@@ -751,7 +766,6 @@ class SecretRow extends Adw.ActionRow {
             title_lines: 1,
             subtitle: totp.name,
             subtitle_lines: 1,
-            use_markup: true,
         });
 
         this.#totp = totp;

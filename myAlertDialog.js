@@ -100,8 +100,6 @@ class AlertDialog extends Gtk.MessageDialog {
 
     on_response(response)
     {
-        log(`on_response(${response})`);
-
         const cancellable = this.#task.get_cancellable();
         if (cancellable) {
             cancellable.disconnect(this.#cancellable_signal);
@@ -109,7 +107,6 @@ class AlertDialog extends Gtk.MessageDialog {
         }
 
         if (response == Gtk.ResponseType.CLOSE) {
-            log('response is CLOSE');
             this.#task.return_error(
                 new GLib.Error(GLib.quark_from_string(DIALOG_ERROR_QUARK),
                                DialogError.CANCELLED,
@@ -117,16 +114,12 @@ class AlertDialog extends Gtk.MessageDialog {
             );
         } else if (response >= 0) {
             // clicked on a button
-            log('response is a button');
             this.#task.return_int(response);
         } else {
-            log('response by closing the dialog');
             if (this.#cancel_return >= 0) {
-                log('and there is a default id for that');
                 // dialog was closed -> interpret as a cancel response
                 this.#task.return_int(this.#cancel_return);
             } else {
-                log('and there is NO default id for that');
                 // no cancel response on close, so generate an error
                 this.#task.return_error(
                     new GLib.Error(GLib.quark_from_string(DIALOG_ERROR_QUARK),
