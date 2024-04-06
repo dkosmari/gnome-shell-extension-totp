@@ -108,19 +108,35 @@ function now()
 }
 
 
-function findListBox(w)
+function findListBox(start)
 {
-    if (w instanceof Gtk.ListBox)
-        return w;
+    // Note: use BFS
+    let queue = [start];
 
-    let child = w.get_first_child();
-    while (child) {
-        let r = findListBox(child);
-        if (r)
-            return r;
-        child = child.get_next_sibling();
+    while (queue.length > 0) {
+        const current = queue.shift();
+        if (current instanceof Gtk.ListBox)
+            return current;
+
+        let child = current.get_first_child();
+        while (child) {
+            queue.push(child);
+            child = child.get_next_sibling();
+        }
     }
+
     return null;
+}
+
+
+function makeStringList(...strings)
+{
+    if (Gtk.check_version(4, 10, 0))
+        return new Gtk.StringList({ strings: strings });
+
+    const list = new Gtk.StringList();
+    strings.forEach(s => list.append(s));
+    return list;
 }
 
 
@@ -187,9 +203,7 @@ class SecretDialog extends Gtk.Dialog {
             tooltip_text: _("The shared secret key.")
         });
         this.#ui.secret_type = new Gtk.DropDown({
-            model: new Gtk.StringList({
-                strings: ['Base32', 'Base64']
-            }),
+            model: makeStringList('Base32', 'Base64'),
             selected: 0,
             tooltip_text: _('How the secret key is encoded.')
         });
@@ -197,13 +211,11 @@ class SecretDialog extends Gtk.Dialog {
         group.add(this.#ui.secret);
 
         // UI: digits
-        let digits_list = ['5', '6', '7', '8'];
+        const digits_list = ['5', '6', '7', '8'];
         this.#ui.digits = new Adw.ComboRow({
             title: _('Digits'),
             title_lines: 1,
-            model: new Gtk.StringList({
-                strings: digits_list
-            }),
+            model: makeStringList(...digits_list),
             selected: digits_list.indexOf(fields.digits),
             tooltip_text: _('How many digits in the code.')
         });
@@ -216,9 +228,7 @@ class SecretDialog extends Gtk.Dialog {
             title_lines: 1,
             subtitle: _('Time between code updates, in seconds.'),
             subtitle_lines: 1,
-            model: new Gtk.StringList({
-                strings: period_list
-            }),
+            model: makeStringList(...period_list),
             selected: period_list.indexOf(fields.period)
         });
         group.add(this.#ui.period);
@@ -228,9 +238,7 @@ class SecretDialog extends Gtk.Dialog {
         this.#ui.algorithm = new Adw.ComboRow({
             title: _('Algorithm'),
             title_lines: 1,
-            model: new Gtk.StringList({
-                strings: algorithm_list
-            }),
+            model: makeStringList(...algorithm_list),
             selected: algorithm_list.indexOf(fields.algorithm),
             tooltip_text: _('The hash algorithm used to generate codes.')
         });
