@@ -6,7 +6,7 @@
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-import Indicator from './src/indicator.js';
+import Indicator from './indicator.js';
 
 
 export default

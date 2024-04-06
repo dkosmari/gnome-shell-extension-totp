@@ -22,3 +22,8 @@ window.qr-export-window {
 window.import-uris {
     padding: 12px;
 }
+
+.qr-command-row text {
+    font-family: monospace;
+}
+
