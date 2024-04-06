@@ -131,7 +131,7 @@ function findListBox(start)
 
 function makeStringList(...strings)
 {
-    if (Gtk.check_version(4, 10, 0))
+    if (!Gtk.check_version(4, 10, 0))
         return new Gtk.StringList({ strings: strings });
 
     const list = new Gtk.StringList();
