@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-05 21:40-0300\n"
+"POT-Creation-Date: 2024-04-05 22:19-0300\n"
 "PO-Revision-Date: 2024-03-31 20:34-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -112,7 +112,7 @@ msgstr "URI segreto copiato negli appunti."
 msgid "QR code"
 msgstr "QR Code"
 
-#: prefs.js:527 myAlertDialog.js:62
+#: prefs.js:527 myAlertDialog.js:64
 msgid "_Close"
 msgstr "_Chiudi"
 

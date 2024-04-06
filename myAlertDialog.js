@@ -28,6 +28,7 @@ const DialogError = {
 const DIALOG_ERROR_QUARK = 'my-dialog-error-quark';
 
 
+var AlertDialog =
 class AlertDialog extends Gtk.MessageDialog {
 
     static {
