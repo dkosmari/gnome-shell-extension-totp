@@ -131,30 +131,21 @@ class SecretDialog extends Gtk.Dialog {
     }
 
 
-    #confirm_cb;
-    #cancel_cb;
     #ui = {};
+    #resolve;
+    #reject;
 
 
-    constructor(parent,
-                title,
-                totp,
-                confirm,
-                cancel)
+    constructor({ title, totp })
     {
         let fields = totp.fields_non_destructive();
 
         super({
-            transient_for: parent,
-            modal: true,
             title: title,
             default_width: 500,
             // WORKAROUND: need header bar, otherwise the dialog is not centered
             use_header_bar: true
         });
-
-        this.#confirm_cb = confirm;
-        this.#cancel_cb = cancel;
 
         let group = new Adw.PreferencesGroup({
             title: title,
@@ -238,14 +229,12 @@ class SecretDialog extends Gtk.Dialog {
     }
 
 
-    on_response(response_id)
+    on_response(response)
     {
-        if (response_id == Gtk.ResponseType.OK) {
-            this.#confirm_cb(this.getTOTP());
-        } else {
-            if (this.#cancel_cb)
-                this.#cancel_cb();
-        }
+        this.#resolve(response == Gtk.ResponseType.OK
+                      ? this.getTOTP()
+                      : null);
+        this.destroy();
     }
 
 
@@ -262,6 +251,19 @@ class SecretDialog extends Gtk.Dialog {
             digits: parseInt(this.#ui.digits.selected_item.string),
             period: parseInt(this.#ui.period.selected_item.string),
             algorithm: this.#ui.algorithm.selected_item.string
+        });
+    }
+
+
+    choose(parent)
+    {
+        this.transient_for = parent;
+        this.modal = !!parent;
+        this.visible = true;
+
+        return new Promise((resolve, reject) => {
+            this.#resolve = resolve;
+            this.#reject = reject;
         });
     }
 
@@ -371,7 +373,13 @@ class CopyCodeButton extends Gtk.Button {
             this.#label.use_markup = true;
         }
         catch (e) {
-            logError(e);
+            /*
+             * Note: errors here are harmless, it usually means the item was deleted or
+             * edited while this async function was running. So we just disable the button
+             * and call .destroy() to disable the callback.
+             */
+            this.sensitive = false;
+            this.destroy();
         }
     }
 
@@ -432,28 +440,23 @@ class EditSecretButton extends Gtk.Button {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
 
-            let dialog = new SecretDialog(
-                this.root,
-                _('Editing TOTP secret'),
-                this.#totp,
-                async (new_totp) => {
-                    try {
-                        await SecretUtils.updateTOTPItem(this.#totp, new_totp);
-                        dialog.destroy();
-                        await this.#group.refreshSecrets();
-                    }
-                    catch (e) {
-                        reportError(dialog, e);
-                    }
-                },
-                () => dialog.destroy()
-            );
-            dialog.present();
+            const dialog = new SecretDialog({
+                title: _('Editing TOTP secret'),
+                totp: this.#totp
+            });
+
+            const new_totp = await dialog.choose(this.root);
+            if (!new_totp)
+                return;
+
+            await SecretUtils.updateTOTPItem(this.#totp, new_totp);
+            await this.#group.refreshSecrets();
         }
         catch (e) {
             reportError(this.root, e);
         }
     }
+
 };
 
 
@@ -659,7 +662,7 @@ class RemoveSecretButton extends Gtk.Button {
                 buttons: buttons
             });
 
-            let response = await dialog.choose(this.root, null);
+            const response = await dialog.choose(this.root, null);
             if (response == delete_response) {
                 let success = await SecretUtils.removeTOTPItem(this.#totp);
                 if (!success)
@@ -876,7 +879,7 @@ class ImportURIsWindow extends Gtk.Window {
     choose(handler)
     {
         this.#response_handler = handler;
-        this.present();
+        this.visible = true;
     }
 
 
@@ -1019,27 +1022,27 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    createSecret()
+    async createSecret()
     {
-        let dialog = new SecretDialog(
-            this.root,
-            _('Creating new TOTP secret'),
-            new TOTP(),
-            async (totp) => {
-                try {
-                    const n = this.#rows.length;
-                    await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
-                    await SecretUtils.createTOTPItem(totp, n);
-                    dialog.destroy();
-                    await this.refreshSecrets();
-                }
-                catch (e) {
-                    reportError(dialog, e, 'createSecret()');
-                }
-            },
-            () => dialog.destroy()
-        );
-        dialog.present();
+        try {
+            const dialog = new SecretDialog({
+                title: _('Creating new TOTP secret'),
+                totp: new TOTP()
+            });
+
+            const totp = await dialog.choose(this.root);
+            if (!totp)
+                return;
+
+            const n = this.#rows.length;
+            await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
+            await SecretUtils.createTOTPItem(totp, n);
+            this.root?.add_toast(new Adw.Toast({ title: _('Created new secret.') }));
+            await this.refreshSecrets();
+        }
+        catch (e) {
+            reportError(this.root, e);
+        }
     }
 
 
