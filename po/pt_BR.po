@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
 "POT-Creation-Date: 2024-04-09 02:44-0300\n"
-"PO-Revision-Date: 2024-04-06 00:14-0300\n"
+"PO-Revision-Date: 2024-04-09 02:51-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -136,18 +136,16 @@ msgid "Deleting TOTP secret"
 msgstr "Apagando segredo TOTP"
 
 #: prefs.js:658
-#, fuzzy
 msgid "Deleting secret:"
-msgstr "Apagando segredo TOTP"
+msgstr "Apagando segredo:"
 
 #: prefs.js:669
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Falha em remover o segredo. Está bloqueado?"
 
 #: prefs.js:671
-#, fuzzy
 msgid "Deleted secret:"
-msgstr "Apagando segredo TOTP"
+msgstr "Apagou segredo:"
 
 #: prefs.js:701
 msgid ""
@@ -205,14 +203,12 @@ msgid "Creating new TOTP secret"
 msgstr "Criando novo segredo TOTP"
 
 #: prefs.js:1030
-#, fuzzy
 msgid "Created new secret."
-msgstr "Criando novo segredo TOTP"
+msgstr "Criou novo segredo."
 
 #: prefs.js:1063
-#, fuzzy
 msgid "Imported secrets:"
-msgstr "Importar segredos..."
+msgstr "Importou segredos:"
 
 #: prefs.js:1088
 msgid "Copied all OTP secrets to clipboard."
@@ -329,7 +325,3 @@ msgstr "Host URI deveria ser \"totp\""
 #: totp.js:126
 msgid "Unexpected port number in URI."
 msgstr "Número de porta não esperado na URI."
-
-#~ msgctxt "Deleting: \"SECRET\""
-#~ msgid "Deleting:"
-#~ msgstr "Apagando:"

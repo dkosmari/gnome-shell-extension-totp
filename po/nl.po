@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
 "POT-Creation-Date: 2024-04-09 02:44-0300\n"
-"PO-Revision-Date: 2024-04-06 00:15-0300\n"
+"PO-Revision-Date: 2024-04-09 02:53-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -138,18 +138,16 @@ msgid "Deleting TOTP secret"
 msgstr "Verwijderen van totp-geheim"
 
 #: prefs.js:658
-#, fuzzy
 msgid "Deleting secret:"
-msgstr "Verwijderen van totp-geheim"
+msgstr "Geheim verwijderen:"
 
 #: prefs.js:669
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Het geheim kan niet worden verwijderd. Is het geheim vergrendeld?"
 
 #: prefs.js:671
-#, fuzzy
 msgid "Deleted secret:"
-msgstr "Verwijderen van totp-geheim"
+msgstr "Verwijderd geheim:"
 
 #: prefs.js:701
 msgid ""
@@ -207,14 +205,12 @@ msgid "Creating new TOTP secret"
 msgstr "Totp-geheim aanmaken"
 
 #: prefs.js:1030
-#, fuzzy
 msgid "Created new secret."
-msgstr "Totp-geheim aanmaken"
+msgstr "Nieuw geheim gecreëerd."
 
 #: prefs.js:1063
-#, fuzzy
 msgid "Imported secrets:"
-msgstr "Geheimen importeren…"
+msgstr "Geïmporteerde geheimen:"
 
 #: prefs.js:1088
 msgid "Copied all OTP secrets to clipboard."
@@ -331,7 +327,3 @@ msgstr "De uri-host dient ‘totp’ te zijn"
 #: totp.js:126
 msgid "Unexpected port number in URI."
 msgstr "Ongeldig poortnummer in uri."
-
-#~ msgctxt "Deleting: \"SECRET\""
-#~ msgid "Deleting:"
-#~ msgstr "Verwijderen:"
