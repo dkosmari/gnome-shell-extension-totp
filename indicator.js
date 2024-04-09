@@ -65,7 +65,7 @@ class Indicator extends PanelMenu.Button {
                                               this.lockTOTPSecrets.bind(this),
                                               'changes-prevent-symbolic');
 
-        this.#unlock_item = this.menu.addAction(_('Unlock OTP secrets'),
+        this.#unlock_item = this.menu.addAction(_('Unlock OTP secrets...'),
                                                 this.unlockTOTPSecrets.bind(this),
                                                 'changes-allow-symbolic');
         this.#unlock_item.visible = !this.#lock_item.visible;

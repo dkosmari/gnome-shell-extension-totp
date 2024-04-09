@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-09 04:18-0300\n"
+"POT-Creation-Date: 2024-04-09 16:55-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -170,61 +170,69 @@ msgstr ""
 msgid "_Import"
 msgstr ""
 
-#: prefs.js:915
+#: prefs.js:914 indicator.js:68
+msgid "Unlock OTP secrets..."
+msgstr ""
+
+#: prefs.js:917 indicator.js:64
+msgid "Lock OTP secrets"
+msgstr ""
+
+#: prefs.js:971
 msgid "Secrets"
 msgstr ""
 
-#: prefs.js:916
+#: prefs.js:972
 msgid "A list of all TOTP secrets from the keyring."
 msgstr ""
 
-#: prefs.js:937
+#: prefs.js:996
 msgid "Add secret..."
 msgstr ""
 
-#: prefs.js:945
+#: prefs.js:1005
 msgid "Refresh secrets."
 msgstr ""
 
-#: prefs.js:954
+#: prefs.js:1015
 msgid "Import secrets..."
 msgstr ""
 
-#: prefs.js:962
+#: prefs.js:1024
 msgid "Export all secrets to the clipboard."
 msgstr ""
 
-#: prefs.js:1012
+#: prefs.js:1077
 msgid "Creating new TOTP secret"
 msgstr ""
 
-#: prefs.js:1023
+#: prefs.js:1088
 msgid "Created new secret."
 msgstr ""
 
-#: prefs.js:1056
+#: prefs.js:1121
 msgid "Imported secrets:"
 msgstr ""
 
-#: prefs.js:1081
+#: prefs.js:1146
 msgid "Copied all OTP secrets to clipboard."
 msgstr ""
 
-#: prefs.js:1159
+#: prefs.js:1224
 msgid "Options"
 msgstr ""
 
-#: prefs.js:1165
+#: prefs.js:1230
 msgid "QR generator"
 msgstr ""
 
-#: prefs.js:1166
+#: prefs.js:1231
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
 msgstr ""
 
-#: prefs.js:1176
+#: prefs.js:1241
 msgid "Revert option back to the default value."
 msgstr ""
 
@@ -238,14 +246,6 @@ msgstr ""
 
 #: base32.js:50
 msgid "Invalid padding."
-msgstr ""
-
-#: indicator.js:64
-msgid "Lock OTP secrets"
-msgstr ""
-
-#: indicator.js:68
-msgid "Unlock OTP secrets"
 msgstr ""
 
 #: indicator.js:73

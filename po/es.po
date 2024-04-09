@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-09 03:49-0300\n"
-"PO-Revision-Date: 2024-04-09 02:56-0300\n"
+"POT-Creation-Date: 2024-04-09 16:55-0300\n"
+"PO-Revision-Date: 2024-04-09 16:47-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -175,55 +175,63 @@ msgstr "Pegue todos los URI \"otpauth://\" que desee importar, uno por línea."
 msgid "_Import"
 msgstr "_Importar"
 
-#: prefs.js:915
+#: prefs.js:914 indicator.js:68
+msgid "Unlock OTP secrets..."
+msgstr "Desbloquear secretos de OTP..."
+
+#: prefs.js:917 indicator.js:64
+msgid "Lock OTP secrets"
+msgstr "Bloquear secretos de OTP"
+
+#: prefs.js:971
 msgid "Secrets"
 msgstr "Secreto"
 
-#: prefs.js:916
+#: prefs.js:972
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Una lista de todos los secretos TOTP del llavero."
 
-#: prefs.js:937
+#: prefs.js:996
 msgid "Add secret..."
 msgstr "Añadir secreto..."
 
-#: prefs.js:945
+#: prefs.js:1005
 msgid "Refresh secrets."
 msgstr "Actualizar secretos."
 
-#: prefs.js:954
+#: prefs.js:1015
 msgid "Import secrets..."
 msgstr "Importar secretos..."
 
-#: prefs.js:962
+#: prefs.js:1024
 msgid "Export all secrets to the clipboard."
 msgstr "Exporta todos los secretos al portapapeles."
 
-#: prefs.js:1012
+#: prefs.js:1077
 msgid "Creating new TOTP secret"
 msgstr "Creando nuevo secreto TOTP"
 
-#: prefs.js:1023
+#: prefs.js:1088
 msgid "Created new secret."
 msgstr "Creó un nuevo secreto."
 
-#: prefs.js:1056
+#: prefs.js:1121
 msgid "Imported secrets:"
 msgstr "Secretos importados:"
 
-#: prefs.js:1081
+#: prefs.js:1146
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copié todos los secretos de OTP al portapapeles."
 
-#: prefs.js:1159
+#: prefs.js:1224
 msgid "Options"
 msgstr "Opciones"
 
-#: prefs.js:1165
+#: prefs.js:1230
 msgid "QR generator"
 msgstr "Generador QR"
 
-#: prefs.js:1166
+#: prefs.js:1231
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -231,7 +239,7 @@ msgstr ""
 "Este comando debe leer texto de la entrada estándar y escribir una imagen en "
 "la salida estándar."
 
-#: prefs.js:1176
+#: prefs.js:1241
 msgid "Revert option back to the default value."
 msgstr "Revertir la opción al valor predeterminado."
 
@@ -246,14 +254,6 @@ msgstr "Carácter base32 no válido en la posición:"
 #: base32.js:50
 msgid "Invalid padding."
 msgstr "Relleno no válido."
-
-#: indicator.js:64
-msgid "Lock OTP secrets"
-msgstr "Bloquear secretos de OTP"
-
-#: indicator.js:68
-msgid "Unlock OTP secrets"
-msgstr "Desbloquear secretos de OTP"
 
 #: indicator.js:73
 msgid "Edit OTP secrets..."
