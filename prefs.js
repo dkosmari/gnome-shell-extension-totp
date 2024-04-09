@@ -131,14 +131,14 @@ class SecretDialog extends Gtk.Dialog {
     }
 
 
-    #ui = {};
-    #resolve;
     #reject;
+    #resolve;
+    #ui = {};
 
 
     constructor({ title, totp })
     {
-        let fields = totp.fields_non_destructive();
+        const fields = totp.fields_non_destructive();
 
         super({
             title: title,
@@ -223,7 +223,7 @@ class SecretDialog extends Gtk.Dialog {
         // UI: confirm/cancel buttons
         this.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL);
 
-        let ok_button = this.add_button(_('_OK'), Gtk.ResponseType.OK);
+        const ok_button = this.add_button(_('_OK'), Gtk.ResponseType.OK);
         ok_button.add_css_class('suggested-action');
         this.set_default_widget(ok_button);
     }
@@ -234,7 +234,7 @@ class SecretDialog extends Gtk.Dialog {
         this.#resolve(response == Gtk.ResponseType.OK
                       ? this.getTOTP()
                       : null);
-        this.destroy();
+        this.close();
     }
 
 
@@ -534,7 +534,7 @@ class ExportQRWindow extends Gtk.Window {
             label: _("_Close"),
             use_underline: true
         });
-        button.connect('clicked', () => this.destroy());
+        button.connect('clicked', () => this.close());
         box.append(button);
     }
 
@@ -664,7 +664,7 @@ class RemoveSecretButton extends Gtk.Button {
 
             const response = await dialog.choose(this.root, null);
             if (response == delete_response) {
-                let success = await SecretUtils.removeTOTPItem(this.#totp);
+                const success = await SecretUtils.removeTOTPItem(this.#totp);
                 if (!success)
                     throw new Error(_('Failed to remove secret. Is it locked?'));
                 this.root?.add_toast(
@@ -806,50 +806,42 @@ class SecretRow extends Adw.ActionRow {
 };
 
 
-class ImportURIsWindow extends Gtk.Window {
+class ImportURIsDialog extends Gtk.Dialog {
 
     static {
         GObject.registerClass(this);
-
-        this.install_action('import.cancel', null,
-                            obj => obj.responseCancel());
-
-        this.install_action('import.import', null,
-                            obj => obj.responseImport());
     }
 
 
     #buffer;
-    #response_handler;
+    #reject;
+    #resolve;
 
 
-    constructor(parent)
+    constructor()
     {
         super({
-            transient_for: parent,
-            modal: true,
             title: _('Importing "otpauth://" URIs'),
             default_width: 600,
             default_height: 400,
-            deletable: false,
-            titlebar: new Gtk.HeaderBar()
+            use_header_bar: true
         });
-        this.add_css_class('import-uris');
+        this.add_css_class('import-uris-dialog');
 
-        let vbox = new Gtk.Box({
+        const vbox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 6
         });
         this.set_child(vbox);
 
-        let heading = new Gtk.Label({
+        const heading = new Gtk.Label({
             label: _('Paste all "otpauth://" URIs you want to import, one per line.')
         });
         vbox.append(heading);
 
         this.#buffer = new Gtk.TextBuffer();
 
-        let scroll = new Gtk.ScrolledWindow({
+        const scroll = new Gtk.ScrolledWindow({
             vexpand: true,
             hexpand: true,
             child: new Gtk.TextView({
@@ -859,43 +851,41 @@ class ImportURIsWindow extends Gtk.Window {
         });
         vbox.append(scroll);
 
-        let cancel_button = new Gtk.Button({
-            label: _('_Cancel'),
-            use_underline: true,
-            action_name: 'import.cancel'
-        });
-        this.titlebar.pack_start(cancel_button);
 
-        let import_button = new Gtk.Button({
-            label: _('_Import'),
-            use_underline: true,
-            action_name: 'import.import'
-        });
+        // UI: import/cancel buttons
+        this.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL);
+
+        const import_button = this.add_button(_('_Import'), Gtk.ResponseType.OK);
         import_button.add_css_class('suggested-action');
-        this.titlebar.pack_end(import_button);
+        this.set_default_widget(import_button);
     }
 
 
-    choose(handler)
+    on_response(response)
     {
-        this.#response_handler = handler;
+        this.#resolve(response == Gtk.ResponseType.OK
+                      ? this.getText()
+                      : null);
+        this.close();
+    }
+
+
+    getText()
+    {
+        return this.#buffer.text;
+    }
+
+
+    choose(parent)
+    {
+        this.transient_for = parent;
+        this.modal = !!parent;
         this.visible = true;
-    }
 
-
-    responseCancel()
-    {
-        if (this.#response_handler)
-            this.#response_handler('cancel', null);
-        this.close();
-    }
-
-
-    responseImport()
-    {
-        if (this.#response_handler)
-            this.#response_handler('import', this.#buffer.text);
-        this.close();
+        return new Promise((resolve, reject) => {
+            this.#resolve = resolve;
+            this.#reject = reject;
+        });
     }
 
 };
@@ -1049,25 +1039,32 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async importSecrets()
     {
         try {
-            let import_window = new ImportURIsWindow(this.root);
-            import_window.choose(async (response, text) => {
-                if (response == 'import') {
-                    const n = this.#rows.length;
-                    await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
-                    let uris = GLib.Uri.list_extract_uris(text);
-                    try {
-                        for (let i = 0; i < uris.length; ++i) {
-                            let totp = new TOTP({uri: uris[i]});
-                            await SecretUtils.createTOTPItem(totp, n + i);
-                        }
-                    }
-                    catch (e) {
-                        reportError(this.root, e, 'importSecrets()');
-                    }
-                    this.root?.add_toast(new Adw.Toast({ title: _('Imported secrets.') }));
-                    await this.refreshSecrets();
+            const dialog = new ImportURIsDialog();
+            const text = await dialog.choose(this.root);
+            if (!text)
+                return; // canceled or empty text
+
+            const n = this.#rows.length;
+            await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
+            const uris = GLib.Uri.list_extract_uris(text);
+
+            let successes = 0;
+            for (let i = 0; i < uris.length; ++i) {
+                try {
+                    const totp = new TOTP({ uri: uris[i] });
+                    await SecretUtils.createTOTPItem(totp, n + i);
+                    ++successes;
                 }
-            });
+                catch (e) {
+                    logError(e);
+                }
+            }
+            this.root?.add_toast(new Adw.Toast({
+                title: _('Imported secrets:') + ` ${successes}`
+            }));
+
+            await this.refreshSecrets();
+
         }
         catch (e) {
             reportError(this.root, e, 'importSecrets()');

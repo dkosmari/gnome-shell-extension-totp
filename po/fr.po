@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-09 02:11-0300\n"
+"POT-Creation-Date: 2024-04-09 02:44-0300\n"
 "PO-Revision-Date: 2024-04-06 00:15-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -71,7 +71,7 @@ msgstr "Algorithme"
 msgid "The hash algorithm used to generate codes."
 msgstr "L'algorithme de hachage utilisé pour générer des codes."
 
-#: prefs.js:224 prefs.js:654 prefs.js:863
+#: prefs.js:224 prefs.js:654 prefs.js:856
 msgid "_Cancel"
 msgstr "A_nnuler"
 
@@ -164,70 +164,70 @@ msgstr ""
 "Déplacez ce secret vers le bas ; maintenez la touche MAJ enfoncée pour "
 "passer au bas de la liste."
 
-#: prefs.js:831
+#: prefs.js:824
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Importation des URI \"otpauth://\""
 
-#: prefs.js:846
+#: prefs.js:838
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr ""
 "Collez tous les URI \"otpauth://\" que vous souhaitez importer, un par ligne."
 
-#: prefs.js:870
+#: prefs.js:858
 msgid "_Import"
 msgstr "_Importer"
 
-#: prefs.js:932
+#: prefs.js:922
 msgid "Secrets"
 msgstr "Secrets"
 
-#: prefs.js:933
+#: prefs.js:923
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Une liste de tous les secrets TOTP du porte-clés."
 
-#: prefs.js:954
+#: prefs.js:944
 msgid "Add secret..."
 msgstr "Ajouter un secret..."
 
-#: prefs.js:962
+#: prefs.js:952
 msgid "Refresh secrets."
 msgstr "Actualisez les secrets."
 
-#: prefs.js:971
+#: prefs.js:961
 msgid "Import secrets..."
 msgstr "Importer des secrets..."
 
-#: prefs.js:979
+#: prefs.js:969
 msgid "Export all secrets to the clipboard."
 msgstr "Exportez tous les secrets dans le presse-papiers."
 
-#: prefs.js:1029
+#: prefs.js:1019
 msgid "Creating new TOTP secret"
 msgstr "Création d'un nouveau secret TOTP"
 
-#: prefs.js:1040
+#: prefs.js:1030
 #, fuzzy
 msgid "Created new secret."
 msgstr "Création d'un nouveau secret TOTP"
 
-#: prefs.js:1067
+#: prefs.js:1063
 #, fuzzy
-msgid "Imported secrets."
+msgid "Imported secrets:"
 msgstr "Importer des secrets..."
 
-#: prefs.js:1091
+#: prefs.js:1088
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copié tous les secrets OTP dans le presse-papiers."
 
-#: prefs.js:1169
+#: prefs.js:1166
 msgid "Options"
 msgstr "Options"
 
-#: prefs.js:1175
+#: prefs.js:1172
 msgid "QR generator"
 msgstr "Générateur de QR"
 
-#: prefs.js:1176
+#: prefs.js:1173
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -235,7 +235,7 @@ msgstr ""
 "Cette commande doit lire le texte de l'entrée standard et écrire une image "
 "sur la sortie standard."
 
-#: prefs.js:1186
+#: prefs.js:1183
 msgid "Revert option back to the default value."
 msgstr "Rétablir l'option à la valeur par défaut."
 
