@@ -170,7 +170,7 @@ class SecretDialog extends Gtk.Dialog {
         this.#ui.secret = new EntryRow({
             title: _('Secret'),
             text: fields.secret,
-            tooltip_text: _("The shared secret key.")
+            tooltip_text: _('The shared secret key.')
         });
         this.#ui.secret_type = new Gtk.DropDown({
             model: makeStringList('Base32', 'Base64'),
@@ -314,9 +314,9 @@ class CopyCodeButton extends Gtk.Button {
             orientation: Gtk.Orientation.VERTICAL
         });
         this.#level.add_css_class('totp-code-level');
-        this.#level.add_offset_value("full", this.#totp.period);
-        this.#level.add_offset_value("high", 10);
-        this.#level.add_offset_value("low", 5);
+        this.#level.add_offset_value('full', this.#totp.period);
+        this.#level.add_offset_value('high', 10);
+        this.#level.add_offset_value('low', 5);
 
         box.append(this.#level);
 
@@ -526,7 +526,7 @@ class ExportQRWindow extends Gtk.Window {
         box.append(img);
 
         let button = new Gtk.Button({
-            label: _("_Close"),
+            label: _('_Close'),
             use_underline: true
         });
         button.connect('clicked', () => this.close());
@@ -886,6 +886,61 @@ class ImportURIsDialog extends Gtk.Dialog {
 };
 
 
+class LockButton extends Gtk.Button {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #locked = true;
+
+
+    constructor(args)
+    {
+        super({
+            icon_name: 'dialog-password-symbolic',
+            ...args
+        });
+
+        this.updateState();
+    }
+
+
+    async updateState()
+    {
+        try {
+            this.#locked = await SecretUtils.isOTPCollectionLocked();
+            if (this.#locked) {
+                this.icon_name = 'changes-prevent-symbolic';
+                this.tooltip_text = _('Unlock OTP secrets...');
+            } else {
+                this.icon_name = 'changes-allow-symbolic';
+                this.tooltip_text = _('Lock OTP secrets');
+            }
+        }
+        catch (e) {
+            logError(e);
+        }
+    }
+
+
+    async on_clicked()
+    {
+        try {
+            let success = this.#locked
+                ? await SecretUtils.unlockOTPCollection()
+                : await SecretUtils.lockOTPCollection();
+            await this.updateState();
+        }
+        catch (e) {
+            logError(e);
+        }
+    }
+
+};
+
+
 class SecretsGroup extends Adw.PreferencesGroup {
 
     static {
@@ -906,6 +961,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
 
     #listbox;
+    #lock_button;
     #rows = [];
     #settings;
     #update_source = 0;
@@ -933,11 +989,15 @@ class SecretsGroup extends Adw.PreferencesGroup {
         });
         this.set_header_suffix(box);
 
+        this.#lock_button = new LockButton({ valign: Gtk.Align.CENTER });
+        box.append(this.#lock_button);
+
         box.append(
             new Gtk.Button({
                 icon_name: 'document-new-symbolic',
-                tooltip_text: _("Add secret..."),
-                action_name: 'totp.create'
+                tooltip_text: _('Add secret...'),
+                action_name: 'totp.create',
+                valign: Gtk.Align.CENTER,
             })
         );
 
@@ -946,6 +1006,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 icon_name: 'view-refresh-symbolic',
                 tooltip_text: _('Refresh secrets.'),
                 action_name: 'totp.refresh',
+                valign: Gtk.Align.CENTER,
             })
         );
 
@@ -953,7 +1014,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 icon_name: 'document-import-symbolic',
                 action_name: 'totp.import',
-                tooltip_text: _("Import secrets...")
+                tooltip_text: _('Import secrets...'),
+                valign: Gtk.Align.CENTER,
             })
         );
 
@@ -961,7 +1023,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 icon_name: 'document-export-symbolic',
                 action_name: 'totp.export_all',
-                tooltip_text: _("Export all secrets to the clipboard.")
+                tooltip_text: _('Export all secrets to the clipboard.'),
+                valign: Gtk.Align.CENTER,
             })
         );
 
@@ -972,6 +1035,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     destroy()
     {
         this.clearSecrets();
+        this.#lock_button = null;
         this.#listbox = null;
         this.#settings = null;
     }
@@ -992,6 +1056,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.clearSecrets();
         try {
             let items = await SecretUtils.getOTPItems(unlock);
+            this.#lock_button.updateState();
             items.forEach(item =>
                 {
                     let totp = new TOTP(item.get_attributes());
