@@ -19,7 +19,7 @@ window.qr-export-window {
     padding: 0px;
 }
 
-dialog.import-uris-dialog {
+window.import-uris-dialog {
     padding: 12px;
 }
 
