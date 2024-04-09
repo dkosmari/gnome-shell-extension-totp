@@ -170,8 +170,8 @@ function makeLabel({issuer, name}, order = -1)
 async function getSecret(args)
 {
     const secret = await Secret.password_lookup(makeSchema(),
-                                              makeAttributes(args),
-                                              null);
+                                                makeAttributes(args),
+                                                null);
     if (secret == null)
         throw new Error(_('Failed to retrieve secret.'));
     return secret;
