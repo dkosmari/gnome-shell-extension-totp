@@ -11,8 +11,7 @@ const {
     Gio,
     GLib,
     GObject,
-    Gtk,
-    Notify
+    Gtk
 } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -38,39 +37,11 @@ Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
 const EntryRow = Adw.EntryRow ?? MyEntryRow;
 
 
-function copyToClipboard(text,
-                         title = null,
-                         show_text = false)
+function activateCopyToClipboard(source, text, title)
 {
-    // this runs outside gnome-shell, so we use GDK
-    let display = Gdk.Display.get_default();
-    let clipboard1 = display.get_primary_clipboard();
-    let clipboard2 = display.get_clipboard();
-    clipboard1.set(text);
-    clipboard2.set(text);
-
-    if (title) {
-        try {
-            if (Notify.is_initted()) {
-                let note = new Notify.Notification({
-                    summary: title,
-                    body: show_text ? text : null,
-                    icon_name: 'changes-prevent-symbolic'
-                });
-                note.show();
-                GLib.timeout_add(GLib.PRIORITY_LOW,
-                                 8000,
-                                 () =>
-                                 {
-                                     note.close();
-                                     return GLib.SOURCE_REMOVE;
-                                 });
-            }
-        }
-        catch (e) {
-            logError(e, 'copyToClipboard()');
-        }
-    }
+    source.activate_action('copy-to-clipboard',
+                           new GLib.Variant('(ss)',
+                                            [text, title]));
 }
 
 
@@ -420,9 +391,9 @@ class CopyCodeButton extends Gtk.Button {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             let code = this.#totp.code();
-            copyToClipboard(code,
-                            _('OTP code copied to clipboard.'),
-                            true);
+            activateCopyToClipboard(this,
+                                    code,
+                                    _('OTP code copied to clipboard.'));
         }
         catch (e) {
             reportError(this.root, e);
@@ -513,9 +484,9 @@ class ExportSecretButton extends Gtk.Button {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             let uri = this.#totp.uri();
-            copyToClipboard(uri,
-                            _('Copied secret URI to clipboard.'),
-                            true);
+            activateCopyToClipboard(this,
+                                    uri,
+                                    _('Copied secret URI to clipboard.'));
         }
         catch (e) {
             reportError(this.root, e);
@@ -678,11 +649,10 @@ class RemoveSecretButton extends Gtk.Button {
             const cancel_response = 0;
             const delete_response = 1;
             const buttons = [_('_Cancel'), _('_Delete')];
-
-            let dialog = new AlertDialog({
+            const label = makeLabel(this.#totp);
+            const dialog = new AlertDialog({
                 message: _('Deleting TOTP secret'),
-                detail: pgettext('Deleting: "SECRET"', 'Deleting:')
-                    + ` "${makeLabel(this.#totp)}"`,
+                detail: _('Deleting secret:') + ` "${label}"`,
                 modal: true,
                 default_button: delete_response,
                 cancel_button: cancel_response,
@@ -694,6 +664,9 @@ class RemoveSecretButton extends Gtk.Button {
                 let success = await SecretUtils.removeTOTPItem(this.#totp);
                 if (!success)
                     throw new Error(_('Failed to remove secret. Is it locked?'));
+                this.root?.add_toast(
+                    new Adw.Toast({ title: _('Deleted secret:') + ` "${label}"` })
+                );
                 await this.#group.refreshSecrets();
             }
         }
@@ -934,7 +907,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                             obj => obj.createSecret());
 
         this.install_action('totp.refresh', null,
-                            obj => obj.refreshSecrets());
+                            obj => obj.refreshSecrets(true));
 
         this.install_action('totp.import', null,
                             obj => obj.importSecrets());
@@ -944,7 +917,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    #initialized_notify = false;
     #listbox;
     #rows = [];
     #settings;
@@ -964,17 +936,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.#listbox.set_sort_func(this.rowSortFunc.bind(this));
 
         // UI tweak: relax the clamp so the group can grow wider.
-        this.connect('notify::parent', () => this.get_ancestor(Adw.Clamp)?.set_maximum_size(1000));
-
-        // Stuffs that needs cleanup later
-        try {
-            if (!Notify.is_initted())
-                this.#initialized_notify = Notify.init(application_id);
-        }
-        catch (e) {
-            logError(e, 'constructor()');
-        }
-
+        this.connect('notify::parent',
+                     () => this.get_ancestor(Adw.Clamp)?.set_maximum_size(1000));
 
         let box = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
@@ -1021,14 +984,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     destroy()
     {
         this.clearSecrets();
-
-        if (this.#initialized_notify) {
-            Notify.uninit();
-            this.#initialized_notify = false;
-        }
-
         this.#listbox = null;
-
         this.#settings = null;
     }
 
@@ -1043,11 +999,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async refreshSecrets()
+    async refreshSecrets(unlock = false)
     {
         this.clearSecrets();
         try {
-            let items = await SecretUtils.getOTPItems();
+            let items = await SecretUtils.getOTPItems(unlock);
             items.forEach(item =>
                 {
                     let totp = new TOTP(item.get_attributes());
@@ -1105,6 +1061,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                     catch (e) {
                         reportError(this.root, e, 'importSecrets()');
                     }
+                    this.root?.add_toast(new Adw.Toast({ title: _('Imported secrets.') }));
                     await this.refreshSecrets();
                 }
             });
@@ -1126,8 +1083,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 let totp = new TOTP(attrs);
                 uris.push(totp.uri());
             }
-            copyToClipboard(uris.join('\n'),
-                            _('Copied all OTP secrets to clipboard.'));
+            activateCopyToClipboard(this,
+                                    uris.join('\n'),
+                                    _('Copied all OTP secrets to clipboard.'));
         }
         catch (e) {
             reportError(this.root, e, 'exportAllSecrets()');
@@ -1251,6 +1209,11 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
     static {
         GObject.registerClass(this);
+
+        this.install_action('copy-to-clipboard',
+                            '(ss)',
+                            (obj, name, args) =>
+                                obj.copyToClipboard(...args.recursiveUnpack()));
     }
 
 
@@ -1318,6 +1281,22 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
             Gio.resources_unregister(this.#resource);
             this.#resource = null;
         }
+    }
+
+
+    copyToClipboard(text, title)
+    {
+        // this runs outside gnome-shell, so we use GDK
+        let display = Gdk.Display.get_default();
+        let clipboard1 = display.get_primary_clipboard();
+        let clipboard2 = display.get_clipboard();
+        clipboard1.set(text);
+        clipboard2.set(text);
+
+        if (!title)
+            return;
+
+        this.root?.add_toast(new Adw.Toast({ title: title }));
     }
 
 };
