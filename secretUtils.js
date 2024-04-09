@@ -116,12 +116,15 @@ function getOrder(label)
 
 
 export
-async function getOTPItems()
+async function getOTPItems(unlock = false)
 {
     try {
+        let flags = Secret.SearchFlags.ALL;
+        if (unlock)
+            flags |= Secret.SearchFlags.UNLOCK;
         let items = await Secret.password_search(makeSchema(),
                                                  { type: 'TOTP' },
-                                                 Secret.SearchFlags.ALL,
+                                                 flags,
                                                  null);
         // return them sorted, using the label
         items.sort((a, b) => getOrder(a.get_label()) - getOrder(b.get_label()));

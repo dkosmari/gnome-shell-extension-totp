@@ -11,7 +11,6 @@ import Gio       from 'gi://Gio';
 import GLib      from 'gi://GLib';
 import GObject   from 'gi://GObject';
 import Gtk       from 'gi://Gtk';
-import Notify    from 'gi://Notify';
 
 import {
     ExtensionPreferences,
@@ -32,39 +31,11 @@ Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
 const EntryRow = Adw.EntryRow ?? MyEntryRow;
 
 
-function copyToClipboard(text,
-                         title = null,
-                         show_text = false)
+function activateCopyToClipboard(source, text, title)
 {
-    // this runs outside gnome-shell, so we use GDK
-    let display = Gdk.Display.get_default();
-    let clipboard1 = display.get_primary_clipboard();
-    let clipboard2 = display.get_clipboard();
-    clipboard1.set(text);
-    clipboard2.set(text);
-
-    if (title) {
-        try {
-            if (Notify.is_initted()) {
-                let note = new Notify.Notification({
-                    summary: title,
-                    body: show_text ? text : null,
-                    icon_name: 'changes-prevent-symbolic'
-                });
-                note.show();
-                GLib.timeout_add(GLib.PRIORITY_LOW,
-                                 8000,
-                                 () =>
-                                 {
-                                     note.close();
-                                     return GLib.SOURCE_REMOVE;
-                                 });
-            }
-        }
-        catch (e) {
-            logError(e, 'copyToClipboard()');
-        }
-    }
+    source.activate_action('copy-to-clipboard',
+                           new GLib.Variant('(ss)',
+                                            [text, title]));
 }
 
 
@@ -154,30 +125,21 @@ class SecretDialog extends Gtk.Dialog {
     }
 
 
-    #confirm_cb;
-    #cancel_cb;
+    #reject;
+    #resolve;
     #ui = {};
 
 
-    constructor(parent,
-                title,
-                totp,
-                confirm,
-                cancel)
+    constructor({ title, totp })
     {
-        let fields = totp.fields_non_destructive();
+        const fields = totp.fields_non_destructive();
 
         super({
-            transient_for: parent,
-            modal: true,
             title: title,
             default_width: 500,
             // WORKAROUND: need header bar, otherwise the dialog is not centered
             use_header_bar: true
         });
-
-        this.#confirm_cb = confirm;
-        this.#cancel_cb = cancel;
 
         let group = new Adw.PreferencesGroup({
             title: title,
@@ -255,20 +217,18 @@ class SecretDialog extends Gtk.Dialog {
         // UI: confirm/cancel buttons
         this.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL);
 
-        let ok_button = this.add_button(_('_OK'), Gtk.ResponseType.OK);
+        const ok_button = this.add_button(_('_OK'), Gtk.ResponseType.OK);
         ok_button.add_css_class('suggested-action');
         this.set_default_widget(ok_button);
     }
 
 
-    on_response(response_id)
+    on_response(response)
     {
-        if (response_id == Gtk.ResponseType.OK) {
-            this.#confirm_cb(this.getTOTP());
-        } else {
-            if (this.#cancel_cb)
-                this.#cancel_cb();
-        }
+        this.#resolve(response == Gtk.ResponseType.OK
+                      ? this.getTOTP()
+                      : null);
+        this.close();
     }
 
 
@@ -285,6 +245,19 @@ class SecretDialog extends Gtk.Dialog {
             digits: parseInt(this.#ui.digits.selected_item.string),
             period: parseInt(this.#ui.period.selected_item.string),
             algorithm: this.#ui.algorithm.selected_item.string
+        });
+    }
+
+
+    choose(parent)
+    {
+        this.transient_for = parent;
+        this.modal = !!parent;
+        this.visible = true;
+
+        return new Promise((resolve, reject) => {
+            this.#resolve = resolve;
+            this.#reject = reject;
         });
     }
 
@@ -394,7 +367,13 @@ class CopyCodeButton extends Gtk.Button {
             this.#label.use_markup = true;
         }
         catch (e) {
-            logError(e);
+            /*
+             * Note: errors here are harmless, it usually means the item was deleted or
+             * edited while this async function was running. So we just disable the button
+             * and call .destroy() to disable the callback.
+             */
+            this.sensitive = false;
+            this.destroy();
         }
     }
 
@@ -414,9 +393,9 @@ class CopyCodeButton extends Gtk.Button {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             let code = this.#totp.code();
-            copyToClipboard(code,
-                            _('OTP code copied to clipboard.'),
-                            true);
+            activateCopyToClipboard(this,
+                                    code,
+                                    _('OTP code copied to clipboard.'));
         }
         catch (e) {
             reportError(this.root, e);
@@ -455,28 +434,23 @@ class EditSecretButton extends Gtk.Button {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
 
-            let dialog = new SecretDialog(
-                this.root,
-                _('Editing TOTP secret'),
-                this.#totp,
-                async (new_totp) => {
-                    try {
-                        await SecretUtils.updateTOTPItem(this.#totp, new_totp);
-                        dialog.destroy();
-                        await this.#group.refreshSecrets();
-                    }
-                    catch (e) {
-                        reportError(dialog, e);
-                    }
-                },
-                () => dialog.destroy()
-            );
-            dialog.present();
+            const dialog = new SecretDialog({
+                title: _('Editing TOTP secret'),
+                totp: this.#totp
+            });
+
+            const new_totp = await dialog.choose(this.root);
+            if (!new_totp)
+                return;
+
+            await SecretUtils.updateTOTPItem(this.#totp, new_totp);
+            await this.#group.refreshSecrets();
         }
         catch (e) {
             reportError(this.root, e);
         }
     }
+
 };
 
 
@@ -507,9 +481,9 @@ class ExportSecretButton extends Gtk.Button {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             let uri = this.#totp.uri();
-            copyToClipboard(uri,
-                            _('Copied secret URI to clipboard.'),
-                            true);
+            activateCopyToClipboard(this,
+                                    uri,
+                                    _('Copied secret URI to clipboard.'));
         }
         catch (e) {
             reportError(this.root, e);
@@ -554,7 +528,7 @@ class ExportQRWindow extends Gtk.Window {
             label: _("_Close"),
             use_underline: true
         });
-        button.connect('clicked', () => this.destroy());
+        button.connect('clicked', () => this.close());
         box.append(button);
     }
 
@@ -672,22 +646,24 @@ class RemoveSecretButton extends Gtk.Button {
             const cancel_response = 0;
             const delete_response = 1;
             const buttons = [_('_Cancel'), _('_Delete')];
-
-            let dialog = new AlertDialog({
+            const label = makeLabel(this.#totp);
+            const dialog = new AlertDialog({
                 message: _('Deleting TOTP secret'),
-                detail: pgettext('Deleting: "SECRET"', 'Deleting:')
-                    + ` "${makeLabel(this.#totp)}"`,
+                detail: _('Deleting secret:') + ` "${label}"`,
                 modal: true,
                 default_button: delete_response,
                 cancel_button: cancel_response,
                 buttons: buttons
             });
 
-            let response = await dialog.choose(this.root, null);
+            const response = await dialog.choose(this.root, null);
             if (response == delete_response) {
-                let success = await SecretUtils.removeTOTPItem(this.#totp);
+                const success = await SecretUtils.removeTOTPItem(this.#totp);
                 if (!success)
                     throw new Error(_('Failed to remove secret. Is it locked?'));
+                this.root?.add_toast(
+                    new Adw.Toast({ title: _('Deleted secret:') + ` "${label}"` })
+                );
                 await this.#group.refreshSecrets();
             }
         }
@@ -824,50 +800,42 @@ class SecretRow extends Adw.ActionRow {
 };
 
 
-class ImportURIsWindow extends Gtk.Window {
+class ImportURIsDialog extends Gtk.Dialog {
 
     static {
         GObject.registerClass(this);
-
-        this.install_action('import.cancel', null,
-                            obj => obj.responseCancel());
-
-        this.install_action('import.import', null,
-                            obj => obj.responseImport());
     }
 
 
     #buffer;
-    #response_handler;
+    #reject;
+    #resolve;
 
 
-    constructor(parent)
+    constructor()
     {
         super({
-            transient_for: parent,
-            modal: true,
             title: _('Importing "otpauth://" URIs'),
             default_width: 600,
             default_height: 400,
-            deletable: false,
-            titlebar: new Gtk.HeaderBar()
+            use_header_bar: true
         });
-        this.add_css_class('import-uris');
+        this.add_css_class('import-uris-dialog');
 
-        let vbox = new Gtk.Box({
+        const vbox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 6
         });
         this.set_child(vbox);
 
-        let heading = new Gtk.Label({
+        const heading = new Gtk.Label({
             label: _('Paste all "otpauth://" URIs you want to import, one per line.')
         });
         vbox.append(heading);
 
         this.#buffer = new Gtk.TextBuffer();
 
-        let scroll = new Gtk.ScrolledWindow({
+        const scroll = new Gtk.ScrolledWindow({
             vexpand: true,
             hexpand: true,
             child: new Gtk.TextView({
@@ -877,43 +845,41 @@ class ImportURIsWindow extends Gtk.Window {
         });
         vbox.append(scroll);
 
-        let cancel_button = new Gtk.Button({
-            label: _('_Cancel'),
-            use_underline: true,
-            action_name: 'import.cancel'
-        });
-        this.titlebar.pack_start(cancel_button);
 
-        let import_button = new Gtk.Button({
-            label: _('_Import'),
-            use_underline: true,
-            action_name: 'import.import'
-        });
+        // UI: import/cancel buttons
+        this.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL);
+
+        const import_button = this.add_button(_('_Import'), Gtk.ResponseType.OK);
         import_button.add_css_class('suggested-action');
-        this.titlebar.pack_end(import_button);
+        this.set_default_widget(import_button);
     }
 
 
-    choose(handler)
+    on_response(response)
     {
-        this.#response_handler = handler;
-        this.present();
-    }
-
-
-    responseCancel()
-    {
-        if (this.#response_handler)
-            this.#response_handler('cancel', null);
+        this.#resolve(response == Gtk.ResponseType.OK
+                      ? this.getText()
+                      : null);
         this.close();
     }
 
 
-    responseImport()
+    getText()
     {
-        if (this.#response_handler)
-            this.#response_handler('import', this.#buffer.text);
-        this.close();
+        return this.#buffer.text;
+    }
+
+
+    choose(parent)
+    {
+        this.transient_for = parent;
+        this.modal = !!parent;
+        this.visible = true;
+
+        return new Promise((resolve, reject) => {
+            this.#resolve = resolve;
+            this.#reject = reject;
+        });
     }
 
 };
@@ -928,7 +894,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                             obj => obj.createSecret());
 
         this.install_action('totp.refresh', null,
-                            obj => obj.refreshSecrets());
+                            obj => obj.refreshSecrets(true));
 
         this.install_action('totp.import', null,
                             obj => obj.importSecrets());
@@ -938,7 +904,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    #initialized_notify = false;
     #listbox;
     #rows = [];
     #settings;
@@ -958,17 +923,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.#listbox.set_sort_func(this.rowSortFunc.bind(this));
 
         // UI tweak: relax the clamp so the group can grow wider.
-        this.connect('notify::parent', () => this.get_ancestor(Adw.Clamp)?.set_maximum_size(1000));
-
-        // Stuffs that needs cleanup later
-        try {
-            if (!Notify.is_initted())
-                this.#initialized_notify = Notify.init(application_id);
-        }
-        catch (e) {
-            logError(e, 'constructor()');
-        }
-
+        this.connect('notify::parent',
+                     () => this.get_ancestor(Adw.Clamp)?.set_maximum_size(1000));
 
         let box = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
@@ -1015,14 +971,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     destroy()
     {
         this.clearSecrets();
-
-        if (this.#initialized_notify) {
-            Notify.uninit();
-            this.#initialized_notify = false;
-        }
-
         this.#listbox = null;
-
         this.#settings = null;
     }
 
@@ -1037,11 +986,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async refreshSecrets()
+    async refreshSecrets(unlock = false)
     {
         this.clearSecrets();
         try {
-            let items = await SecretUtils.getOTPItems();
+            let items = await SecretUtils.getOTPItems(unlock);
             items.forEach(item =>
                 {
                     let totp = new TOTP(item.get_attributes());
@@ -1057,51 +1006,59 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    createSecret()
+    async createSecret()
     {
-        let dialog = new SecretDialog(
-            this.root,
-            _('Creating new TOTP secret'),
-            new TOTP(),
-            async (totp) => {
-                try {
-                    const n = this.#rows.length;
-                    await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
-                    await SecretUtils.createTOTPItem(totp, n);
-                    dialog.destroy();
-                    await this.refreshSecrets();
-                }
-                catch (e) {
-                    reportError(dialog, e, 'createSecret()');
-                }
-            },
-            () => dialog.destroy()
-        );
-        dialog.present();
+        try {
+            const dialog = new SecretDialog({
+                title: _('Creating new TOTP secret'),
+                totp: new TOTP()
+            });
+
+            const totp = await dialog.choose(this.root);
+            if (!totp)
+                return;
+
+            const n = this.#rows.length;
+            await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
+            await SecretUtils.createTOTPItem(totp, n);
+            this.root?.add_toast(new Adw.Toast({ title: _('Created new secret.') }));
+            await this.refreshSecrets();
+        }
+        catch (e) {
+            reportError(this.root, e);
+        }
     }
 
 
     async importSecrets()
     {
         try {
-            let import_window = new ImportURIsWindow(this.root);
-            import_window.choose(async (response, text) => {
-                if (response == 'import') {
-                    const n = this.#rows.length;
-                    await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
-                    let uris = GLib.Uri.list_extract_uris(text);
-                    try {
-                        for (let i = 0; i < uris.length; ++i) {
-                            let totp = new TOTP({uri: uris[i]});
-                            await SecretUtils.createTOTPItem(totp, n + i);
-                        }
-                    }
-                    catch (e) {
-                        reportError(this.root, e, 'importSecrets()');
-                    }
-                    await this.refreshSecrets();
+            const dialog = new ImportURIsDialog();
+            const text = await dialog.choose(this.root);
+            if (!text)
+                return; // canceled or empty text
+
+            const n = this.#rows.length;
+            await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
+            const uris = GLib.Uri.list_extract_uris(text);
+
+            let successes = 0;
+            for (let i = 0; i < uris.length; ++i) {
+                try {
+                    const totp = new TOTP({ uri: uris[i] });
+                    await SecretUtils.createTOTPItem(totp, n + i);
+                    ++successes;
                 }
-            });
+                catch (e) {
+                    logError(e);
+                }
+            }
+            this.root?.add_toast(new Adw.Toast({
+                title: _('Imported secrets:') + ` ${successes}`
+            }));
+
+            await this.refreshSecrets();
+
         }
         catch (e) {
             reportError(this.root, e, 'importSecrets()');
@@ -1120,8 +1077,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 let totp = new TOTP(attrs);
                 uris.push(totp.uri());
             }
-            copyToClipboard(uris.join('\n'),
-                            _('Copied all OTP secrets to clipboard.'));
+            activateCopyToClipboard(this,
+                                    uris.join('\n'),
+                                    _('Copied all OTP secrets to clipboard.'));
         }
         catch (e) {
             reportError(this.root, e, 'exportAllSecrets()');
@@ -1245,6 +1203,11 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
     static {
         GObject.registerClass(this);
+
+        this.install_action('copy-to-clipboard',
+                            '(ss)',
+                            (obj, name, args) =>
+                                obj.copyToClipboard(...args.recursiveUnpack()));
     }
 
 
@@ -1312,6 +1275,22 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
             Gio.resources_unregister(this.#resource);
             this.#resource = null;
         }
+    }
+
+
+    copyToClipboard(text, title)
+    {
+        // this runs outside gnome-shell, so we use GDK
+        let display = Gdk.Display.get_default();
+        let clipboard1 = display.get_primary_clipboard();
+        let clipboard2 = display.get_clipboard();
+        clipboard1.set(text);
+        clipboard2.set(text);
+
+        if (!title)
+            return;
+
+        this.root?.add_toast(new Adw.Toast({ title: title }));
     }
 
 };
