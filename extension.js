@@ -13,8 +13,18 @@ class Extension {
 
     constructor(meta)
     {
-        this._meta = meta;
+        this.uuid = meta.uuid;
     }
+
+    openPreferences()
+    {
+        ExtensionUtils.openPrefs();
+    }
+
+};
+
+
+class TOTPExtension extends Extension {
 
     enable()
     {
@@ -27,16 +37,11 @@ class Extension {
         this._indicator = null;
     }
 
-    get uuid()
-    {
-        return this._meta.uuid;
-    }
-
 };
 
 
 function init(meta)
 {
     ExtensionUtils.initTranslations();
-    return new Extension(meta);
+    return new TOTPExtension(meta);
 }

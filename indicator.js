@@ -48,6 +48,7 @@ class Indicator extends PanelMenu.Button {
     }
 
 
+    #ext;
     #lock_item;
     #totp_items = [];
     #unlock_item;
@@ -56,6 +57,8 @@ class Indicator extends PanelMenu.Button {
     constructor(ext)
     {
         super();
+
+        this.#ext = ext;
 
         this.add_child(
             new St.Icon({
@@ -156,7 +159,7 @@ class Indicator extends PanelMenu.Button {
 
     editTOTPSecrets()
     {
-        ExtensionUtils.openPrefs();
+        this.#ext.openPreferences();
     }
 
 

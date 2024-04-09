@@ -16,6 +16,7 @@ const {
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const _ = ExtensionUtils.gettext;
 
 const Base32        = Me.imports.base32;
 const MyAlertDialog = Me.imports.myAlertDialog.AlertDialog;
@@ -23,12 +24,6 @@ const MyEntryRow    = Me.imports.myEntryRow.EntryRow;
 const SecretUtils   = Me.imports.secretUtils;
 const TOTP          = Me.imports.totp.TOTP;
 
-
-const {
-    gettext,
-    pgettext
-} = ExtensionUtils;
-const _ = gettext;
 
 
 const AlertDialog = Gtk.AlertDialog ?? MyAlertDialog;
@@ -1302,7 +1297,7 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 };
 
 
-class TOTPPreferences {
+class ExtensionPreferences {
 
     get path()
     {
@@ -1315,6 +1310,10 @@ class TOTPPreferences {
         return ExtensionUtils.getSettings();
     }
 
+};
+
+
+class TOTPPreferences extends ExtensionPreferences {
 
     fillPreferencesWindow(window)
     {
