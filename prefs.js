@@ -14,8 +14,7 @@ import Gtk       from 'gi://Gtk';
 
 import {
     ExtensionPreferences,
-    gettext as _,
-    pgettext
+    gettext as _
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 import * as Base32      from './base32.js';
