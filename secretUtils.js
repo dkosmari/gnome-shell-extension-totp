@@ -46,8 +46,8 @@ function makeSchema()
 
 async function findOTPCollection()
 {
-    let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
-    let collections = service.get_collections();
+    const service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
+    const collections = service.get_collections();
     // look for the 'OTP' at the hardcoded path
     for (let i = 0; i < collections.length; ++i)
         if (collections[i].get_object_path() == OTP_COLLECTION_DBUS_PATH)
@@ -76,7 +76,7 @@ async function isOTPCollectionLocked()
 {
     // force a new connection, so we get reliable lock status
     Secret.Service.disconnect();
-    let [service, collection] = await findOTPCollection();
+    const [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return collection.locked;
@@ -86,7 +86,7 @@ async function isOTPCollectionLocked()
 export
 async function lockOTPCollection()
 {
-    let [service, collection] = await findOTPCollection();
+    const [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return await service.lock([collection], null) > 0;
@@ -96,7 +96,7 @@ async function lockOTPCollection()
 export
 async function unlockOTPCollection()
 {
-    let [service, collection] = await findOTPCollection();
+    const [service, collection] = await findOTPCollection();
     if (!collection)
         return false;
     return await service.unlock([collection], null) > 0;
@@ -122,10 +122,10 @@ async function getOTPItems(unlock = false)
         let flags = Secret.SearchFlags.ALL;
         if (unlock)
             flags |= Secret.SearchFlags.UNLOCK;
-        let items = await Secret.password_search(makeSchema(),
-                                                 { type: 'TOTP' },
-                                                 flags,
-                                                 null);
+        const items = await Secret.password_search(makeSchema(),
+                                                   { type: 'TOTP' },
+                                                   flags,
+                                                   null);
         // return them sorted, using the label
         items.sort((a, b) => getOrder(a.get_label()) - getOrder(b.get_label()));
         return items;
@@ -139,10 +139,10 @@ async function getOTPItems(unlock = false)
 export
 async function getOTPItem(totp)
 {
-    let [item] = await Secret.password_search(makeSchema(),
-                                              makeAttributes(totp),
-                                              Secret.SearchFlags.LOAD_SECRETS, // don't unlock
-                                              null);
+    const [item] = await Secret.password_search(makeSchema(),
+                                                makeAttributes(totp),
+                                                Secret.SearchFlags.LOAD_SECRETS, // don't unlock
+                                                null);
     if (!item)
         throw new Error(_('Failed to lookup secret.'));
     return item;
@@ -173,10 +173,10 @@ function makeLabel({issuer, name}, order = -1)
 export
 async function getSecret(args)
 {
-    let secret = await Secret.password_lookup(makeSchema(),
-                                              makeAttributes(args),
-                                              null);
-    if (!secret)
+    const secret = await Secret.password_lookup(makeSchema(),
+                                                makeAttributes(args),
+                                                null);
+    if (secret == null)
         throw new Error(_('Failed to retrieve secret.'));
     return secret;
 }
@@ -184,8 +184,8 @@ async function getSecret(args)
 
 function equalDictionaries(a, b)
 {
-    let ak = Object.keys(a);
-    let bk = Object.keys(b);
+    const ak = Object.keys(a);
+    const bk = Object.keys(b);
 
     if (ak.length != bk.length)
         return false;
@@ -200,27 +200,27 @@ function equalDictionaries(a, b)
 export
 async function updateTOTPItem(old_totp, new_totp)
 {
-    let service = await Secret.Service.get(
+    const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    let old_attributes = makeAttributes(old_totp);
-    let [item] = await service.search(makeSchema(),
-                                      old_attributes,
-                                      Secret.SearchFlags.UNLOCK
-                                      | Secret.SearchFlags.LOAD_SECRETS,
-                                      null);
+    const old_attributes = makeAttributes(old_totp);
+    const [item] = await service.search(makeSchema(),
+                                        old_attributes,
+                                        Secret.SearchFlags.UNLOCK
+                                        | Secret.SearchFlags.LOAD_SECRETS,
+                                        null);
     if (!item)
         throw new Error(_('Failed to lookup secret.'));
 
     // check if label changed
-    let old_label = item.get_label();
-    let new_label = makeLabel(new_totp, getOrder(old_label));
+    const old_label = item.get_label();
+    const new_label = makeLabel(new_totp, getOrder(old_label));
     if (old_label != new_label)
         if (!await item.set_label(new_label, null))
             throw new Error(_('Failed to set label.'));
 
     // check if attributes changed
-    let new_attributes = makeAttributes(new_totp);
+    const new_attributes = makeAttributes(new_totp);
 
     if (!equalDictionaries(old_attributes, new_attributes))
         if (!await item.set_attributes(makeSchema(), new_attributes, null))
@@ -228,7 +228,7 @@ async function updateTOTPItem(old_totp, new_totp)
 
     // check if secret changed
     if (old_totp.secret != new_totp.secret) {
-        let secret_value = new Secret.Value(new_totp.secret, -1, "text/plain");
+        const secret_value = new Secret.Value(new_totp.secret, -1, "text/plain");
         if (!await item.set_secret(secret_value, null))
             throw new Error(_('Failed to set secret.'));
     }
@@ -238,13 +238,13 @@ async function updateTOTPItem(old_totp, new_totp)
 export
 async function updateTOTPOrder(totp, order)
 {
-    let service = await Secret.Service.get(
+    const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    let [item] = await service.search(makeSchema(),
-                                      makeAttributes(totp),
-                                      Secret.SearchFlags.NONE,
-                                      null);
+    const [item] = await service.search(makeSchema(),
+                                        makeAttributes(totp),
+                                        Secret.SearchFlags.NONE,
+                                        null);
     if (!item)
         throw new Error(_('Failed to lookup secret.'));
 
