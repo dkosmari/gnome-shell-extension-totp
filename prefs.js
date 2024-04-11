@@ -25,8 +25,9 @@ const SecretUtils   = Me.imports.secretUtils;
 const TOTP          = Me.imports.totp.TOTP;
 
 
+Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async', 'communicate_utf8_finish');
-
+Gio._promisify(Gdk.Clipboard.prototype, 'read_texture_async', 'read_texture_finish');
 
 const AlertDialog = Gtk.AlertDialog ?? MyAlertDialog;
 Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
@@ -134,7 +135,7 @@ class ScanQRButton extends Gtk.Button {
     constructor(settings)
     {
         super({
-            icon_name: 'qr-code-symbolic',
+            icon_name: 'camera-photo-symbolic',
             tooltip_text: _('Scan QR code.'),
             valign: Gtk.Align.CENTER
         });
@@ -159,6 +160,66 @@ class ScanQRButton extends Gtk.Button {
 
             this.activate_action('import-uri',
                                  GLib.Variant.new_string(stdout));
+        }
+        catch (e) {
+            reportError(this.root, e);
+        }
+    }
+
+};
+
+
+class PasteQRButton extends Gtk.Button {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #settings;
+
+
+    constructor(settings)
+    {
+        super({
+            icon_name: 'edit-paste-symbolic',
+            tooltip_text: _('Paste QR code image.'),
+            valign: Gtk.Align.CENTER
+        });
+
+        this.#settings = settings;
+    }
+
+
+    async on_clicked()
+    {
+        try {
+            const clipboard = this.get_clipboard();
+            const texture = await clipboard.read_texture_async(null);
+            if (!texture)
+                return;
+
+            const img_bytes = texture.save_to_png_bytes();
+
+            const qrimage_cmd = this.#settings.get_string('qrimage-cmd');
+            const [parsed, args] = GLib.shell_parse_argv(qrimage_cmd);
+            if (!parsed)
+                throw new Error(_('Failed to parse "qrimage-cmd" option.'));
+
+            const proc = Gio.Subprocess.new(args,
+                                            Gio.SubprocessFlags.STDIN_PIPE
+                                            | Gio.SubprocessFlags.STDOUT_PIPE);
+
+            const [stdout] = await proc.communicate_async(img_bytes, null);
+            if (!stdout)
+                return;
+
+            const td = new TextDecoder();
+            const text = td.decode(stdout.get_data());
+
+            this.activate_action('import-uri',
+                                 GLib.Variant.new_string(text));
+
         }
         catch (e) {
             reportError(this.root, e);
@@ -216,6 +277,7 @@ class SecretDialog extends Gtk.Dialog {
         });
         group.set_header_suffix(box);
 
+        box.append(new PasteQRButton(settings));
         box.append(new ScanQRButton(settings));
 
 
@@ -959,6 +1021,7 @@ class ImportURIsDialog extends Gtk.Dialog {
         });
         hbox.append(heading);
 
+        hbox.append(new PasteQRButton(settings));
         hbox.append(new ScanQRButton(settings));
 
 
@@ -1343,17 +1406,57 @@ class SecretsGroup extends Adw.PreferencesGroup {
 };
 
 
+class CmdSettingRow extends EntryRow {
+
+    static {
+        GObject.registerClass(this);
+
+        this.install_action('reset-setting', null, obj => obj.resetSetting());
+    }
+
+
+    #key;
+    #settings;
+
+
+    constructor({settings, key, ...args})
+    {
+        super(args);
+        this.add_css_class('command-entry');
+
+        this.#key = key;
+        this.#settings = settings;
+
+        this.#settings.bind(key,
+                            this, 'text',
+                            Gio.SettingsBindFlags.DEFAULT);
+
+        this.add_suffix(new Gtk.Button({
+            icon_name: 'edit-clear-symbolic',
+            tooltip_text: _('Revert option back to the default value.'),
+            action_name: 'reset-setting',
+            valign: Gtk.Align.CENTER,
+        }));
+    }
+
+
+    resetSetting()
+    {
+        this.#settings.reset(this.#key);
+    }
+
+};
+
+
 class OptionsGroup extends Adw.PreferencesGroup {
 
     static {
         GObject.registerClass(this);
 
-        this.install_action('totp.reset-qrencode-cmd', null,
-                            obj => obj.resetQREncodeCMD());
+        this.install_action('totp.reset-setting',
+                            's',
+                            (obj, name, arg) => obj.resetQREncodeCMD(arg.unpack()));
     }
-
-
-    #settings;
 
 
     constructor(settings)
@@ -1362,40 +1465,27 @@ class OptionsGroup extends Adw.PreferencesGroup {
             title: _('Options')
         });
 
-        this.#settings = settings;
-
-        const qrencode_cmd_row = new EntryRow({
+        this.add(new CmdSettingRow({
+            settings: settings,
+            key: 'qrencode-cmd',
             title: _('QR generator'),
             tooltip_text: _('This command must read text from standard input, and write an image to the standard output.')
-        });
-        qrencode_cmd_row.add_css_class('qr-command-row');
-
-        this.#settings.bind('qrencode-cmd',
-                            qrencode_cmd_row, 'text',
-                            Gio.SettingsBindFlags.DEFAULT);
-
-        qrencode_cmd_row.add_suffix(new Gtk.Button({
-            icon_name: 'edit-clear-symbolic',
-            tooltip_text: _('Revert option back to the default value.'),
-            action_name: 'totp.reset-qrencode-cmd',
-            valign: Gtk.Align.CENTER,
-
         }));
 
-        this.add(qrencode_cmd_row);
+        this.add(new CmdSettingRow({
+            settings: settings,
+            key: 'qrimage-cmd',
+            title: _('QR reader'),
+            tooltip_text: _('This command must read an image from the standard input, and print the decoded URI to the standard output.')
+        }));
 
-    }
+        this.add(new CmdSettingRow({
+            settings: settings,
+            key: 'qrscan-cmd',
+            title: _('QR scanner'),
+            tooltip_text: _('This command must capture an image from a camera, and print the decoded URI to the standard output.')
+        }));
 
-
-    destroy()
-    {
-        this.#settings = null;
-    }
-
-
-    resetQREncodeCMD()
-    {
-        this.#settings.reset('qrencode-cmd');
     }
 
 }

@@ -27,7 +27,7 @@ box.import-uris-vbox {
     padding: 6px;
 }
 
-.qr-command-row text {
+.command-entry text {
     font-family: monospace;
 }
 
