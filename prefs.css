@@ -20,7 +20,11 @@ window.qr-export-window {
 }
 
 window.import-uris-dialog {
-    padding: 12px;
+    padding: 6px;
+}
+
+box.import-uris-vbox {
+    padding: 6px;
 }
 
 .qr-command-row text {

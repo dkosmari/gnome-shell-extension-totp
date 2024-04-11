@@ -10,5 +10,12 @@
         input, and it must write an image to the standard output.
       </description>
     </key>
+    <key name="qrscan-cmd" type="s">
+      <default>"zbarcam --raw -q --oneshot"</default>
+      <summary>Command to scan QR codes from the webcam.</summary>
+      <description>
+        The command must print the decoded data to the standard output.
+      </description>
+    </key>
   </schema>
 </schemalist>

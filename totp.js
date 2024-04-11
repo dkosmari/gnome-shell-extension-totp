@@ -4,7 +4,7 @@
  */
 
 
-const {GLib} = imports.gi;
+const GLib = imports.gi.GLib;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
