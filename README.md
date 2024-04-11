@@ -48,6 +48,14 @@ Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format). Thi
 is compatible with applications like Google Authenticator, FreeOTP, Authy, etc.
 
 
+Scanning QR codes
+-----------------
+
+It's possible to scan QR codes from a camera and from the clipboard, if you have the
+[ZBar](https://zbar.sourceforge.net/) package installed. In some distros (like Debian and
+Ubuntu) the package is named `zbar-tools`.
+
+
 Exporting QR code
 -----------------
 

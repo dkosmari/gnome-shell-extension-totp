@@ -45,8 +45,8 @@ function activateCopyToClipboard(source, text, title)
 
 function makeLabel({issuer, name})
 {
-    let safe_issuer = GLib.markup_escape_text(issuer, -1);
-    let safe_name = GLib.markup_escape_text(name, -1);
+    const safe_issuer = GLib.markup_escape_text(issuer, -1);
+    const safe_name = GLib.markup_escape_text(name, -1);
     return `${safe_issuer}: ${safe_name}`;
 }
 
@@ -80,7 +80,7 @@ function now()
 function findListBox(start)
 {
     // Note: use BFS
-    let queue = [start];
+    const queue = [start];
 
     while (queue.length > 0) {
         const current = queue.shift();
@@ -450,7 +450,7 @@ class CopyCodeButton extends Gtk.Button {
 
         this.#totp = totp;
 
-        let box = new Gtk.Box({
+        const box = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
             spacing: 6
         });
@@ -510,7 +510,7 @@ class CopyCodeButton extends Gtk.Button {
     {
         try {
             if (this.expired()) {
-                let item = await SecretUtils.getOTPItem(this.#totp);
+                const item = await SecretUtils.getOTPItem(this.#totp);
                 if (item.locked) {
                     this.#level.value = 0;
                     this.#label.label = _('Unlock');
@@ -520,7 +520,7 @@ class CopyCodeButton extends Gtk.Button {
 
                 this.#totp.secret = await SecretUtils.getSecret(this.#totp);
 
-                let [code, expiry] = this.#totp.code_and_expiry();
+                const [code, expiry] = this.#totp.code_and_expiry();
                 this.#expiry = expiry;
                 this.#code = code;
             }
@@ -554,7 +554,7 @@ class CopyCodeButton extends Gtk.Button {
     {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
-            let code = this.#totp.code();
+            const code = this.#totp.code();
             activateCopyToClipboard(this,
                                     code,
                                     _('OTP code copied to clipboard.'));
@@ -652,7 +652,7 @@ class ExportSecretButton extends Gtk.Button {
     {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
-            let uri = this.#totp.uri();
+            const uri = this.#totp.uri();
             activateCopyToClipboard(this,
                                     uri,
                                     _('Copied secret URI to clipboard.'));
@@ -682,14 +682,14 @@ class ExportQRWindow extends Gtk.Window {
         });
         this.add_css_class('qr-export-window');
 
-        let box = new Gtk.Box({
+        const box = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL
         });
         this.set_child(box);
 
-        let pbuf = GdkPixbuf.Pixbuf.new_from_stream(img_stream, null);
+        const pbuf = GdkPixbuf.Pixbuf.new_from_stream(img_stream, null);
 
-        let img = new Gtk.Image({
+        const img = new Gtk.Image({
             hexpand: true,
             vexpand: true,
             height_request: 400,
@@ -698,7 +698,7 @@ class ExportQRWindow extends Gtk.Window {
         img.set_from_pixbuf(pbuf);
         box.append(img);
 
-        let button = new Gtk.Button({
+        const button = new Gtk.Button({
             label: _('_Close'),
             use_underline: true
         });
@@ -777,8 +777,8 @@ class ExportQRButton extends Gtk.Button {
             if (!stdout)
                 throw new Error('Empty stdout');
 
-            let img_stream = Gio.MemoryInputStream.new_from_bytes(stdout);
-            let export_window = new ExportQRWindow(this.root, img_stream);
+            const img_stream = Gio.MemoryInputStream.new_from_bytes(stdout);
+            const export_window = new ExportQRWindow(this.root, img_stream);
             export_window.show();
         }
         catch (e) {
@@ -892,11 +892,11 @@ class MoveButton extends Gtk.Button {
 
     on_clicked()
     {
-        let display = Gdk.Display.get_default();
-        let seat = display.get_default_seat();
-        let kb = seat.get_keyboard();
-        let modifier = kb.modifier_state;
-        let shift_pressed = !!(modifier & Gdk.ModifierType.SHIFT_MASK);
+        const display = Gdk.Display.get_default();
+        const seat = display.get_default_seat();
+        const kb = seat.get_keyboard();
+        const modifier = kb.modifier_state;
+        const shift_pressed = !!(modifier & Gdk.ModifierType.SHIFT_MASK);
         let offset = this.#direction;
         if (shift_pressed)
             offset *= Infinity;
@@ -930,7 +930,7 @@ class SecretRow extends Adw.ActionRow {
 
         this.#totp = totp;
 
-        let box = new Gtk.Box({
+        const box = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 0,
             homogeneous: true
@@ -944,7 +944,7 @@ class SecretRow extends Adw.ActionRow {
         box.append(this.#down_button);
 
         // helper function
-        let add_suffix = w => {
+        const add_suffix = w => {
             this.add_suffix(w);
             this.#children.push(w);
         };
@@ -1136,7 +1136,7 @@ class LockButton extends Gtk.Button {
     async on_clicked()
     {
         try {
-            let success = this.#locked
+            const success = this.#locked
                 ? await SecretUtils.unlockOTPCollection()
                 : await SecretUtils.lockOTPCollection();
             await this.updateState();
@@ -1262,12 +1262,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         this.clearSecrets();
         try {
-            let items = await SecretUtils.getOTPItems(unlock);
+            const items = await SecretUtils.getOTPItems(unlock);
             this.#lock_button.updateState();
             items.forEach(item =>
                 {
-                    let totp = new TOTP(item.get_attributes());
-                    let row = new SecretRow(totp, this, this.#settings);
+                    const totp = new TOTP(item.get_attributes());
+                    const row = new SecretRow(totp, this, this.#settings);
                     this.#rows.push(row);
                     this.add(row);
                 });
@@ -1343,12 +1343,12 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async exportAllSecrets()
     {
         try {
-            let uris = [];
+            const uris = [];
             const items = await SecretUtils.getOTPItems();
             for (let i = 0; i < items.length; ++i) {
-                let attrs = items[i].get_attributes();
+                const attrs = items[i].get_attributes();
                 attrs.secret = await SecretUtils.getSecret(attrs);
-                let totp = new TOTP(attrs);
+                const totp = new TOTP(attrs);
                 uris.push(totp.uri());
             }
             activateCopyToClipboard(this,
@@ -1608,9 +1608,9 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
     copyToClipboard(text, title)
     {
         // this runs outside gnome-shell, so we use GDK
-        let display = Gdk.Display.get_default();
-        let clipboard1 = display.get_primary_clipboard();
-        let clipboard2 = display.get_clipboard();
+        const display = Gdk.Display.get_default();
+        const clipboard1 = display.get_primary_clipboard();
+        const clipboard2 = display.get_clipboard();
         clipboard1.set(text);
         clipboard2.set(text);
 
@@ -1643,10 +1643,10 @@ class TOTPPreferences extends ExtensionPreferences {
 
     fillPreferencesWindow(window)
     {
-        let app = window.get_application();
-        let app_id = app?.application_id ?? 'org.gnome.Extensions';
+        const app = window.get_application();
+        const app_id = app?.application_id ?? 'org.gnome.Extensions';
 
-        let page = new TOTPPreferencesPage(this.path,
+        const page = new TOTPPreferencesPage(this.path,
                                            app_id,
                                            this.getSettings());
 

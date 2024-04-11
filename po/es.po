@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-11 10:36-0300\n"
+"POT-Creation-Date: 2024-04-11 11:18-0300\n"
 "PO-Revision-Date: 2024-04-11 10:56-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -38,140 +38,140 @@ msgstr "Pegue la imagen del código QR."
 msgid "Failed to parse \"qrimage-cmd\" option."
 msgstr "No se pudo analizar la opción \"qrimage-cmd\"."
 
-#: prefs.js:286
+#: prefs.js:283
 msgid "Issuer"
 msgstr "Emisor"
 
-#: prefs.js:288
+#: prefs.js:285
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr ""
 "El nombre de la organización (Google, Facebook, etc.) que emitió la OTP."
 
-#: prefs.js:294
+#: prefs.js:291
 msgid "Name"
 msgstr "Nombre"
 
-#: prefs.js:301
+#: prefs.js:298
 msgid "Secret"
 msgstr "Secreto"
 
-#: prefs.js:303
+#: prefs.js:300
 msgid "The shared secret key."
 msgstr "La clave secreta compartida."
 
-#: prefs.js:308
+#: prefs.js:305
 msgid "How the secret key is encoded."
 msgstr "Cómo se codifica la clave secreta."
 
-#: prefs.js:315
+#: prefs.js:312
 msgid "Digits"
 msgstr "Dígitos"
 
-#: prefs.js:319
+#: prefs.js:316
 msgid "How many digits in the code."
 msgstr "Cuántos dígitos tiene el código."
 
-#: prefs.js:325
+#: prefs.js:322
 msgid "Period"
 msgstr "Período"
 
-#: prefs.js:327
+#: prefs.js:324
 msgid "Time between code updates, in seconds."
 msgstr "Tiempo entre actualizaciones de código, en segundos."
 
-#: prefs.js:336
+#: prefs.js:333
 msgid "Algorithm"
 msgstr "Algoritmo"
 
-#: prefs.js:340
+#: prefs.js:337
 msgid "The hash algorithm used to generate codes."
 msgstr "El algoritmo hash utilizado para generar códigos."
 
-#: prefs.js:346 prefs.js:825 prefs.js:1042
+#: prefs.js:343 prefs.js:828 prefs.js:1051
 msgid "_Cancel"
 msgstr "_Cancelar"
 
-#: prefs.js:348
+#: prefs.js:345
 msgid "_OK"
 msgstr "_Aceptar"
 
-#: prefs.js:451
+#: prefs.js:447
 msgid "Copy code to clipboard."
 msgstr "Copie el código al portapapeles."
 
-#: prefs.js:468 prefs.js:520
+#: prefs.js:464 prefs.js:516
 msgid "Unlock"
 msgstr "Desbloquear"
 
-#: prefs.js:564 indicator.js:33
+#: prefs.js:560 indicator.js:33
 msgid "OTP code copied to clipboard."
 msgstr "Código OTP copiado al portapapeles."
 
-#: prefs.js:590
+#: prefs.js:586
 msgid "Edit this secret."
 msgstr "Edita este secreto."
 
-#: prefs.js:614
+#: prefs.js:609
 msgid "Editing TOTP secret"
 msgstr "Edición de secreto TOTP"
 
-#: prefs.js:648
+#: prefs.js:643
 msgid "Export this secret to clipboard."
 msgstr "Exporta este secreto al portapapeles."
 
-#: prefs.js:663
+#: prefs.js:658
 msgid "Copied secret URI to clipboard."
 msgstr "Se copió el URI secreto al portapapeles."
 
-#: prefs.js:684
+#: prefs.js:681
 msgid "QR code"
 msgstr "Código QR"
 
-#: prefs.js:705 myAlertDialog.js:64
+#: prefs.js:702 myAlertDialog.js:64
 msgid "_Close"
 msgstr "_Cerrar"
 
-#: prefs.js:730
+#: prefs.js:727
 msgid "Export this secret as QR code."
 msgstr "Exporta este secreto como código QR."
 
-#: prefs.js:757
+#: prefs.js:754
 msgid "Failed to parse \"qrencode-cmd\" option."
 msgstr "No se pudo analizar la opción \"qrencode-cmd\"."
 
-#: prefs.js:811
+#: prefs.js:808
 msgid "Remove this secret."
 msgstr "Elimina este secreto."
 
-#: prefs.js:825
+#: prefs.js:828
 msgid "_Delete"
 msgstr "_Eliminar"
 
-#: prefs.js:828
+#: prefs.js:831
 msgid "Deleting TOTP secret"
 msgstr "Eliminando el secreto TOTP"
 
-#: prefs.js:829
+#: prefs.js:832
 msgid "Deleting secret:"
 msgstr "Borrando secreto:"
 
-#: prefs.js:840
+#: prefs.js:843
 msgid "Failed to remove secret. Is it locked?"
 msgstr "No se pudo eliminar el secreto. ¿Está bloqueado?"
 
-#: prefs.js:842
+#: prefs.js:845
 msgid "Deleted secret:"
 msgstr "Secreto eliminado:"
 
-#: prefs.js:872
+#: prefs.js:875
 msgid ""
 "Move this secret up; hold down the SHIFT key to move to the top of the list."
 msgstr ""
 "Mueve este secreto hacia arriba; mantenga presionada la tecla MAYÚS para "
 "pasar al principio de la lista."
 
-#: prefs.js:873
+#: prefs.js:876
 msgid ""
 "Move this secret down; hold down the SHIFT key to move to the bottom of the "
 "list."
@@ -179,79 +179,79 @@ msgstr ""
 "Mueve este secreto hacia abajo; mantenga presionada la tecla MAYÚS para ir "
 "al final de la lista."
 
-#: prefs.js:998
+#: prefs.js:1007
 msgid "Importing \"otpauth://\" URIs"
 msgstr "Importación de URI \"otpauth://\""
 
-#: prefs.js:1019
+#: prefs.js:1028
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Pegue todos los URI \"otpauth://\" que desee importar, uno por línea."
 
-#: prefs.js:1044
+#: prefs.js:1053
 msgid "_Import"
 msgstr "_Importar"
 
-#: prefs.js:1115 indicator.js:74
+#: prefs.js:1124 indicator.js:74
 msgid "Unlock OTP secrets..."
 msgstr "Desbloquear secretos de OTP..."
 
-#: prefs.js:1118 indicator.js:70
+#: prefs.js:1127 indicator.js:70
 msgid "Lock OTP secrets"
 msgstr "Bloquear secretos de OTP"
 
-#: prefs.js:1171
+#: prefs.js:1180
 msgid "Secrets"
 msgstr "Secreto"
 
-#: prefs.js:1172
+#: prefs.js:1181
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Una lista de todos los secretos TOTP del llavero."
 
-#: prefs.js:1196
+#: prefs.js:1205
 msgid "Add secret..."
 msgstr "Añadir secreto..."
 
-#: prefs.js:1205
+#: prefs.js:1214
 msgid "Refresh secrets."
 msgstr "Actualizar secretos."
 
-#: prefs.js:1215
+#: prefs.js:1224
 msgid "Import secrets..."
 msgstr "Importar secretos..."
 
-#: prefs.js:1224
+#: prefs.js:1233
 msgid "Export all secrets to the clipboard."
 msgstr "Exporta todos los secretos al portapapeles."
 
-#: prefs.js:1277
+#: prefs.js:1286
 msgid "Creating new TOTP secret"
 msgstr "Creando nuevo secreto TOTP"
 
-#: prefs.js:1289
+#: prefs.js:1298
 msgid "Created new secret."
 msgstr "Creó un nuevo secreto."
 
-#: prefs.js:1322
+#: prefs.js:1331
 msgid "Imported secrets:"
 msgstr "Secretos importados:"
 
-#: prefs.js:1347
+#: prefs.js:1356
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copié todos los secretos de OTP al portapapeles."
 
-#: prefs.js:1436
+#: prefs.js:1445
 msgid "Revert option back to the default value."
 msgstr "Revertir la opción al valor predeterminado."
 
-#: prefs.js:1465
+#: prefs.js:1485
 msgid "Options"
 msgstr "Opciones"
 
-#: prefs.js:1471
+#: prefs.js:1491
 msgid "QR generator"
 msgstr "Generador QR"
 
-#: prefs.js:1472
+#: prefs.js:1492
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -259,11 +259,11 @@ msgstr ""
 "Este comando debe leer texto de la entrada estándar y escribir una imagen en "
 "la salida estándar."
 
-#: prefs.js:1478
+#: prefs.js:1499
 msgid "QR reader"
 msgstr "Lector de QR"
 
-#: prefs.js:1479
+#: prefs.js:1500
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
@@ -271,11 +271,11 @@ msgstr ""
 "Este comando debe leer una imagen de la entrada estándar e imprimir el URI "
 "decodificado en la salida estándar."
 
-#: prefs.js:1485
+#: prefs.js:1507
 msgid "QR scanner"
 msgstr "Escáner QR"
 
-#: prefs.js:1486
+#: prefs.js:1508
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
