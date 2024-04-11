@@ -245,7 +245,6 @@ class SecretDialog extends Gtk.Dialog {
 
     #reject;
     #resolve;
-    #settings;
     #ui = {};
 
 
@@ -259,8 +258,6 @@ class SecretDialog extends Gtk.Dialog {
             // WORKAROUND: need header bar, otherwise the dialog is not centered
             use_header_bar: true
         });
-
-        this.#settings = settings;
 
         const group = new Adw.PreferencesGroup({
             title: title,
@@ -359,7 +356,6 @@ class SecretDialog extends Gtk.Dialog {
     {
         this.#reject   = null;
         this.#resolve  = null;
-        this.#settings = null;
         this.#ui       = null;
         return false;
     }
@@ -601,7 +597,6 @@ class EditSecretButton extends Gtk.Button {
     {
         this.#group    = null;
         this.#settings = null;
-        this.#totp     = null;
     }
 
 
@@ -672,9 +667,11 @@ class ExportSecretButton extends Gtk.Button {
 
 
 class ExportQRWindow extends Gtk.Window {
+
     static {
         GObject.registerClass(this);
     }
+
 
     constructor(parent, img_stream)
     {
@@ -817,6 +814,12 @@ class RemoveSecretButton extends Gtk.Button {
     }
 
 
+    destroy()
+    {
+        this.#group = null;
+    }
+
+
     async on_clicked()
     {
         try {
@@ -877,6 +880,13 @@ class MoveButton extends Gtk.Button {
         this.#group = group;
         this.#row = row;
         this.#direction = direction;
+    }
+
+
+    destroy()
+    {
+        this.#group = null;
+        this.#row = null;
     }
 
 
@@ -954,8 +964,7 @@ class SecretRow extends Adw.ActionRow {
 
         this.#children.forEach(w => {
             this.remove(w);
-            if (w.destroy)
-                w.destroy();
+            w.destroy?.();
         });
         this.#children = null;
     }
@@ -1440,6 +1449,12 @@ class CmdSettingRow extends EntryRow {
     }
 
 
+    destroy()
+    {
+        this.#settings = null;
+    }
+
+
     resetSetting()
     {
         this.#settings.reset(this.#key);
@@ -1459,36 +1474,56 @@ class OptionsGroup extends Adw.PreferencesGroup {
     }
 
 
+    #qrencode;
+    #qrimage;
+    #qrscan;
+
+
     constructor(settings)
     {
         super({
             title: _('Options')
         });
 
-        this.add(new CmdSettingRow({
+        this.#qrencode = new CmdSettingRow({
             settings: settings,
             key: 'qrencode-cmd',
             title: _('QR generator'),
             tooltip_text: _('This command must read text from standard input, and write an image to the standard output.')
-        }));
+        });
+        this.add(this.#qrencode);
 
-        this.add(new CmdSettingRow({
+        this.#qrimage = new CmdSettingRow({
             settings: settings,
             key: 'qrimage-cmd',
             title: _('QR reader'),
             tooltip_text: _('This command must read an image from the standard input, and print the decoded URI to the standard output.')
-        }));
+        });
+        this.add(this.#qrimage);
 
-        this.add(new CmdSettingRow({
+        this.#qrscan = new CmdSettingRow({
             settings: settings,
             key: 'qrscan-cmd',
             title: _('QR scanner'),
             tooltip_text: _('This command must capture an image from a camera, and print the decoded URI to the standard output.')
-        }));
-
+        });
+        this.add(this.#qrscan);
     }
 
-}
+
+    destroy()
+    {
+        this.#qrencode?.destroy();
+        this.#qrencode = null;
+
+        this.#qrimage?.destroy();
+        this.#qrimage = null;
+
+        this.#qrscan?.destroy();
+        this.#qrscan = null;
+    }
+
+};
 
 
 class TOTPPreferencesPage extends Adw.PreferencesPage {
