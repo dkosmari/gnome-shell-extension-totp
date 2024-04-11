@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
 "POT-Creation-Date: 2024-04-11 10:36-0300\n"
-"PO-Revision-Date: 2024-04-09 16:47-0300\n"
+"PO-Revision-Date: 2024-04-11 10:52-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -23,24 +23,20 @@ msgid "Error"
 msgstr "Fehler"
 
 #: prefs.js:139
-#, fuzzy
 msgid "Scan QR code."
-msgstr "QR-Code"
+msgstr "QR-Code scannen."
 
 #: prefs.js:153
-#, fuzzy
 msgid "Failed to parse \"qrscan-cmd\" option."
-msgstr "Die Option „qrencode-cmd“ konnte nicht analysiert werden."
+msgstr "Die Option „qrscan-cmd“ konnte nicht analysiert werden."
 
 #: prefs.js:186
-#, fuzzy
 msgid "Paste QR code image."
-msgstr "QR-Code"
+msgstr "QR-Code-Bild einfügen."
 
 #: prefs.js:207
-#, fuzzy
 msgid "Failed to parse \"qrimage-cmd\" option."
-msgstr "Die Option „qrencode-cmd“ konnte nicht analysiert werden."
+msgstr "Die Option „qrimage-cmd“ konnte nicht analysiert werden."
 
 #: prefs.js:286
 msgid "Issuer"
@@ -268,29 +264,27 @@ msgstr ""
 
 #: prefs.js:1478
 msgid "QR reader"
-msgstr ""
+msgstr "QR-Reader"
 
 #: prefs.js:1479
-#, fuzzy
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
 msgstr ""
-"Dieser Befehl muss Text aus der Standardeingabe lesen und ein Bild in die "
-"Standardausgabe schreiben."
+"Dieser Befehl muss ein Bild aus der Standardeingabe lesen und den "
+"dekodierten URI auf der Standardausgabe ausgeben."
 
 #: prefs.js:1485
 msgid "QR scanner"
-msgstr ""
+msgstr "QR-Scanner"
 
 #: prefs.js:1486
-#, fuzzy
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
 msgstr ""
-"Dieser Befehl muss Text aus der Standardeingabe lesen und ein Bild in die "
-"Standardausgabe schreiben."
+"Dieser Befehl muss ein Bild von einer Kamera erfassen und den dekodierten "
+"URI in der Standardausgabe ausgeben."
 
 #: base32.js:26
 msgid "Invalid base32 input; missing padding."
