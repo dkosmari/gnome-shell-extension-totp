@@ -1581,7 +1581,9 @@ class OptionsGroup extends Adw.PreferencesGroup {
                 upper: Number.MAX_SAFE_INTEGER,
                 step_increment: 1,
                 page_increment: 10,
-            })
+            }),
+            numeric: true,
+            width_chars: 5
         });
         settings.bind('clipboard-clear-delay',
                       cb_clear_delay, 'value',
