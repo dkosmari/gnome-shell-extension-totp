@@ -21,6 +21,7 @@ const _ = ExtensionUtils.gettext;
 const Base32        = Me.imports.base32;
 const MyAlertDialog = Me.imports.myAlertDialog.AlertDialog;
 const MyEntryRow    = Me.imports.myEntryRow.EntryRow;
+const MySpinRow     = Me.imports.mySpinRow.SpinRow;
 const SecretUtils   = Me.imports.secretUtils;
 const TOTP          = Me.imports.totp.TOTP;
 
@@ -34,12 +35,17 @@ Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
 
 const EntryRow = Adw.EntryRow ?? MyEntryRow;
 
+const SpinRow = Adw.SpinRow ?? MySpinRow;
 
-function activateCopyToClipboard(source, text, title)
+
+function activateCopyToClipboard(source,
+                                 text,
+                                 title,
+                                 sensitive = false)
 {
     source.activate_action('copy-to-clipboard',
-                           new GLib.Variant('(ss)',
-                                            [text, title]));
+                           new GLib.Variant('(ssb)',
+                                            [text, title, sensitive]));
 }
 
 
@@ -51,22 +57,19 @@ function makeLabel({issuer, name})
 }
 
 
-function reportError(parent, e, where = null)
+function reportError(root, e)
 {
-    if (where)
-        logError(e, where);
-    else
-        logError(e);
+    logError(e);
     try {
         const dialog = new AlertDialog({
             modal: true,
             detail: _(e.message),
-            message: where || _('Error')
+            message: _('Error')
         });
-        dialog.show(parent);
+        dialog.show(root);
     }
     catch (ee) {
-        logError(ee, 'reportError()');
+        logError(ee);
     }
 }
 
@@ -616,7 +619,7 @@ class EditSecretButton extends Gtk.Button {
                 return;
 
             await SecretUtils.updateTOTPItem(this.#totp, new_totp);
-            await this.#group.refreshSecrets();
+            await this.#group.refreshRows();
         }
         catch (e) {
             reportError(this.root, e);
@@ -655,7 +658,8 @@ class ExportSecretButton extends Gtk.Button {
             const uri = this.#totp.uri();
             activateCopyToClipboard(this,
                                     uri,
-                                    _('Copied secret URI to clipboard.'));
+                                    _('Copied secret URI to clipboard.'),
+                                    true);
         }
         catch (e) {
             reportError(this.root, e);
@@ -844,7 +848,7 @@ class RemoveSecretButton extends Gtk.Button {
                 this.root?.add_toast(
                     new Adw.Toast({ title: _('Deleted secret:') + ` "${label}"` })
                 );
-                await this.#group.refreshSecrets();
+                await this.#group.refreshRows();
             }
         }
         catch (e) {
@@ -1158,16 +1162,21 @@ class SecretsGroup extends Adw.PreferencesGroup {
                             obj => obj.createSecret());
 
         this.install_action('totp.refresh', null,
-                            obj => obj.refreshSecrets(true));
+                            obj => obj.refreshRows(true));
 
         this.install_action('totp.import', null,
                             obj => obj.importSecrets());
 
         this.install_action('totp.export_all', null,
                             obj => obj.exportAllSecrets());
+
+        this.install_action('copy-to-clipboard', '(ssb)',
+                            (obj, name, args) =>
+                                obj.copyToClipboard(...args.recursiveUnpack()));
     }
 
 
+    #clipboard_clear_source = 0;
     #listbox;
     #lock_button;
     #rows = [];
@@ -1235,20 +1244,21 @@ class SecretsGroup extends Adw.PreferencesGroup {
             })
         );
 
-        this.refreshSecrets();
+        this.refreshRows();
     }
 
 
     destroy()
     {
-        this.clearSecrets();
+        this.cancelClipboardClear();
+        this.clearRows();
         this.#lock_button = null;
         this.#listbox     = null;
         this.#settings    = null;
     }
 
 
-    clearSecrets()
+    clearRows()
     {
         this.#rows.forEach(row => {
             this.remove(row);
@@ -1258,9 +1268,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async refreshSecrets(unlock = false)
+    async refreshRows(unlock = false)
     {
-        this.clearSecrets();
+        this.clearRows();
         try {
             const items = await SecretUtils.getOTPItems(unlock);
             this.#lock_button.updateState();
@@ -1274,7 +1284,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             this.#rows.forEach(r => r.updateButtons());
         }
         catch (e) {
-            logError(e, 'refreshSecrets()');
+            logError(e, 'refreshRows()');
         }
     }
 
@@ -1293,10 +1303,10 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return;
 
             const n = this.#rows.length;
-            await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
+            await this.storeRowsOrder(); // ensure the orders are 0, ..., n-1
             await SecretUtils.createTOTPItem(totp, n);
             this.root?.add_toast(new Adw.Toast({ title: _('Created new secret.') }));
-            await this.refreshSecrets();
+            await this.refreshRows();
         }
         catch (e) {
             reportError(this.root, e);
@@ -1313,7 +1323,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return; // canceled or empty text
 
             const n = this.#rows.length;
-            await this.storeSecretsOrder(); // ensure the orders are 0, ..., n-1
+            await this.storeRowsOrder(); // ensure the orders are 0, ..., n-1
             const uris = GLib.Uri.list_extract_uris(text);
 
             let successes = 0;
@@ -1331,11 +1341,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 title: _('Imported secrets:') + ` ${successes}`
             }));
 
-            await this.refreshSecrets();
+            await this.refreshRows();
 
         }
         catch (e) {
-            reportError(this.root, e, 'importSecrets()');
+            reportError(this.root, e);
         }
     }
 
@@ -1353,16 +1363,17 @@ class SecretsGroup extends Adw.PreferencesGroup {
             }
             activateCopyToClipboard(this,
                                     uris.join('\n'),
-                                    _('Copied all OTP secrets to clipboard.'));
+                                    _('Copied all OTP secrets to clipboard.'),
+                                    true);
         }
         catch (e) {
-            reportError(this.root, e, 'exportAllSecrets()');
+            reportError(this.root, e);
         }
     }
 
 
     // Store the UI order in the keyring as their labels
-    async storeSecretsOrder()
+    async storeRowsOrder()
     {
         try {
             for (let i = 0; i < this.#rows.length; ++i) {
@@ -1371,7 +1382,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             }
         }
         catch (e) {
-            logError(e, 'storeSecretsOrder()');
+            logError(e, 'storeRowsOrder()');
         }
     }
 
@@ -1401,7 +1412,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
         this.#listbox?.invalidate_sort();
         this.#rows.forEach(r => r.updateButtons());
-        this.storeSecretsOrder();
+        this.storeRowsOrder();
     }
 
 
@@ -1410,6 +1421,60 @@ class SecretsGroup extends Adw.PreferencesGroup {
         const i = this.#rows.indexOf(rowI);
         const j = this.#rows.indexOf(rowJ);
         return i - j;
+    }
+
+
+    copyToClipboard(text, title, sensitive)
+    {
+        // this runs outside gnome-shell, so we use GDK
+        const display = Gdk.Display.get_default();
+        const clipboard1 = display.get_primary_clipboard();
+        const clipboard2 = display.get_clipboard();
+        clipboard1.set(text);
+        clipboard2.set(text);
+
+        this.cancelClipboardClear();
+
+        if (sensitive) {
+            const delay = this.#settings.get_uint('clipboard-clear-delay');
+            this.#clipboard_clear_source =
+                GLib.timeout_add(GLib.PRIORITY_DEFAULT,
+                                 delay * 1000,
+                                 this.clipboardClear.bind(this));
+        }
+
+        if (!title)
+            return;
+
+        this.root?.add_toast(new Adw.Toast({ title: title }));
+    }
+
+
+    clipboardClear()
+    {
+        this.cancelClipboardClear();
+        try {
+            const display = Gdk.Display.get_default();
+            const clipboard1 = display.get_primary_clipboard();
+            const clipboard2 = display.get_clipboard();
+            if (clipboard1.local)
+                clipboard1.set(null);
+            if (clipboard2.local)
+                clipboard2.set(null);
+        }
+        catch (e) {
+            logError(e);
+        }
+        return GLib.SOURCE_REMOVE;
+    }
+
+
+    cancelClipboardClear()
+    {
+        if (!this.#clipboard_clear_source)
+            return;
+        GLib.Source.remove(this.#clipboard_clear_source);
+        this.#clipboard_clear_source = 0;
     }
 
 };
@@ -1467,10 +1532,6 @@ class OptionsGroup extends Adw.PreferencesGroup {
 
     static {
         GObject.registerClass(this);
-
-        this.install_action('totp.reset-setting',
-                            's',
-                            (obj, name, arg) => obj.resetQREncodeCMD(arg.unpack()));
     }
 
 
@@ -1508,6 +1569,25 @@ class OptionsGroup extends Adw.PreferencesGroup {
             tooltip_text: _('This command must capture an image from a camera, and print the decoded URI to the standard output.')
         });
         this.add(this.#qrscan);
+
+        const cb_clear_delay = new SpinRow({
+            title: _('Clipboard clear delay'),
+            subtitle: _('How many seconds until sensitive data is cleared from the clipboard.'),
+            tooltip_text: _('When exporting sensitive data ("otpauth://" URIs) they will be cleared from the clipboard after this time has passed. Authentication codes are not cleared.'),
+            adjustment: new Gtk.Adjustment({
+                value: 30,
+                lower: 1,
+                upper: Number.MAX_SAFE_INTEGER,
+                step_increment: 1,
+                page_increment: 10,
+            })
+        });
+        settings.bind('clipboard-clear-delay',
+                      cb_clear_delay, 'value',
+                      Gio.SettingsBindFlags.DEFAULT);
+
+        this.add(cb_clear_delay);
+
     }
 
 
@@ -1530,11 +1610,6 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
 
     static {
         GObject.registerClass(this);
-
-        this.install_action('copy-to-clipboard',
-                            '(ss)',
-                            (obj, name, args) =>
-                                obj.copyToClipboard(...args.recursiveUnpack()));
     }
 
 
@@ -1602,22 +1677,6 @@ class TOTPPreferencesPage extends Adw.PreferencesPage {
             Gio.resources_unregister(this.#resource);
             this.#resource = null;
         }
-    }
-
-
-    copyToClipboard(text, title)
-    {
-        // this runs outside gnome-shell, so we use GDK
-        const display = Gdk.Display.get_default();
-        const clipboard1 = display.get_primary_clipboard();
-        const clipboard2 = display.get_clipboard();
-        clipboard1.set(text);
-        clipboard2.set(text);
-
-        if (!title)
-            return;
-
-        this.root?.add_toast(new Adw.Toast({ title: title }));
     }
 
 };
