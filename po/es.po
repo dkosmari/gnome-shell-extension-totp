@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-12 11:51-0300\n"
+"POT-Creation-Date: 2024-04-12 11:59-0300\n"
 "PO-Revision-Date: 2024-04-12 10:12-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -239,19 +239,19 @@ msgstr "Secretos importados:"
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copié todos los secretos de OTP al portapapeles."
 
-#: prefs.js:1510
+#: prefs.js:1511
 msgid "Revert option back to the default value."
 msgstr "Revertir la opción al valor predeterminado."
 
-#: prefs.js:1546
+#: prefs.js:1547
 msgid "Options"
 msgstr "Opciones"
 
-#: prefs.js:1552
+#: prefs.js:1553
 msgid "QR generator"
 msgstr "Generador QR"
 
-#: prefs.js:1553
+#: prefs.js:1554
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -259,11 +259,11 @@ msgstr ""
 "Este comando debe leer texto de la entrada estándar y escribir una imagen en "
 "la salida estándar."
 
-#: prefs.js:1560
+#: prefs.js:1561
 msgid "QR reader"
 msgstr "Lector de QR"
 
-#: prefs.js:1561
+#: prefs.js:1562
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
@@ -271,11 +271,11 @@ msgstr ""
 "Este comando debe leer una imagen de la entrada estándar e imprimir el URI "
 "decodificado en la salida estándar."
 
-#: prefs.js:1568
+#: prefs.js:1569
 msgid "QR scanner"
 msgstr "Escáner QR"
 
-#: prefs.js:1569
+#: prefs.js:1570
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
@@ -283,17 +283,17 @@ msgstr ""
 "Este comando debe capturar una imagen de una cámara e imprimir el URI "
 "decodificado en la salida estándar."
 
-#: prefs.js:1574
+#: prefs.js:1575
 msgid "Clipboard clear delay"
 msgstr "Retraso en borrar portapapeles"
 
-#: prefs.js:1575
+#: prefs.js:1576
 msgid "How many seconds until sensitive data is cleared from the clipboard."
 msgstr ""
 "Cuántos segundos faltan para que los datos confidenciales se borre del "
 "portapapeles."
 
-#: prefs.js:1576
+#: prefs.js:1577
 msgid ""
 "When exporting sensitive data (\"otpauth://\" URIs) they will be cleared "
 "from the clipboard after this time has passed. Authentication codes are not "
