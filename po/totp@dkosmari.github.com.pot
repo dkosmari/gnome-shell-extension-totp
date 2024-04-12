@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-12 10:41-0300\n"
+"POT-Creation-Date: 2024-04-12 12:24-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -194,93 +194,93 @@ msgstr ""
 msgid "Lock OTP secrets"
 msgstr ""
 
-#: prefs.js:1188
+#: prefs.js:1189
 msgid "Secrets"
 msgstr ""
 
-#: prefs.js:1189
+#: prefs.js:1190
 msgid "A list of all TOTP secrets from the keyring."
 msgstr ""
 
-#: prefs.js:1213
+#: prefs.js:1214
 msgid "Add secret..."
 msgstr ""
 
-#: prefs.js:1222
+#: prefs.js:1223
 msgid "Refresh secrets."
 msgstr ""
 
-#: prefs.js:1232
+#: prefs.js:1233
 msgid "Import secrets..."
 msgstr ""
 
-#: prefs.js:1241
+#: prefs.js:1242
 msgid "Export all secrets to the clipboard."
 msgstr ""
 
-#: prefs.js:1295
+#: prefs.js:1296
 msgid "Creating new TOTP secret"
 msgstr ""
 
-#: prefs.js:1307
+#: prefs.js:1308
 msgid "Created new secret."
 msgstr ""
 
-#: prefs.js:1340
+#: prefs.js:1341
 msgid "Imported secrets:"
 msgstr ""
 
-#: prefs.js:1365
+#: prefs.js:1366
 msgid "Copied all OTP secrets to clipboard."
 msgstr ""
 
-#: prefs.js:1509
+#: prefs.js:1511
 msgid "Revert option back to the default value."
 msgstr ""
 
-#: prefs.js:1545
+#: prefs.js:1547
 msgid "Options"
 msgstr ""
 
-#: prefs.js:1551
+#: prefs.js:1553
 msgid "QR generator"
 msgstr ""
 
-#: prefs.js:1552
+#: prefs.js:1554
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
 msgstr ""
 
-#: prefs.js:1559
+#: prefs.js:1561
 msgid "QR reader"
 msgstr ""
 
-#: prefs.js:1560
+#: prefs.js:1562
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
 msgstr ""
 
-#: prefs.js:1567
+#: prefs.js:1569
 msgid "QR scanner"
 msgstr ""
 
-#: prefs.js:1568
+#: prefs.js:1570
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
 msgstr ""
 
-#: prefs.js:1573
+#: prefs.js:1575
 msgid "Clipboard clear delay"
 msgstr ""
 
-#: prefs.js:1574
+#: prefs.js:1576
 msgid "How many seconds until sensitive data is cleared from the clipboard."
 msgstr ""
 
-#: prefs.js:1575
+#: prefs.js:1577
 msgid ""
 "When exporting sensitive data (\"otpauth://\" URIs) they will be cleared "
 "from the clipboard after this time has passed. Authentication codes are not "

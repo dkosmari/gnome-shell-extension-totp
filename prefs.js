@@ -42,7 +42,7 @@ function activateCopyToClipboard(source,
                                  title,
                                  sensitive = false)
 {
-    source.activate_action('copy-to-clipboard',
+    source.activate_action('totp.copy-to-clipboard',
                            new GLib.Variant('(ssb)',
                                             [text, title, sensitive]));
 }
@@ -1143,9 +1143,10 @@ class LockButton extends Gtk.Button {
                 ? await SecretUtils.unlockOTPCollection()
                 : await SecretUtils.lockOTPCollection();
             await this.updateState();
+            this.activate_action('totp.refresh', null);
         }
         catch (e) {
-            logError(e);
+            reportError(this.root, e);
         }
     }
 
@@ -1161,7 +1162,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                             obj => obj.createSecret());
 
         this.install_action('totp.refresh', null,
-                            obj => obj.refreshRows(true));
+                            obj => obj.refreshRows());
 
         this.install_action('totp.import', null,
                             obj => obj.importSecrets());
@@ -1169,7 +1170,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.install_action('totp.export_all', null,
                             obj => obj.exportAllSecrets());
 
-        this.install_action('copy-to-clipboard', '(ssb)',
+        this.install_action('totp.copy-to-clipboard', '(ssb)',
                             (obj, name, args) =>
                                 obj.copyToClipboard(...args.recursiveUnpack()));
     }
@@ -1267,11 +1268,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async refreshRows(unlock = false)
+    async refreshRows()
     {
         this.clearRows();
         try {
-            const items = await SecretUtils.getOTPItems(unlock);
+            const items = await SecretUtils.getOTPItems();
             this.#lock_button.updateState();
             items.forEach(item =>
                 {
@@ -1283,7 +1284,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             this.#rows.forEach(r => r.updateButtons());
         }
         catch (e) {
-            logError(e, 'refreshRows()');
+            logError(e);
         }
     }
 
@@ -1381,7 +1382,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             }
         }
         catch (e) {
-            logError(e, 'storeRowsOrder()');
+            logError(e);
         }
     }
 
@@ -1484,7 +1485,8 @@ class CmdSettingRow extends EntryRow {
     static {
         GObject.registerClass(this);
 
-        this.install_action('reset-setting', null, obj => obj.resetSetting());
+        this.install_action('reset-setting', null,
+                            obj => obj.resetSetting());
     }
 
 
@@ -1579,7 +1581,9 @@ class OptionsGroup extends Adw.PreferencesGroup {
                 upper: Number.MAX_SAFE_INTEGER,
                 step_increment: 1,
                 page_increment: 10,
-            })
+            }),
+            numeric: true,
+            width_chars: 5
         });
         settings.bind('clipboard-clear-delay',
                       cb_clear_delay, 'value',

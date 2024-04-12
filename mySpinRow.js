@@ -44,6 +44,7 @@ class SpinRow extends Adw.ActionRow {
                  update_policy = null,
                  wrap = null,
                  value = null,
+                 width_chars = null,
                  ...args})
     {
         super(args);
@@ -55,12 +56,15 @@ class SpinRow extends Adw.ActionRow {
             numeric,
             snap_to_ticks,
             update_policy,
-            wrap,
+            valign: Gtk.Align.CENTER,
             value,
+            width_chars,
+            wrap,
         });
+        spin.add_css_class('flat');
 
         this.bind_property('value',
-                           spin.adjustment, 'value',
+                           spin, 'value',
                            GObject.BindingFlags.BIDIRECTIONAL);
 
         this.add_suffix(spin);
