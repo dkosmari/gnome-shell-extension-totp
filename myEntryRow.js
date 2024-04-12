@@ -7,13 +7,11 @@
 // Implements most of Adw.EntryRow the extension needs.
 
 
-const {
-    Adw,
-    Gio,
-    GLib,
-    GObject,
-    Gtk
-} = imports.gi;
+const Adw     = imports.gi.Adw;
+const Gio     = imports.gi.Gio;
+const GLib    = imports.gi.GLib;
+const GObject = imports.gi.GObject;
+const Gtk     = imports.gi.Gtk;
 
 
 function findByBuildableID(start, id)

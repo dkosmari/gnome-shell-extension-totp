@@ -4,10 +4,8 @@
  */
 
 
-const {
-    Gio,
-    Secret
-} = imports.gi;
+const Gio    = imports.gi.Gio;
+const Secret = imports.gi.Secret;
 
 
 // strings will be translated by gettext in the frontend

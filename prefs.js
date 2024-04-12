@@ -4,15 +4,14 @@
  */
 
 
-const {
-    Adw,
-    Gdk,
-    GdkPixbuf,
-    Gio,
-    GLib,
-    GObject,
-    Gtk
-} = imports.gi;
+const Adw       = imports.gi.Adw;
+const Gdk       = imports.gi.Gdk;
+const GdkPixbuf = imports.gi.GdkPixbuf;
+const Gio       = imports.gi.Gio;
+const GLib      = imports.gi.GLib;
+const GObject   = imports.gi.GObject;
+const Gtk       = imports.gi.Gtk;
+
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();

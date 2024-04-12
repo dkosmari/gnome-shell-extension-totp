@@ -4,12 +4,9 @@
  */
 
 
-// GI imports
-const {
-    GObject,
-    Secret,
-    St
-} = imports.gi;
+const GObject = imports.gi.GObject;
+const Secret  = imports.gi.Secret;
+const St      = imports.gi.St;
 
 const Main      = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;

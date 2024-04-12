@@ -6,12 +6,10 @@
 // Implements most of Gtk.AlertDialog the extension needs.
 
 
-const {
-    Gio,
-    GLib,
-    GObject,
-    Gtk
-} = imports.gi;
+const Gio     = imports.gi.Gio;
+const GLib    = imports.gi.GLib;
+const GObject = imports.gi.GObject;
+const Gtk     = imports.gi.Gtk;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();

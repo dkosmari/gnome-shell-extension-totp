@@ -7,13 +7,11 @@
 // Implements most of Adw.SpinRow the extension needs.
 
 
-const {
-    Adw,
-    Gio,
-    GLib,
-    GObject,
-    Gtk
-} = imports.gi;
+const Adw     = imports.gi.Adw;
+const Gio     = imports.gi.Gio;
+const GLib    = imports.gi.GLib;
+const GObject = imports.gi.GObject;
+const Gtk     = imports.gi.Gtk;
 
 
 var SpinRow =
@@ -28,8 +26,8 @@ class SpinRow extends Adw.ActionRow {
                         'Value',
                         'The value',
                         GObject.ParamFlags.READWRITE,
-                        Number.MIN_SAFE_INTEGER,
-                        Number.MAX_SAFE_INTEGER,
+                        -Number.MAX_VALUE,
+                        Number.MAX_VALUE,
                         0
                     )
                 }
