@@ -23,6 +23,7 @@ EXTRA_SOURCES := \
 	indicator.js \
 	myAlertDialog.js \
 	myEntryRow.js \
+	mySpinRow.js \
 	secretUtils.js \
 	totp.js
 

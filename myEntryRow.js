@@ -17,7 +17,7 @@ import Gtk     from 'gi://Gtk';
 function findByBuildableID(start, id)
 {
     // Note: use BFS
-    let queue = [start];
+    const queue = [start];
     while (queue.length > 0) {
         const current = queue.shift();
         if (current.get_buildable_id() == id)
@@ -53,10 +53,6 @@ class EntryRow extends Adw.ActionRow {
     }
 
 
-    #entry;
-    #suffixes;
-
-
     constructor({text = "", ...args})
     {
         args.title_lines = 1;
@@ -69,7 +65,7 @@ class EntryRow extends Adw.ActionRow {
             title_box.hexpand = false;
         }
 
-        this.#entry = new Gtk.Entry({
+        const entry = new Gtk.Entry({
             text: text,
             halign: Gtk.Align.FILL,
             hexpand: true,
@@ -77,10 +73,10 @@ class EntryRow extends Adw.ActionRow {
 
         // this.#entry.add_css_class('flat');
         this.bind_property('text',
-                           this.#entry, 'text',
+                           entry, 'text',
                            GObject.BindingFlags.BIDIRECTIONAL);
 
-        this.add_suffix(this.#entry);
+        this.add_suffix(entry);
 
     }
 

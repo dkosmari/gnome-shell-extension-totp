@@ -18,6 +18,9 @@ During normal usage, the extension will load the specific OTP secret (unlocking 
 Keyring if necessary), copy the authentication code to the clipboard, and immediately wipe
 the OTP secret from memory.
 
+In the preferences window, sensitive data (the "otpauth://" URIs) are automatically
+erased from the clipboard after a few seconds (30 by default).
+
 
 Installing from GNOME Shell Extensions website
 ----------------------------------------------
