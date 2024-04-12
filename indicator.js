@@ -117,7 +117,7 @@ class Indicator extends PanelMenu.Button {
                 this.clearTOTPItems();
         }
         catch (e) {
-            logError(e, '_onOpenStateChanged()');
+            logError(e);
         }
     }
 
@@ -132,7 +132,7 @@ class Indicator extends PanelMenu.Button {
                     Main.notify(_('Failed to lock OTP secrets.'));
         }
         catch (e) {
-            logError(e, 'lockTOTPSecrets()');
+            logError(e);
             Main.notifyError(_('Error locking OTP secrets.'), _(e.message));
         }
     }
@@ -148,7 +148,7 @@ class Indicator extends PanelMenu.Button {
                     Main.notify(_('Failed to unlock OTP secrets.'));
         }
         catch (e) {
-            logError(e, 'unlockTOTPSecrets()');
+            logError(e);
             Main.notifyError(_('Error unlocking OTP secrets.'), _(e.message));
         }
     }
@@ -175,7 +175,7 @@ class Indicator extends PanelMenu.Button {
             });
         }
         catch (e) {
-            logError(e, 'refreshTOTPItems()');
+            logError(e);
             Main.notifyError(_('Error retrieving OTP items.'), _(e.message));
         }
     }
@@ -196,7 +196,7 @@ class Indicator extends PanelMenu.Button {
             copyToClipboard(code);
         }
         catch (e) {
-            logError(e, 'copyCode()');
+            logError(e);
             Main.notifyError(_('Error copying the OTP authentication code.'), _(e.message));
         }
     }

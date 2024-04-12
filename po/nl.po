@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-12 10:34-0300\n"
+"POT-Creation-Date: 2024-04-12 11:51-0300\n"
 "PO-Revision-Date: 2024-04-12 10:13-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -200,59 +200,59 @@ msgstr "Otp-geheimen ontgrendelen..."
 msgid "Lock OTP secrets"
 msgstr "Otp-geheimen vergrendelen"
 
-#: prefs.js:1188
+#: prefs.js:1189
 msgid "Secrets"
 msgstr "Geheimen"
 
-#: prefs.js:1189
+#: prefs.js:1190
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Een lijst met totp-geheimen uit de sleutelbos."
 
-#: prefs.js:1213
+#: prefs.js:1214
 msgid "Add secret..."
 msgstr "Geheim toevoegen…"
 
-#: prefs.js:1222
+#: prefs.js:1223
 msgid "Refresh secrets."
 msgstr "Vernieuw geheimen."
 
-#: prefs.js:1232
+#: prefs.js:1233
 msgid "Import secrets..."
 msgstr "Geheimen importeren…"
 
-#: prefs.js:1241
+#: prefs.js:1242
 msgid "Export all secrets to the clipboard."
 msgstr "Exporteer alle geheimen naar het klembord."
 
-#: prefs.js:1295
+#: prefs.js:1296
 msgid "Creating new TOTP secret"
 msgstr "Totp-geheim aanmaken"
 
-#: prefs.js:1307
+#: prefs.js:1308
 msgid "Created new secret."
 msgstr "Nieuw geheim gecreëerd."
 
-#: prefs.js:1340
+#: prefs.js:1341
 msgid "Imported secrets:"
 msgstr "Geïmporteerde geheimen:"
 
-#: prefs.js:1365
+#: prefs.js:1366
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Alle otp-geheimen zijn gekopieerd naar het klembord."
 
-#: prefs.js:1509
+#: prefs.js:1510
 msgid "Revert option back to the default value."
 msgstr "Zet de optie terug naar de standaardwaarde."
 
-#: prefs.js:1545
+#: prefs.js:1546
 msgid "Options"
 msgstr "Opties"
 
-#: prefs.js:1551
+#: prefs.js:1552
 msgid "QR generator"
 msgstr "QR-generator"
 
-#: prefs.js:1552
+#: prefs.js:1553
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -260,11 +260,11 @@ msgstr ""
 "Deze opdracht moet tekst uit de standaardinvoer lezen en een afbeelding naar "
 "de standaarduitvoer schrijven."
 
-#: prefs.js:1559
+#: prefs.js:1560
 msgid "QR reader"
 msgstr "QR-lezer"
 
-#: prefs.js:1560
+#: prefs.js:1561
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
@@ -272,11 +272,11 @@ msgstr ""
 "Deze opdracht moet een afbeelding uit de standaardinvoer lezen en de "
 "gedecodeerde URI naar de standaarduitvoer afdrukken."
 
-#: prefs.js:1567
+#: prefs.js:1568
 msgid "QR scanner"
 msgstr "QR-scanner"
 
-#: prefs.js:1568
+#: prefs.js:1569
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
@@ -284,16 +284,16 @@ msgstr ""
 "Met deze opdracht moet een afbeelding van een camera worden vastgelegd en de "
 "gedecodeerde URI naar de standaarduitvoer worden afgedrukt."
 
-#: prefs.js:1573
+#: prefs.js:1574
 msgid "Clipboard clear delay"
 msgstr "Klembord duidelijke vertraging"
 
-#: prefs.js:1574
+#: prefs.js:1575
 msgid "How many seconds until sensitive data is cleared from the clipboard."
 msgstr ""
 "Hoeveel seconden voordat gevoelige gegevens van het klembord worden gewist."
 
-#: prefs.js:1575
+#: prefs.js:1576
 msgid ""
 "When exporting sensitive data (\"otpauth://\" URIs) they will be cleared "
 "from the clipboard after this time has passed. Authentication codes are not "
