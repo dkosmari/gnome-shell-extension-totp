@@ -1146,7 +1146,7 @@ class LockButton extends Gtk.Button {
             this.activate_action('totp.refresh', null);
         }
         catch (e) {
-            logError(e);
+            reportError(this.root, e);
         }
     }
 
@@ -1485,7 +1485,8 @@ class CmdSettingRow extends EntryRow {
     static {
         GObject.registerClass(this);
 
-        this.install_action('reset-setting', null, obj => obj.resetSetting());
+        this.install_action('reset-setting', null,
+                            obj => obj.resetSetting());
     }
 
 
