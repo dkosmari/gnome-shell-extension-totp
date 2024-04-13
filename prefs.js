@@ -37,17 +37,6 @@ const EntryRow = Adw.EntryRow ?? MyEntryRow;
 const SpinRow = Adw.SpinRow ?? MySpinRow;
 
 
-function activateCopyToClipboard(source,
-                                 text,
-                                 title,
-                                 sensitive = false)
-{
-    source.activate_action('totp.copy-to-clipboard',
-                           new GLib.Variant('(ssb)',
-                                            [text, title, sensitive]));
-}
-
-
 function makeLabel({issuer, name})
 {
     const safe_issuer = GLib.markup_escape_text(issuer, -1);
@@ -79,27 +68,6 @@ function now()
 }
 
 
-function findListBox(start)
-{
-    // Note: use BFS
-    const queue = [start];
-
-    while (queue.length > 0) {
-        const current = queue.shift();
-        if (current instanceof Gtk.ListBox)
-            return current;
-
-        let child = current.get_first_child();
-        while (child) {
-            queue.push(child);
-            child = child.get_next_sibling();
-        }
-    }
-
-    return null;
-}
-
-
 function makeStringList(...strings)
 {
     if (!Gtk.check_version(4, 10, 0))
@@ -108,6 +76,18 @@ function makeStringList(...strings)
     const list = new Gtk.StringList();
     strings.forEach(s => list.append(s));
     return list;
+}
+
+
+function totpToVariant(totp)
+{
+    return new GLib.Variant('a{sv}', {
+        issuer    : GLib.Variant.new_string(totp.issuer),
+        name      : GLib.Variant.new_string(totp.name),
+        digits    : GLib.Variant.new_uint32(totp.digits),
+        period    : GLib.Variant.new_uint32(totp.period),
+        algorithm : GLib.Variant.new_string(totp.algorithm),
+    });
 }
 
 
@@ -447,7 +427,7 @@ class CopyCodeButton extends Gtk.Button {
     {
         super({
             tooltip_text: _('Copy code to clipboard.'),
-            valign: Gtk.Align.CENTER
+            valign: Gtk.Align.CENTER,
         });
 
         this.#totp = totp;
@@ -465,14 +445,14 @@ class CopyCodeButton extends Gtk.Button {
         this.#label = new Gtk.Label({
             label: _('Unlock'),
             use_markup: false,
-            width_chars: 9
+            width_chars: 10
         });
         box.append(this.#label);
 
         this.#level = new Gtk.LevelBar({
             inverted: true,
             max_value: this.#totp.period,
-            min_value: 0.0,
+            min_value: 0,
             mode: Gtk.LevelBarMode.CONTINUOUS,
             orientation: Gtk.Orientation.VERTICAL
         });
@@ -490,7 +470,7 @@ class CopyCodeButton extends Gtk.Button {
                                                        this.updateCode();
                                                    }
                                                    catch (e) {
-                                                       this.destroy();
+                                                       this.cancelUpdates();
                                                        return GLib.SOURCE_REMOVE;
                                                    }
                                                    return GLib.SOURCE_CONTINUE;
@@ -501,10 +481,7 @@ class CopyCodeButton extends Gtk.Button {
 
     destroy()
     {
-        if (this.#update_source) {
-            GLib.Source.remove(this.#update_source);
-            this.#update_source = 0;
-        }
+        this.cancelUpdates();
     }
 
 
@@ -537,7 +514,16 @@ class CopyCodeButton extends Gtk.Button {
              * and call .destroy() to disable the callback.
              */
             this.sensitive = false;
-            this.destroy();
+            this.cancelUpdates();
+        }
+    }
+
+
+    cancelUpdates()
+    {
+        if (this.#update_source) {
+            GLib.Source.remove(this.#update_source);
+            this.#update_source = 0;
         }
     }
 
@@ -557,113 +543,17 @@ class CopyCodeButton extends Gtk.Button {
         try {
             this.#totp.secret = await SecretUtils.getSecret(this.#totp);
             const code = this.#totp.code();
-            activateCopyToClipboard(this,
-                                    code,
-                                    _('OTP code copied to clipboard.'));
+            const arg = new GLib.Variant('(ssb)',
+                                         [
+                                             code,
+                                             _('OTP code copied to clipboard.'),
+                                             false
+                                         ]);
+            this.activate_action('totp.copy-to-clipboard', arg);
         }
         catch (e) {
             reportError(this.root, e);
         }
-    }
-
-};
-
-
-class EditSecretButton extends Gtk.Button {
-
-    static {
-        GObject.registerClass(this);
-    }
-
-
-    #group;
-    #settings;
-    #totp;
-
-
-    constructor({totp, group, settings})
-    {
-        super({
-            icon_name: 'document-edit-symbolic',
-            tooltip_text: _('Edit this secret.'),
-            valign: Gtk.Align.CENTER
-        });
-
-        this.#group    = group;
-        this.#settings = settings;
-        this.#totp     = totp;
-    }
-
-
-    destroy()
-    {
-        this.#group    = null;
-        this.#settings = null;
-    }
-
-
-    async on_clicked()
-    {
-        try {
-            this.#totp.secret = await SecretUtils.getSecret(this.#totp);
-
-            const dialog = new SecretDialog({
-                title: _('Editing TOTP secret'),
-                totp: this.#totp,
-                settings: this.#settings
-            });
-
-            const new_totp = await dialog.choose(this.root);
-            if (!new_totp)
-                return;
-
-            await SecretUtils.updateTOTPItem(this.#totp, new_totp);
-            await this.#group.refreshRows();
-        }
-        catch (e) {
-            reportError(this.root, e);
-        }
-    }
-
-};
-
-
-class ExportSecretButton extends Gtk.Button {
-
-    static {
-        GObject.registerClass(this);
-    }
-
-
-    #totp;
-
-
-    constructor(totp)
-    {
-        super({
-            icon_name: 'send-to-symbolic',
-            tooltip_text: _('Export this secret to clipboard.'),
-            valign: Gtk.Align.CENTER
-        });
-
-        this.#totp = totp;
-    }
-
-
-    async on_clicked()
-    {
-        try {
-            this.#totp.secret = await SecretUtils.getSecret(this.#totp);
-            const uri = this.#totp.uri();
-            activateCopyToClipboard(this,
-                                    uri,
-                                    _('Copied secret URI to clipboard.'),
-                                    true);
-        }
-        catch (e) {
-            reportError(this.root, e);
-        }
-
     }
 
 };
@@ -707,152 +597,6 @@ class ExportQRWindow extends Gtk.Window {
         });
         button.connect('clicked', () => this.close());
         box.append(button);
-    }
-
-};
-
-
-class ExportQRButton extends Gtk.Button {
-
-    static {
-        GObject.registerClass(this);
-    }
-
-
-    #settings;
-    #totp;
-
-
-    constructor(totp, settings)
-    {
-        super({
-            icon_name: 'qr-code-symbolic',
-            tooltip_text: _('Export this secret as QR code.'),
-            valign: Gtk.Align.CENTER
-        });
-
-        this.#settings = settings;
-        this.#totp = totp;
-    }
-
-
-    destroy()
-    {
-        this.#settings = null;
-    }
-
-
-    async on_clicked()
-    {
-        try {
-            this.#totp.secret = await SecretUtils.getSecret(this.#totp);
-            const uri = this.#totp.uri();
-
-            const te = new TextEncoder();
-            const uri_data = te.encode(uri);
-
-            const qrencode_cmd = this.#settings.get_string('qrencode-cmd');
-            const [parsed, args] = GLib.shell_parse_argv(qrencode_cmd);
-            if (!parsed)
-                throw new Error(_('Failed to parse "qrencode-cmd" option.'));
-
-            const proc = Gio.Subprocess.new(args,
-                                            Gio.SubprocessFlags.STDIN_PIPE
-                                            | Gio.SubprocessFlags.STDOUT_PIPE
-                                            | Gio.SubprocessFlags.STDERR_PIPE);
-
-            /*
-             * WORKAROUND: `.communicate_async()` will randomly fail with a broken pipe
-             * error, so we have to use the blocking API instead.
-             */
-            const [success, stdout, stderr] = proc.communicate(uri_data, null);
-
-            const status = proc.get_exit_status();
-            if (status) {
-                if (stderr) {
-                    const td = new TextDecoder();
-                    const stderr_text = td.decode(stderr.get_data());
-                    throw new Error(stderr_text);
-                } else
-                    throw new Error(`Process exited with status: ${status}`);
-            }
-
-            if (!stdout)
-                throw new Error('Empty stdout');
-
-            const img_stream = Gio.MemoryInputStream.new_from_bytes(stdout);
-            const export_window = new ExportQRWindow(this.root, img_stream);
-            export_window.show();
-        }
-        catch (e) {
-            reportError(this.root, e);
-        }
-
-    }
-
-};
-
-
-class RemoveSecretButton extends Gtk.Button {
-
-    static {
-        GObject.registerClass(this);
-    }
-
-
-    #totp;
-    #group;
-
-
-    constructor(totp, group)
-    {
-        super({
-            icon_name: 'edit-delete-symbolic',
-            tooltip_text: _('Remove this secret.'),
-            valign: Gtk.Align.CENTER
-        });
-
-        this.#totp = totp;
-        this.#group = group;
-    }
-
-
-    destroy()
-    {
-        this.#group = null;
-    }
-
-
-    async on_clicked()
-    {
-        try {
-            const cancel_response = 0;
-            const delete_response = 1;
-            const buttons = [_('_Cancel'), _('_Delete')];
-            const label = makeLabel(this.#totp);
-            const dialog = new AlertDialog({
-                message: _('Deleting TOTP secret'),
-                detail: _('Deleting secret:') + ` "${label}"`,
-                modal: true,
-                default_button: delete_response,
-                cancel_button: cancel_response,
-                buttons: buttons
-            });
-
-            const response = await dialog.choose(this.root, null);
-            if (response == delete_response) {
-                const success = await SecretUtils.removeTOTPItem(this.#totp);
-                if (!success)
-                    throw new Error(_('Failed to remove secret. Is it locked?'));
-                this.root?.add_toast(
-                    new Adw.Toast({ title: _('Deleted secret:') + ` "${label}"` })
-                );
-                await this.#group.refreshRows();
-            }
-        }
-        catch (e) {
-            reportError(this.root, e);
-        }
     }
 
 };
@@ -916,7 +660,7 @@ class SecretRow extends Adw.ActionRow {
     }
 
 
-    #children = [];
+    #copy_code_button;
     #down_button;
     #totp;
     #up_button;
@@ -938,7 +682,6 @@ class SecretRow extends Adw.ActionRow {
             spacing: 0,
             homogeneous: true
         });
-        this.#children.push(box);
         this.add_prefix(box);
 
         this.#up_button = new MoveButton(group, this, -1);
@@ -946,17 +689,37 @@ class SecretRow extends Adw.ActionRow {
         box.append(this.#up_button);
         box.append(this.#down_button);
 
+        this.#copy_code_button = new CopyCodeButton(totp);
+        this.add_suffix(this.#copy_code_button);
+
+
+        const menu = new Gio.Menu();
+
         // helper function
-        const add_suffix = w => {
-            this.add_suffix(w);
-            this.#children.push(w);
+        const add_item = (label, action) => {
+            const item = new Gio.MenuItem();
+            item.set_label(label);
+            item.set_action_and_target_value(action, totpToVariant(totp));
+            menu.append_item(item);
         };
 
-        add_suffix(new CopyCodeButton(totp));
-        add_suffix(new EditSecretButton({totp, group, settings}));
-        add_suffix(new ExportSecretButton(totp));
-        add_suffix(new ExportQRButton(totp, settings));
-        add_suffix(new RemoveSecretButton(totp, group));
+        add_item(_('_Edit...'),
+                 'totp.edit-secret');
+
+        add_item(_('_Copy to clipboard'),
+                 'totp.export-secret-clipboard');
+
+        add_item(_('Export to _QR code...'),
+                 'totp.export-secret-qr');
+
+        add_item(_('_Remove'),
+                 'totp.remove-secret');
+
+        this.add_suffix(new Gtk.MenuButton({
+            icon_name: 'open-menu-symbolic',
+            valign: Gtk.Align.CENTER,
+            menu_model: menu,
+        }));
     }
 
 
@@ -965,11 +728,8 @@ class SecretRow extends Adw.ActionRow {
         this.#up_button = null;
         this.#down_button = null;
 
-        this.#children.forEach(w => {
-            this.remove(w);
-            w.destroy?.();
-        });
-        this.#children = null;
+        this.#copy_code_button.destroy?.();
+        this.#copy_code_button = null;
     }
 
 
@@ -1167,12 +927,29 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.install_action('totp.import', null,
                             obj => obj.importSecrets());
 
-        this.install_action('totp.export_all', null,
+        this.install_action('totp.export-all', null,
                             obj => obj.exportAllSecrets());
 
         this.install_action('totp.copy-to-clipboard', '(ssb)',
                             (obj, name, args) =>
-                                obj.copyToClipboard(...args.recursiveUnpack()));
+                            obj.copyToClipboard(...args.recursiveUnpack()));
+
+        this.install_action('totp.edit-secret', 'a{sv}',
+                            (obj, name, args) =>
+                                obj.editSecret(new TOTP(args.recursiveUnpack())));
+
+        this.install_action('totp.export-secret-clipboard', 'a{sv}',
+                            (obj, name, args) =>
+                                obj.exportSecretClipboard(new TOTP(args.recursiveUnpack())));
+
+        this.install_action('totp.export-secret-qr', 'a{sv}',
+                            (obj, name, args) =>
+                                obj.exportSecretQR(new TOTP(args.recursiveUnpack())));
+
+        this.install_action('totp.remove-secret', 'a{sv}',
+                            (obj, name, args) =>
+                                obj.removeSecret(new TOTP(args.recursiveUnpack())));
+
     }
 
 
@@ -1191,13 +968,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
         });
 
         this.#settings = settings;
-
-        this.#listbox = findListBox(this);
-        this.#listbox.set_sort_func(this.rowSortFunc.bind(this));
-
-        // UI tweak: relax the clamp so the group can grow wider.
-        this.connect('notify::parent',
-                     () => this.get_ancestor(Adw.Clamp)?.set_maximum_size(1000));
 
         const box = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
@@ -1238,7 +1008,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         box.append(
             new Gtk.Button({
                 icon_name: 'document-export-symbolic',
-                action_name: 'totp.export_all',
+                action_name: 'totp.export-all',
                 tooltip_text: _('Export all secrets to the clipboard.'),
                 valign: Gtk.Align.CENTER,
             })
@@ -1361,10 +1131,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 const totp = new TOTP(attrs);
                 uris.push(totp.uri());
             }
-            activateCopyToClipboard(this,
-                                    uris.join('\n'),
-                                    _('Copied all OTP secrets to clipboard.'),
-                                    true);
+            this.copyToClipboard(uris.join('\n'),
+                                 _('Copied all OTP secrets to clipboard.'),
+                                 true);
         }
         catch (e) {
             reportError(this.root, e);
@@ -1475,6 +1244,127 @@ class SecretsGroup extends Adw.PreferencesGroup {
             return;
         GLib.Source.remove(this.#clipboard_clear_source);
         this.#clipboard_clear_source = 0;
+    }
+
+
+    async editSecret(totp)
+    {
+        try {
+            totp.secret = await SecretUtils.getSecret(totp);
+
+            const dialog = new SecretDialog({
+                title: _('Editing TOTP secret'),
+                totp: totp,
+                settings: this.#settings
+            });
+
+            const new_totp = await dialog.choose(this.root);
+            if (!new_totp)
+                return;
+
+            await SecretUtils.updateTOTPItem(totp, new_totp);
+            totp.wipe();
+            await this.refreshRows();
+        }
+        catch (e) {
+            reportError(this.root, e);
+        }
+    }
+
+
+    async exportSecretClipboard(totp)
+    {
+        try {
+            totp.secret = await SecretUtils.getSecret(totp);
+            const uri = totp.uri();
+            this.copyToClipboard(uri,
+                                 _('Copied secret URI to clipboard.'),
+                                 true);
+        }
+        catch (e) {
+            reportError(this.root, e);
+        }
+    }
+
+
+    async exportSecretQR(totp)
+    {
+        try {
+            totp.secret = await SecretUtils.getSecret(totp);
+            const uri = totp.uri();
+
+            const te = new TextEncoder();
+            const uri_data = te.encode(uri);
+
+            const qrencode_cmd = this.#settings.get_string('qrencode-cmd');
+            const [parsed, args] = GLib.shell_parse_argv(qrencode_cmd);
+            if (!parsed)
+                throw new Error(_('Failed to parse "qrencode-cmd" option.'));
+
+            const proc = Gio.Subprocess.new(args,
+                                            Gio.SubprocessFlags.STDIN_PIPE
+                                            | Gio.SubprocessFlags.STDOUT_PIPE
+                                            | Gio.SubprocessFlags.STDERR_PIPE);
+
+            /*
+             * WORKAROUND: `.communicate_async()` will randomly fail with a broken pipe
+             * error, so we have to use the blocking API instead.
+             */
+            const [success, stdout, stderr] = proc.communicate(uri_data, null);
+
+            const status = proc.get_exit_status();
+            if (status) {
+                if (stderr) {
+                    const td = new TextDecoder();
+                    const stderr_text = td.decode(stderr.get_data());
+                    throw new Error(stderr_text);
+                } else
+                    throw new Error(`Process exited with status: ${status}`);
+            }
+
+            if (!stdout)
+                throw new Error('Empty stdout');
+
+            const img_stream = Gio.MemoryInputStream.new_from_bytes(stdout);
+            const export_window = new ExportQRWindow(this.root, img_stream);
+            export_window.show();
+        }
+        catch (e) {
+            reportError(this.root, e);
+        }
+    }
+
+
+    async removeSecret(totp)
+    {
+        try {
+            const cancel_response = 0;
+            const delete_response = 1;
+            const buttons = [_('_Cancel'), _('_Delete')];
+            const label = makeLabel(totp);
+            const dialog = new AlertDialog({
+                message: _('Deleting TOTP secret'),
+                detail: _('Deleting secret:') + ` "${label}"`,
+                modal: true,
+                default_button: delete_response,
+                cancel_button: cancel_response,
+                buttons: buttons
+            });
+
+            const response = await dialog.choose(this.root, null);
+            if (response == delete_response) {
+                const success = await SecretUtils.removeTOTPItem(totp);
+                if (!success)
+                    throw new Error(_('Failed to remove secret. Is it locked?'));
+                this.root?.add_toast(
+                    new Adw.Toast({ title: _('Deleted secret:') + ` "${label}"` })
+                );
+                await this.refreshRows();
+            }
+        }
+        catch (e) {
+            reportError(this.root, e);
+        }
     }
 
 };
