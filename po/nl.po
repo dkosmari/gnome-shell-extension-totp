@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-13 11:12-0300\n"
+"POT-Creation-Date: 2024-04-13 11:28-0300\n"
 "PO-Revision-Date: 2024-04-13 11:14-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -105,7 +105,7 @@ msgstr "Kopieer de code naar het klembord."
 msgid "Unlock"
 msgstr "Ontgrendelen"
 
-#: prefs.js:549 indicator.js:30
+#: prefs.js:549 indicator.js:27
 msgid "OTP code copied to clipboard."
 msgstr "De code is gekopieerd naar het klembord."
 
@@ -113,7 +113,7 @@ msgstr "De code is gekopieerd naar het klembord."
 msgid "QR code"
 msgstr "QR-code"
 
-#: prefs.js:595 myAlertDialog.js:62
+#: prefs.js:595 myAlertDialog.js:61
 msgid "_Close"
 msgstr "_Sluiten"
 
@@ -160,11 +160,11 @@ msgstr "Plak alle te importeren ‘otpauth://’-uri's, een per regel."
 msgid "_Import"
 msgstr "_Importeren"
 
-#: prefs.js:887 indicator.js:71
+#: prefs.js:887 indicator.js:68
 msgid "Unlock OTP secrets..."
 msgstr "Otp-geheimen ontgrendelen..."
 
-#: prefs.js:890 indicator.js:67
+#: prefs.js:890 indicator.js:64
 msgid "Lock OTP secrets"
 msgstr "Otp-geheimen vergrendelen"
 
@@ -303,86 +303,86 @@ msgstr ""
 "na het verstrijken van deze tijd van het klembord verwijderd. "
 "Authenticatiecodes worden niet gewist."
 
-#: base32.js:26
+#: base32.js:27
 msgid "Invalid base32 input; missing padding."
 msgstr "Ongeldige base32-invoer - de opvulling ontbreekt."
 
-#: base32.js:42
+#: base32.js:43
 msgid "Invalid base32 character at position:"
 msgstr "Ongeldig base32-teken op positie:"
 
-#: base32.js:49
+#: base32.js:50
 msgid "Invalid padding."
 msgstr "Ongeldige opvulling."
 
-#: indicator.js:76
+#: indicator.js:73
 msgid "Edit OTP secrets..."
 msgstr "Otp-geheimen bewerken…"
 
-#: indicator.js:80
+#: indicator.js:77
 msgid "OTP Secrets"
 msgstr "Otp-geheimen"
 
-#: indicator.js:132
+#: indicator.js:129
 msgid "Failed to lock OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden vergrendeld."
 
-#: indicator.js:136
+#: indicator.js:133
 msgid "Error locking OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden vergrendeld."
 
-#: indicator.js:148
+#: indicator.js:145
 msgid "Failed to unlock OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden ontgrendeld."
 
-#: indicator.js:152
+#: indicator.js:149
 msgid "Error unlocking OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden ontgrendeld."
 
-#: indicator.js:179
+#: indicator.js:176
 msgid "Error retrieving OTP items."
 msgstr "De otp-items kunnen niet worden opgehaald."
 
-#: indicator.js:200
+#: indicator.js:197
 msgid "Error copying the OTP authentication code."
 msgstr "De otp-verificatiecode kan niet worden gekopieerd."
 
-#: secretUtils.js:142 secretUtils.js:206 secretUtils.js:241
+#: secretUtils.js:147 secretUtils.js:213 secretUtils.js:249
 msgid "Failed to lookup secret."
 msgstr "Het geheim kan niet worden opgevraagd."
 
-#: secretUtils.js:174
+#: secretUtils.js:180
 msgid "Failed to retrieve secret."
 msgstr "Het geheim kan niet worden opgehaald."
 
-#: secretUtils.js:213 secretUtils.js:244
+#: secretUtils.js:220 secretUtils.js:252
 msgid "Failed to set label."
 msgstr "Het label kan niet worden ingesteld."
 
-#: secretUtils.js:220
+#: secretUtils.js:227
 msgid "Failed to set attributes."
 msgstr "De eigenschappen kunnen niet worden ingesteld."
 
-#: secretUtils.js:226
+#: secretUtils.js:233
 msgid "Failed to set secret."
 msgstr "Het geheim kan niet worden ingesteld."
 
-#: totp.js:36 totp.js:53
+#: totp.js:34 totp.js:51
 msgid "Invalid algorithm."
 msgstr "Ongeldig algoritme."
 
-#: totp.js:120
+#: totp.js:118
 msgid "Failed to parse URI."
 msgstr "De uri kan niet worden verwerkt."
 
-#: totp.js:122
+#: totp.js:120
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Het uri-scherma dient te beginnen met ‘otpauth://…’"
 
-#: totp.js:124
+#: totp.js:122
 msgid "URI host should be \"totp\""
 msgstr "De uri-host dient ‘totp’ te zijn"
 
-#: totp.js:126
+#: totp.js:124
 msgid "Unexpected port number in URI."
 msgstr "Ongeldig poortnummer in uri."

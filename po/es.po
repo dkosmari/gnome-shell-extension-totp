@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-13 11:12-0300\n"
+"POT-Creation-Date: 2024-04-13 11:28-0300\n"
 "PO-Revision-Date: 2024-04-13 11:19-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -104,7 +104,7 @@ msgstr "Copie el código al portapapeles."
 msgid "Unlock"
 msgstr "Desbloquear"
 
-#: prefs.js:549 indicator.js:30
+#: prefs.js:549 indicator.js:27
 msgid "OTP code copied to clipboard."
 msgstr "Código OTP copiado al portapapeles."
 
@@ -112,7 +112,7 @@ msgstr "Código OTP copiado al portapapeles."
 msgid "QR code"
 msgstr "Código QR"
 
-#: prefs.js:595 myAlertDialog.js:62
+#: prefs.js:595 myAlertDialog.js:61
 msgid "_Close"
 msgstr "_Cerrar"
 
@@ -159,11 +159,11 @@ msgstr "Pegue todos los URI \"otpauth://\" que desee importar, uno por línea."
 msgid "_Import"
 msgstr "_Importar"
 
-#: prefs.js:887 indicator.js:71
+#: prefs.js:887 indicator.js:68
 msgid "Unlock OTP secrets..."
 msgstr "Desbloquear secretos de OTP..."
 
-#: prefs.js:890 indicator.js:67
+#: prefs.js:890 indicator.js:64
 msgid "Lock OTP secrets"
 msgstr "Bloquear secretos de OTP"
 
@@ -303,86 +303,86 @@ msgstr ""
 "portapapeles una vez transcurrido este tiempo. Los códigos de autenticación "
 "no se borran."
 
-#: base32.js:26
+#: base32.js:27
 msgid "Invalid base32 input; missing padding."
 msgstr "Entrada base32 no válida; falta relleno."
 
-#: base32.js:42
+#: base32.js:43
 msgid "Invalid base32 character at position:"
 msgstr "Carácter base32 no válido en la posición:"
 
-#: base32.js:49
+#: base32.js:50
 msgid "Invalid padding."
 msgstr "Relleno no válido."
 
-#: indicator.js:76
+#: indicator.js:73
 msgid "Edit OTP secrets..."
 msgstr "Editar secretos OTP..."
 
-#: indicator.js:80
+#: indicator.js:77
 msgid "OTP Secrets"
 msgstr "Secretos de OTP"
 
-#: indicator.js:132
+#: indicator.js:129
 msgid "Failed to lock OTP secrets."
 msgstr "No se pudieron bloquear los secretos de OTP."
 
-#: indicator.js:136
+#: indicator.js:133
 msgid "Error locking OTP secrets."
 msgstr "Error al bloquear secretos OTP."
 
-#: indicator.js:148
+#: indicator.js:145
 msgid "Failed to unlock OTP secrets."
 msgstr "No se pudieron desbloquear los secretos de OTP."
 
-#: indicator.js:152
+#: indicator.js:149
 msgid "Error unlocking OTP secrets."
 msgstr "Error al desbloquear secretos OTP."
 
-#: indicator.js:179
+#: indicator.js:176
 msgid "Error retrieving OTP items."
 msgstr "Error al recuperar elementos OTP."
 
-#: indicator.js:200
+#: indicator.js:197
 msgid "Error copying the OTP authentication code."
 msgstr "Error al copiar el código de autenticación OTP."
 
-#: secretUtils.js:142 secretUtils.js:206 secretUtils.js:241
+#: secretUtils.js:147 secretUtils.js:213 secretUtils.js:249
 msgid "Failed to lookup secret."
 msgstr "No se pudo buscar el secreto."
 
-#: secretUtils.js:174
+#: secretUtils.js:180
 msgid "Failed to retrieve secret."
 msgstr "No se pudo recuperar el secreto."
 
-#: secretUtils.js:213 secretUtils.js:244
+#: secretUtils.js:220 secretUtils.js:252
 msgid "Failed to set label."
 msgstr "No se pudo establecer la etiqueta."
 
-#: secretUtils.js:220
+#: secretUtils.js:227
 msgid "Failed to set attributes."
 msgstr "No se pudieron establecer los atributos."
 
-#: secretUtils.js:226
+#: secretUtils.js:233
 msgid "Failed to set secret."
 msgstr "No se pudo escribir el secreto."
 
-#: totp.js:36 totp.js:53
+#: totp.js:34 totp.js:51
 msgid "Invalid algorithm."
 msgstr "Algoritmo no válido."
 
-#: totp.js:120
+#: totp.js:118
 msgid "Failed to parse URI."
 msgstr "No se pudo analizar el URI."
 
-#: totp.js:122
+#: totp.js:120
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "El esquema de URI debe ser \"otpauth://...\""
 
-#: totp.js:124
+#: totp.js:122
 msgid "URI host should be \"totp\""
 msgstr "El host URI debe ser \"totp\""
 
-#: totp.js:126
+#: totp.js:124
 msgid "Unexpected port number in URI."
 msgstr "Número de puerto inesperado en URI."
