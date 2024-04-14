@@ -351,7 +351,7 @@ class SecretDialog extends Gtk.Dialog {
 
 
         // make sure the Issuer is focused
-        this.set_focus(this.#ui.issuer);
+        this.#ui.issuer.grab_focus();
     }
 
 
