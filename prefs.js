@@ -68,6 +68,27 @@ function now()
 }
 
 
+function findListBoxChild(start)
+{
+    // Note: use BFS
+    const queue = [start];
+
+    while (queue.length > 0) {
+        const current = queue.shift();
+        if (current instanceof Gtk.ListBox)
+            return current;
+
+        let child = current.get_first_child();
+        while (child) {
+            queue.push(child);
+            child = child.get_next_sibling();
+        }
+    }
+
+    return null;
+}
+
+
 function makeStringList(...strings)
 {
     if (!Gtk.check_version(4, 10, 0))
@@ -662,7 +683,6 @@ class SecretRow extends Adw.ActionRow {
 
     #copy_code_button;
     #down_button;
-    #totp;
     #up_button;
 
 
@@ -675,7 +695,8 @@ class SecretRow extends Adw.ActionRow {
             subtitle_lines: 1,
         });
 
-        this.#totp = totp;
+
+        this._totp = totp; // used by storeAllRowsOrders()
 
         const box = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
@@ -737,13 +758,6 @@ class SecretRow extends Adw.ActionRow {
     {
         this.#up_button.sensitive = !!this.get_prev_sibling();
         this.#down_button.sensitive = !!this.get_next_sibling();
-    }
-
-
-    // this is used to sort the rows
-    get totp()
-    {
-        return this.#totp;
     }
 
 };
@@ -954,7 +968,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
 
     #clipboard_clear_source = 0;
-    #listbox;
     #lock_button;
     #rows = [];
     #settings;
@@ -966,6 +979,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
             title: _('Secrets'),
             description: _('A list of all TOTP secrets from the keyring.')
         });
+
+        const listbox = findListBoxChild(this);
+        listbox?.set_sort_func(this.rowSortFunc.bind(this));
 
         this.#settings = settings;
 
@@ -1023,7 +1039,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
         this.cancelClipboardClear();
         this.clearRows();
         this.#lock_button = null;
-        this.#listbox     = null;
         this.#settings    = null;
     }
 
@@ -1073,7 +1088,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return;
 
             const n = this.#rows.length;
-            await this.storeRowsOrder(); // ensure the orders are 0, ..., n-1
+            await this.storeAllRowsOrders(); // ensure the orders are 0, ..., n-1
             await SecretUtils.createTOTPItem(totp, n);
             this.root?.add_toast(new Adw.Toast({ title: _('Created new secret.') }));
             await this.refreshRows();
@@ -1093,7 +1108,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return; // canceled or empty text
 
             const n = this.#rows.length;
-            await this.storeRowsOrder(); // ensure the orders are 0, ..., n-1
+            await this.storeAllRowsOrders(); // ensure the orders are 0, ..., n-1
             const uris = GLib.Uri.list_extract_uris(text);
 
             let successes = 0;
@@ -1142,11 +1157,24 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
 
     // Store the UI order in the keyring as their labels
-    async storeRowsOrder()
+
+    async storeOneRowOrder(row)
+    {
+        try {
+            const idx = this.#rows.indexOf(row);
+            const totp = row._totp;
+            await SecretUtils.updateTOTPOrder(totp, idx);
+        }
+        catch (e) {
+            logError(e);
+        }
+    }
+
+    async storeAllRowsOrders()
     {
         try {
             for (let i = 0; i < this.#rows.length; ++i) {
-                const totp = this.#rows[i].totp;
+                const totp = this.#rows[i]._totp;
                 await SecretUtils.updateTOTPOrder(totp, i);
             }
         }
@@ -1168,6 +1196,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return;
             // swap them
             [this.#rows[i], this.#rows[j]] = [this.#rows[j], this.#rows[i]];
+            this.storeOneRowOrder(this.#rows[i]); // no await
+            this.storeOneRowOrder(this.#rows[j]); // no await
         } else {
             this.#rows.splice(i, 1);
             if (offset < 0) {
@@ -1177,11 +1207,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 // move all the way to the back
                 this.#rows.push(row);
             }
+            this.storeAllRowsOrders(); // no await
         }
 
-        this.#listbox?.invalidate_sort();
-        this.#rows.forEach(r => r.updateButtons());
-        this.storeRowsOrder();
+        row.parent.invalidate_sort();
+        this.#rows.forEach(r =>  r.updateButtons());
     }
 
 
