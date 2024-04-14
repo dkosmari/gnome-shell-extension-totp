@@ -27,6 +27,7 @@ import TOTP             from './totp.js';
 
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async', 'communicate_utf8_finish');
+Gio._promisify(Gdk.Clipboard.prototype, 'read_text_async', 'read_text_finish');
 Gio._promisify(Gdk.Clipboard.prototype, 'read_texture_async', 'read_texture_finish');
 
 const AlertDialog = Gtk.AlertDialog ?? MyAlertDialog;
@@ -172,7 +173,7 @@ class ScanQRButton extends Gtk.Button {
 };
 
 
-class PasteQRButton extends Gtk.Button {
+class PasteButton extends Gtk.Button {
 
     static {
         GObject.registerClass(this);
@@ -186,7 +187,7 @@ class PasteQRButton extends Gtk.Button {
     {
         super({
             icon_name: 'edit-paste-symbolic',
-            tooltip_text: _('Paste QR code image.'),
+            tooltip_text: _('Paste either the "otpauth://" URI, or the QR code image.'),
             valign: Gtk.Align.CENTER
         });
 
@@ -198,31 +199,38 @@ class PasteQRButton extends Gtk.Button {
     {
         try {
             const clipboard = this.get_clipboard();
-            const texture = await clipboard.read_texture_async(null);
-            if (!texture)
-                return;
 
-            const img_bytes = texture.save_to_png_bytes();
+            let text = null;
 
-            const qrimage_cmd = this.#settings.get_string('qrimage-cmd');
-            const [parsed, args] = GLib.shell_parse_argv(qrimage_cmd);
-            if (!parsed)
-                throw new Error(_('Failed to parse "qrimage-cmd" option.'));
+            if (clipboard.formats.contain_mime_type('text/plain;charset=utf-8'))
+                text = await clipboard.read_text_async(null);
+            else {
+                const texture = await clipboard.read_texture_async(null);
+                if (!texture)
+                    return;
 
-            const proc = Gio.Subprocess.new(args,
-                                            Gio.SubprocessFlags.STDIN_PIPE
-                                            | Gio.SubprocessFlags.STDOUT_PIPE);
+                const img_bytes = texture.save_to_png_bytes();
 
-            const [stdout] = await proc.communicate_async(img_bytes, null);
-            if (!stdout)
-                return;
+                const qrimage_cmd = this.#settings.get_string('qrimage-cmd');
+                const [parsed, args] = GLib.shell_parse_argv(qrimage_cmd);
+                if (!parsed)
+                    throw new Error(_('Failed to parse "qrimage-cmd" option.'));
 
-            const td = new TextDecoder();
-            const text = td.decode(stdout.get_data());
+                const proc = Gio.Subprocess.new(args,
+                                                Gio.SubprocessFlags.STDIN_PIPE
+                                                | Gio.SubprocessFlags.STDOUT_PIPE);
 
-            this.activate_action('import-uri',
-                                 GLib.Variant.new_string(text));
+                const [stdout] = await proc.communicate_async(img_bytes, null);
+                if (!stdout)
+                    return;
 
+                const td = new TextDecoder();
+                text = td.decode(stdout.get_data());
+            }
+
+            if (text)
+                this.activate_action('import-uri',
+                                     GLib.Variant.new_string(text));
         }
         catch (e) {
             reportError(this.root, e);
@@ -277,7 +285,7 @@ class SecretDialog extends Gtk.Dialog {
         });
         group.set_header_suffix(box);
 
-        box.append(new PasteQRButton(settings));
+        box.append(new PasteButton(settings));
         box.append(new ScanQRButton(settings));
 
 
@@ -807,7 +815,7 @@ class ImportURIsDialog extends Gtk.Dialog {
         });
         hbox.append(heading);
 
-        hbox.append(new PasteQRButton(settings));
+        hbox.append(new PasteButton(settings));
         hbox.append(new ScanQRButton(settings));
 
 
