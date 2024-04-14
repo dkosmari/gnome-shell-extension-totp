@@ -28,7 +28,7 @@
     <key name="clipboard-clear-delay" type="u">
       <default>30</default>
       <range min="1"/>
-      <summary>How many seconds until sensitive data is cleared from the clipboard.</summary>
+      <summary>Sensitive data is cleared from the clipboard after this many seconds.</summary>
       <description>
         When exporting sensitive data ("otpauth://" URIs) they will be cleared from the
         clipboard after this time has passed. Authentication codes are not cleared.

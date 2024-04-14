@@ -1492,7 +1492,7 @@ class OptionsGroup extends Adw.PreferencesGroup {
 
         const cb_clear_delay = new SpinRow({
             title: _('Clipboard clear delay'),
-            subtitle: _('How many seconds until sensitive data is cleared from the clipboard.'),
+            subtitle: _('Sensitive data is cleared from the clipboard after this many seconds.'),
             tooltip_text: _('When exporting sensitive data ("otpauth://" URIs) they will be cleared from the clipboard after this time has passed. Authentication codes are not cleared.'),
             adjustment: new Gtk.Adjustment({
                 value: 30,
