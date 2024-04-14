@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-14 06:59-0300\n"
+"POT-Creation-Date: 2024-04-14 07:16-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -300,7 +300,7 @@ msgid "Invalid padding."
 msgstr ""
 
 #: indicator.js:73
-msgid "Edit OTP secrets..."
+msgid "Settings..."
 msgstr ""
 
 #: indicator.js:77

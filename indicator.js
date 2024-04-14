@@ -70,9 +70,9 @@ class Indicator extends PanelMenu.Button {
                                                 'changes-allow-symbolic');
         this.#unlock_item.visible = !this.#lock_item.visible;
 
-        this.menu.addAction(_('Edit OTP secrets...'),
+        this.menu.addAction(_('Settings...'),
                             this.editTOTPSecrets.bind(this),
-                            'document-edit-symbolic');
+                            'preferences-other-symbolic');
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(_('OTP Secrets')));
 
