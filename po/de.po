@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-14 06:09-0300\n"
+"POT-Creation-Date: 2024-04-14 06:33-0300\n"
 "PO-Revision-Date: 2024-04-13 11:21-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -89,7 +89,7 @@ msgstr "Algorithmus"
 msgid "The hash algorithm used to generate codes."
 msgstr "Der Hash-Algorithmus, der zum Generieren von Codes verwendet wird."
 
-#: prefs.js:346 prefs.js:828 prefs.js:1373
+#: prefs.js:346 prefs.js:828 prefs.js:1371
 msgid "_Cancel"
 msgstr "_Abbrechen"
 
@@ -198,63 +198,63 @@ msgstr "Exportieren Sie alle Geheimnisse in die Zwischenablage."
 msgid "Creating new TOTP secret"
 msgstr "Neues TOTP-Geheimnis erstellen"
 
-#: prefs.js:1093
+#: prefs.js:1092
 msgid "Created new secret."
 msgstr "Neues Geheimnis erstellt."
 
-#: prefs.js:1126
+#: prefs.js:1124
 msgid "Imported secrets:"
 msgstr "Importierte Geheimnisse:"
 
-#: prefs.js:1150
+#: prefs.js:1148
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Alle OTP-Geheimnisse in die Zwischenablage kopiert."
 
-#: prefs.js:1286
+#: prefs.js:1284
 msgid "Editing TOTP secret"
 msgstr "Bearbeiten des TOTP-Geheimnisses"
 
-#: prefs.js:1311
+#: prefs.js:1309
 msgid "Copied secret URI to clipboard."
 msgstr "Geheimer URI in die Zwischenablage kopiert."
 
-#: prefs.js:1332
+#: prefs.js:1330
 msgid "Failed to parse \"qrencode-cmd\" option."
 msgstr "Die Option „qrencode-cmd“ konnte nicht analysiert werden."
 
-#: prefs.js:1373
+#: prefs.js:1371
 msgid "_Delete"
 msgstr "_Löschen"
 
-#: prefs.js:1376
+#: prefs.js:1374
 msgid "Deleting TOTP secret"
 msgstr "TOTP-Geheimnis wird gelöscht"
 
-#: prefs.js:1377
+#: prefs.js:1375
 msgid "Deleting secret:"
 msgstr "Geheimnis löschen:"
 
-#: prefs.js:1388
+#: prefs.js:1386
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Geheimnis konnte nicht entfernt werden. Ist es verschlossen?"
 
-#: prefs.js:1390
+#: prefs.js:1388
 msgid "Deleted secret:"
 msgstr "Gelöschtes Geheimnis:"
 
-#: prefs.js:1431
+#: prefs.js:1430
 msgid "Revert option back to the default value."
 msgstr "Setzen Sie die Option auf den Standardwert zurück."
 
-#: prefs.js:1467
+#: prefs.js:1466
 msgid "Options"
 msgstr "Optionen"
 
-#: prefs.js:1473
+#: prefs.js:1472
 msgid "QR generator"
 msgstr "QR-Generator"
 
-#: prefs.js:1474
+#: prefs.js:1473
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -262,11 +262,11 @@ msgstr ""
 "Dieser Befehl muss Text aus der Standardeingabe lesen und ein Bild in die "
 "Standardausgabe schreiben."
 
-#: prefs.js:1481
+#: prefs.js:1480
 msgid "QR reader"
 msgstr "QR-Reader"
 
-#: prefs.js:1482
+#: prefs.js:1481
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
@@ -274,11 +274,11 @@ msgstr ""
 "Dieser Befehl muss ein Bild aus der Standardeingabe lesen und den "
 "dekodierten URI auf der Standardausgabe ausgeben."
 
-#: prefs.js:1489
+#: prefs.js:1488
 msgid "QR scanner"
 msgstr "QR-Scanner"
 
-#: prefs.js:1490
+#: prefs.js:1489
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
@@ -286,17 +286,17 @@ msgstr ""
 "Dieser Befehl muss ein Bild von einer Kamera erfassen und den dekodierten "
 "URI in der Standardausgabe ausgeben."
 
-#: prefs.js:1495
+#: prefs.js:1494
 msgid "Clipboard clear delay"
 msgstr "Verzögerung beim Löschen der Zwischenablage"
 
-#: prefs.js:1496
+#: prefs.js:1495
 msgid "How many seconds until sensitive data is cleared from the clipboard."
 msgstr ""
 "Wie viele Sekunden dauert es, bis vertrauliche Daten aus der Zwischenablage "
 "gelöscht werden?"
 
-#: prefs.js:1497
+#: prefs.js:1496
 msgid ""
 "When exporting sensitive data (\"otpauth://\" URIs) they will be cleared "
 "from the clipboard after this time has passed. Authentication codes are not "
@@ -350,7 +350,7 @@ msgstr "Fehler beim Abrufen von OTP-Elementen."
 msgid "Error copying the OTP authentication code."
 msgstr "Fehler beim Kopieren des OTP-Authentifizierungscodes."
 
-#: secretUtils.js:142 secretUtils.js:206 secretUtils.js:241
+#: secretUtils.js:142
 msgid "Failed to lookup secret."
 msgstr "Das Geheimnis konnte nicht gesucht werden."
 
@@ -358,7 +358,12 @@ msgstr "Das Geheimnis konnte nicht gesucht werden."
 msgid "Failed to retrieve secret."
 msgstr "Das Abrufen des Geheimnisses ist fehlgeschlagen."
 
-#: secretUtils.js:213 secretUtils.js:244
+#: secretUtils.js:206 secretUtils.js:241
+#, fuzzy
+msgid "Failed to lookup item."
+msgstr "Das Geheimnis konnte nicht gesucht werden."
+
+#: secretUtils.js:213 secretUtils.js:248
 msgid "Failed to set label."
 msgstr "Das Label konnte nicht festgelegt werden."
 

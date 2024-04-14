@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-14 06:09-0300\n"
+"POT-Creation-Date: 2024-04-14 06:33-0300\n"
 "PO-Revision-Date: 2024-04-13 11:13-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -87,7 +87,7 @@ msgstr "Algorítimo"
 msgid "The hash algorithm used to generate codes."
 msgstr "O algorítimo usado para gerar códigos."
 
-#: prefs.js:346 prefs.js:828 prefs.js:1373
+#: prefs.js:346 prefs.js:828 prefs.js:1371
 msgid "_Cancel"
 msgstr "_Cancelar"
 
@@ -194,63 +194,63 @@ msgstr "Exporte todos os segredos para a área de transferência."
 msgid "Creating new TOTP secret"
 msgstr "Criando novo segredo TOTP"
 
-#: prefs.js:1093
+#: prefs.js:1092
 msgid "Created new secret."
 msgstr "Criou novo segredo."
 
-#: prefs.js:1126
+#: prefs.js:1124
 msgid "Imported secrets:"
 msgstr "Importou segredos:"
 
-#: prefs.js:1150
+#: prefs.js:1148
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Copiado todos os segredos OTP para a área de transferência."
 
-#: prefs.js:1286
+#: prefs.js:1284
 msgid "Editing TOTP secret"
 msgstr "Editando segredo TOTP"
 
-#: prefs.js:1311
+#: prefs.js:1309
 msgid "Copied secret URI to clipboard."
 msgstr "URI secreta copiada para a área de transferência."
 
-#: prefs.js:1332
+#: prefs.js:1330
 msgid "Failed to parse \"qrencode-cmd\" option."
 msgstr "Falhou ao interpretar a opção \"qrencode-cmd\"."
 
-#: prefs.js:1373
+#: prefs.js:1371
 msgid "_Delete"
 msgstr "_Apagar"
 
-#: prefs.js:1376
+#: prefs.js:1374
 msgid "Deleting TOTP secret"
 msgstr "Apagando segredo TOTP"
 
-#: prefs.js:1377
+#: prefs.js:1375
 msgid "Deleting secret:"
 msgstr "Apagando segredo:"
 
-#: prefs.js:1388
+#: prefs.js:1386
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Falha em remover o segredo. Está bloqueado?"
 
-#: prefs.js:1390
+#: prefs.js:1388
 msgid "Deleted secret:"
 msgstr "Apagou segredo:"
 
-#: prefs.js:1431
+#: prefs.js:1430
 msgid "Revert option back to the default value."
 msgstr "Reverter opção de volta para o valor padrão."
 
-#: prefs.js:1467
+#: prefs.js:1466
 msgid "Options"
 msgstr "Opções"
 
-#: prefs.js:1473
+#: prefs.js:1472
 msgid "QR generator"
 msgstr "Gerador QR"
 
-#: prefs.js:1474
+#: prefs.js:1473
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -258,11 +258,11 @@ msgstr ""
 "Este comando deve ler texto da entrada padrão, e escrever uma imagem para a "
 "saída padrão."
 
-#: prefs.js:1481
+#: prefs.js:1480
 msgid "QR reader"
 msgstr "Leitor QR"
 
-#: prefs.js:1482
+#: prefs.js:1481
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
@@ -270,11 +270,11 @@ msgstr ""
 "Este comando deve ler uma imagem da entrada padrão e imprimir o URI "
 "decodificado na saída padrão."
 
-#: prefs.js:1489
+#: prefs.js:1488
 msgid "QR scanner"
 msgstr "Digitalizador QR"
 
-#: prefs.js:1490
+#: prefs.js:1489
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
@@ -282,17 +282,17 @@ msgstr ""
 "Este comando deve capturar uma imagem de uma câmera e imprimir o URI "
 "decodificado na saída padrão."
 
-#: prefs.js:1495
+#: prefs.js:1494
 msgid "Clipboard clear delay"
 msgstr "Atraso na limpeza da área de transferência"
 
-#: prefs.js:1496
+#: prefs.js:1495
 msgid "How many seconds until sensitive data is cleared from the clipboard."
 msgstr ""
 "Quantos segundos até que os dados confidenciais sejam apagados da área de "
 "transferência."
 
-#: prefs.js:1497
+#: prefs.js:1496
 msgid ""
 "When exporting sensitive data (\"otpauth://\" URIs) they will be cleared "
 "from the clipboard after this time has passed. Authentication codes are not "
@@ -346,7 +346,7 @@ msgstr "Erro obtendo itens OTP."
 msgid "Error copying the OTP authentication code."
 msgstr "Erro copiando código de autenticação OTP."
 
-#: secretUtils.js:142 secretUtils.js:206 secretUtils.js:241
+#: secretUtils.js:142
 msgid "Failed to lookup secret."
 msgstr "Falha em obter segredo."
 
@@ -354,7 +354,12 @@ msgstr "Falha em obter segredo."
 msgid "Failed to retrieve secret."
 msgstr "Falha em obter segredo."
 
-#: secretUtils.js:213 secretUtils.js:244
+#: secretUtils.js:206 secretUtils.js:241
+#, fuzzy
+msgid "Failed to lookup item."
+msgstr "Falha em obter segredo."
+
+#: secretUtils.js:213 secretUtils.js:248
 msgid "Failed to set label."
 msgstr "Falha em definir rótulo."
 

@@ -203,7 +203,7 @@ async function updateTOTPItem(old_totp, new_totp)
                                         | Secret.SearchFlags.LOAD_SECRETS,
                                         null);
     if (!item)
-        throw new Error(_('Failed to lookup secret.'));
+        throw new Error(_('Failed to lookup item.'));
 
     // check if label changed
     const old_label = item.get_label();
@@ -238,9 +238,13 @@ async function updateTOTPOrder(totp, order)
                                         Secret.SearchFlags.NONE,
                                         null);
     if (!item)
-        throw new Error(_('Failed to lookup secret.'));
+        throw new Error(_('Failed to lookup item.'));
 
-    if (!await item.set_label(makeLabel(totp, order), null))
+    const old_label = item.get_label();
+    const new_label = makeLabel(totp, order);
+    if (new_label == old_label)
+        return;
+    if (!await item.set_label(new_label, null))
         throw new Error(_('Failed to set label.'));
 }
 

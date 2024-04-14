@@ -1088,7 +1088,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return;
 
             const n = this.#rows.length;
-            await this.storeAllRowsOrders(); // ensure the orders are 0, ..., n-1
             await SecretUtils.createTOTPItem(totp, n);
             this.root?.add_toast(new Adw.Toast({ title: _('Created new secret.') }));
             await this.refreshRows();
@@ -1108,7 +1107,6 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return; // canceled or empty text
 
             const n = this.#rows.length;
-            await this.storeAllRowsOrders(); // ensure the orders are 0, ..., n-1
             const uris = GLib.Uri.list_extract_uris(text);
 
             let successes = 0;
@@ -1390,6 +1388,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                     new Adw.Toast({ title: _('Deleted secret:') + ` "${label}"` })
                 );
                 await this.refreshRows();
+                await this.storeAllRowsOrders();
             }
         }
         catch (e) {
