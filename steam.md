@@ -20,8 +20,9 @@ Steam Guard uses mostly standard TOTP:
 
 ## Importing TOTP secret from Steam Guard
 
-What you need is the "shared secret" from Steam Guard. There are a few different ways to
+We need to extract the `shared_secret` from Steam Guard. There are a few different ways to
 obtain it, but here is one that's known to work:
+
 
 ### Prerequisites
 
@@ -96,7 +97,7 @@ obtain it, but here is one that's known to work:
    
    if __name__ == '__main__':
        try:
-           print('[*] Spawning ' + package)
+           print('[*] Spawning', package)
            dev = frida.get_usb_device()
            pid = dev.spawn(package)
            session = dev.attach(pid)
