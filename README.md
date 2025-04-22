@@ -69,21 +69,10 @@ you have the [qrencode](https://fukuchi.org/works/qrencode/) package installed.
 Importing Steam Guard secret
 ----------------------------
 
-You can generate Steam Guard Mobile Authenticator codes.
+You can generate Steam Guard Mobile Authenticator codes, by importing the "shared secret"
+from your Android phone.
 
-  1. Search the web for instructions on how to extract your Steam Guard
-     `shared_secret`. The method may vary depending on factors like your Android version,
-     rooted status, Steam Mobile version, etc.
-
-  2. The `shared_secret` is encoded in `Base64`, not `Base32`; so when you import it,
-     select `Base64`. The secret will still be stored in the keyring in `Base32` encoding,
-     so don't be alarmed that it "changed" after you saved it.
-
-  3. Set `Digits = 5`. Everything else is the default: `Period = 30`, `Algorithm = SHA-1`.
-
-  4. The issuer must be `Steam`, to activate the special OTP encoding that Steam Guard
-     uses, using letters. Otherwise it will generate authentication codes in decimal,
-     which are not recognized by Steam.
+See the [Steam Guard](steam.md) document for more details.
 
 
 Related extensions
