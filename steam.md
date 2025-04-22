@@ -42,7 +42,7 @@ obtain it, but here is one that's known to work:
 
 ### Preparation
 
-1. Extract frida-server from the .xz archive:
+1. Extract `frida-server` from the `.xz` archive:
 
        unxz frida-server-X.Y.Z-android-ARCH.xz
 
@@ -52,66 +52,65 @@ obtain it, but here is one that's known to work:
 
 2. Save the following Python script, to a `dump.py` file:
 
-```python
-#!/bin/env python3
+   ```python
+   #!/bin/env python3
+   
+   import json
+   import frida
+   import sys
+   
+   package = "com.valvesoftware.android.steam.community"
+   cmd = """
+   'use strict;'
+   
+   if (Java.available) {
+     Java.perform(function() {
+   
+       //Cipher stuff
+       const Cipher = Java.use('javax.crypto.Cipher');
+   
+       Cipher.doFinal.overload('[B').implementation = function (input) {
+           var result = this.doFinal.overload('[B').call(this, input);
+           send(result);
+       }
+   
+     }
+   )}
+   """
 
-import json
-import frida
-import sys
-
-package = "com.valvesoftware.android.steam.community"
-cmd = """
-'use strict;'
-
-if (Java.available) {
-  Java.perform(function() {
-
-    //Cipher stuff
-    const Cipher = Java.use('javax.crypto.Cipher');
-
-    Cipher.doFinal.overload('[B').implementation = function (input) {
-        var result = this.doFinal.overload('[B').call(this, input);
-        send(result);
-    }
-
-  }
-)}
-"""
-
-def parse_hook(cmd_):
-    # print('<li> Parsing hook...')
-    print('[*] Parsing hook...')
-    script = session.create_script(cmd_)
-    script = session.create_script(cmd_)
-    script.on('message', on_message)
-    script.load()
-
-def on_message(message, _):
-    try:
-        if message:
-            if message['type'] == 'send':
-                result = "".join(chr(i) for i in message['payload'])
-                print(json.dumps(json.loads(result), indent=2, ensure_ascii=False))
-    except Exception as e:
-        print(e)
-
-
-if __name__ == '__main__':
-    try:
-        print('[*] Spawning ' + package)
-        dev = frida.get_usb_device()
-        pid = dev.spawn(package)
-        session = dev.attach(pid)
-        parse_hook(cmd)
-        dev.resume(pid)
-        print('')
-        sys.stdin.read()
-
-    except KeyboardInterrupt:
-        sys.exit(0)
-    except Exception as e:
-        print(e)
-```
+   def parse_hook(cmd_):
+       # print('<li> Parsing hook...')
+       print('[*] Parsing hook...')
+       script = session.create_script(cmd_)
+       script = session.create_script(cmd_)
+       script.on('message', on_message)
+       script.load()
+   
+   def on_message(message, _):
+       try:
+           if message:
+               if message['type'] == 'send':
+                   result = "".join(chr(i) for i in message['payload'])
+                   print(json.dumps(json.loads(result), indent=2, ensure_ascii=False))
+       except Exception as e:
+           print(e)
+   
+   if __name__ == '__main__':
+       try:
+           print('[*] Spawning ' + package)
+           dev = frida.get_usb_device()
+           pid = dev.spawn(package)
+           session = dev.attach(pid)
+           parse_hook(cmd)
+           dev.resume(pid)
+           print('')
+           sys.stdin.read()
+   
+       except KeyboardInterrupt:
+           sys.exit(0)
+       except Exception as e:
+           print(e)
+   ```
 
    Make it executable by running `chmod +x dump.py`.
 
