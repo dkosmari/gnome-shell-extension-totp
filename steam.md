@@ -79,7 +79,6 @@ obtain it, but here is one that's known to work:
    """
 
    def parse_hook(cmd_):
-       # print('<li> Parsing hook...')
        print('[*] Parsing hook...')
        script = session.create_script(cmd_)
        script = session.create_script(cmd_)
@@ -116,7 +115,7 @@ obtain it, but here is one that's known to work:
 
 4. On your phone's app settings, use "Force Stop" to completely stop the Steam app.
 
-5. Clear Steam's cache. **DO NOT CLEAR THE STORAGE**.
+5. Clear Steam's app cache. **DO NOT CLEAR THE STORAGE**.
 
 
 ### Extracting the secrets
@@ -127,7 +126,7 @@ obtain it, but here is one that's known to work:
 2. On your PC, run `adb devices` to verify everything is working. You might need to
    authorize the ADB connection on the phone before it can connect successfully.
    
-3. Put the frida-server executable in your phone, by running this command:
+3. Put the `frida-server` executable in your phone, by running this command:
 
        adb push frida-server-X.Y.Z-android-ARCH /data/local/tmp/
 
@@ -145,8 +144,8 @@ obtain it, but here is one that's known to work:
        adb shell
        su
    
-   At any point, you might see a prompt on your phone to authorize root access to the adb
-   shell. Make sure you allow root access.
+   You might see a prompt on your phone to authorize root access for the adb shell. Make
+   sure you allow root access.
 
 5. Go to where you copied `frida-server` and execute it:
 
@@ -166,23 +165,23 @@ obtain it, but here is one that's known to work:
    to generate an authentication code. It will fail to show you the authentication code,
    but the script will print out the `shared_secret` that you need:
 
-```json
-{
-  "accounts": {
-    "12345678901234567890": {
-      "shared_secret": "ABC123abc123ABC123abc123ABC=",
-      "identity_secret": "...",
-      "secret_1": "...",
-      "serial_number": "...",
-      "revocation_code": "...",
-      "account_name": "...",
-      "token_gid": "...",
-      "steamguard_scheme": 2,
-      "steamid": "..."
-    }
-  }
-}
-```
+   ```json
+   {
+     "accounts": {
+       "12345678901234567890": {
+         "shared_secret": "ABC123abc123ABC123abc123ABC=",
+         "identity_secret": "...",
+         "secret_1": "...",
+         "serial_number": "...",
+         "revocation_code": "...",
+         "account_name": "...",
+         "token_gid": "...",
+         "steamguard_scheme": 2,
+         "steamid": "..."
+       }
+     }
+   }
+   ```
 
 9. Use the `shared_secret` value as the TOTP secret, making sure to select `Base64`.
 
