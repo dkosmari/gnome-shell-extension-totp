@@ -21,6 +21,7 @@ const Base32        = Me.imports.base32;
 const MyAlertDialog = Me.imports.myAlertDialog.AlertDialog;
 const MyEntryRow    = Me.imports.myEntryRow.EntryRow;
 const MySpinRow     = Me.imports.mySpinRow.SpinRow;
+const MySwitchRow   = Me.imports.mySwitchRow.SwitchRow;
 const SecretUtils   = Me.imports.secretUtils;
 const TOTP          = Me.imports.totp.TOTP;
 
@@ -36,6 +37,8 @@ Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
 const EntryRow = Adw.EntryRow ?? MyEntryRow;
 
 const SpinRow = Adw.SpinRow ?? MySpinRow;
+
+const SwitchRow = Adw.SwitchRow ?? MySwitchRow;
 
 
 function makeLabel({issuer, name})
@@ -1517,6 +1520,17 @@ class OptionsGroup extends Adw.PreferencesGroup {
                       Gio.SettingsBindFlags.DEFAULT);
 
         this.add(cb_clear_delay);
+
+        const hide_locked = new SwitchRow({
+            title: _('Hide names when locked.'),
+            subtitle: _('Note that the names are still visible to any application that wants to look into the Gnome Keyring.')
+        });
+        settings.bind('hide-locked',
+                      hide_locked, 'active',
+                      Gio.SettingsBindFlags.DEFAULT);
+
+        this.add(hide_locked);
+
 
     }
 

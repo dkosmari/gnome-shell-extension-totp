@@ -34,5 +34,13 @@
         clipboard after this time has passed. Authentication codes are not cleared.
       </description>
     </key>
+    <key name="hide-locked" type="b">
+      <default>false</default>
+      <summary>Hide names from the menu when locked.</summary>
+      <description>
+        Note that the names are still visible to any application that wants to look into
+        the Gnome Keyring.
+      </description>
+    </key>
   </schema>
 </schemalist>

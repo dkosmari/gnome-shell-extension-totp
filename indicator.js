@@ -47,6 +47,7 @@ class Indicator extends PanelMenu.Button {
 
     #ext;
     #lock_item;
+    #settings;
     #totp_items = [];
     #unlock_item;
 
@@ -56,6 +57,7 @@ class Indicator extends PanelMenu.Button {
         super();
 
         this.#ext = ext;
+        this.#settings = ExtensionUtils.getSettings();
 
         this.add_child(
             new St.Icon({
@@ -78,7 +80,6 @@ class Indicator extends PanelMenu.Button {
                             'preferences-other-symbolic');
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(_('OTP Secrets')));
-
 
         Main.panel.addToStatusArea(ext.uuid, this);
     }
@@ -112,7 +113,10 @@ class Indicator extends PanelMenu.Button {
                 let locked = await SecretUtils.isOTPCollectionLocked();
                 this.#lock_item.visible = !locked;
                 this.#unlock_item.visible = locked;
-                await this.refreshTOTPItems();
+                if (locked && this.#settings.get_boolean('hide-locked'))
+                    this.clearTOTPItems();
+                else
+                    await this.refreshTOTPItems();
             } else
                 this.clearTOTPItems();
         }
