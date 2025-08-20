@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2024-04-14 09:19-0300\n"
+"POT-Creation-Date: 2025-08-20 20:00-0300\n"
 "PO-Revision-Date: 2024-04-14 09:13-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -18,113 +18,113 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: prefs.js:56
+#: prefs.js:57
 msgid "Error"
 msgstr "Foutmelding"
 
-#: prefs.js:143
+#: prefs.js:144
 msgid "Scan QR code."
 msgstr "Scan QR-code."
 
-#: prefs.js:157
+#: prefs.js:158
 msgid "Failed to parse \"qrscan-cmd\" option."
 msgstr "Kan de optie \"qrscan-cmd\" niet parseren."
 
-#: prefs.js:190
+#: prefs.js:191
 msgid "Paste either the \"otpauth://\" URI, or the QR code image."
 msgstr "Plak de URI \"otpauth://\" of de afbeelding van de QR-code."
 
-#: prefs.js:217
+#: prefs.js:218
 msgid "Failed to parse \"qrimage-cmd\" option."
 msgstr "Kan de optie \"qrimage-cmd\" niet parseren."
 
-#: prefs.js:294
+#: prefs.js:295
 msgid "Issuer"
 msgstr "Verstrekt door"
 
-#: prefs.js:296
+#: prefs.js:297
 msgid ""
 "The name of the organization (Google, Facebook, etc) that issued the OTP."
 msgstr ""
 "De naam van de organisatie (Google, Facebook, etc.) die het otp verstrekt "
 "heeft."
 
-#: prefs.js:302
+#: prefs.js:303
 msgid "Name"
 msgstr "Naam"
 
-#: prefs.js:309
+#: prefs.js:310
 msgid "Secret"
 msgstr "Geheim"
 
-#: prefs.js:311
+#: prefs.js:312
 msgid "The shared secret key."
 msgstr "De gedeelde geheime sleutel."
 
-#: prefs.js:316
+#: prefs.js:317
 msgid "How the secret key is encoded."
 msgstr "Hoe de geheime sleutel is geëncodeerd."
 
-#: prefs.js:323
+#: prefs.js:324
 msgid "Digits"
 msgstr "Aantal getallen"
 
-#: prefs.js:327
+#: prefs.js:328
 msgid "How many digits in the code."
 msgstr "Hoeveel getallen de code bevat."
 
-#: prefs.js:333
+#: prefs.js:334
 msgid "Period"
 msgstr "Periode"
 
-#: prefs.js:335
+#: prefs.js:336
 msgid "Time between code updates, in seconds."
 msgstr "De tijd tussen codebijwerkingen (in seconden)."
 
-#: prefs.js:344
+#: prefs.js:345
 msgid "Algorithm"
 msgstr "Algoritme"
 
-#: prefs.js:348
+#: prefs.js:349
 msgid "The hash algorithm used to generate codes."
 msgstr "Het controlesomalgoritme van de gegenereerde codes."
 
-#: prefs.js:354 prefs.js:836 prefs.js:1379
+#: prefs.js:355 prefs.js:837 prefs.js:1383
 msgid "_Cancel"
 msgstr "_Annuleren"
 
-#: prefs.js:356
+#: prefs.js:357
 msgid "_OK"
 msgstr "_Oké"
 
-#: prefs.js:458
+#: prefs.js:459
 msgid "Copy code to clipboard."
 msgstr "Kopieer de code naar het klembord."
 
-#: prefs.js:475 prefs.js:524
+#: prefs.js:476 prefs.js:525
 msgid "Unlock"
 msgstr "Ontgrendelen"
 
-#: prefs.js:578 indicator.js:27
+#: prefs.js:579 indicator.js:28
 msgid "OTP code copied to clipboard."
 msgstr "De code is gekopieerd naar het klembord."
 
-#: prefs.js:603
+#: prefs.js:604
 msgid "QR code"
 msgstr "QR-code"
 
-#: prefs.js:624 myAlertDialog.js:61
+#: prefs.js:625 myAlertDialog.js:62
 msgid "_Close"
 msgstr "_Sluiten"
 
-#: prefs.js:651
+#: prefs.js:652
 msgid ""
 "Move this secret up; hold down the SHIFT key to move to the top of the list."
 msgstr ""
 "Verplaats dit geheim naar boven; Houd de SHIFT-toets ingedrukt om naar de "
 "bovenkant van de lijst te gaan."
 
-#: prefs.js:652
+#: prefs.js:653
 msgid ""
 "Move this secret down; hold down the SHIFT key to move to the bottom of the "
 "list."
@@ -132,127 +132,127 @@ msgstr ""
 "Verplaats dit geheim naar beneden; Houd de SHIFT-toets ingedrukt om naar het "
 "einde van de lijst te gaan."
 
-#: prefs.js:735
+#: prefs.js:736
 msgid "_Edit..."
 msgstr "_Bewerking..."
 
-#: prefs.js:738
+#: prefs.js:739
 msgid "_Copy to clipboard"
 msgstr "_Kopieer naar klembord"
 
-#: prefs.js:741
+#: prefs.js:742
 msgid "Export to _QR code..."
 msgstr "Exporteren naar _QR-code..."
 
-#: prefs.js:744
+#: prefs.js:745
 msgid "_Remove"
 msgstr "_Verwijderen"
 
-#: prefs.js:792
+#: prefs.js:793
 msgid "Importing \"otpauth://\" URIs"
 msgstr "'otpauth://'-URI's importeren"
 
-#: prefs.js:813
+#: prefs.js:814
 msgid "Paste all \"otpauth://\" URIs you want to import, one per line."
 msgstr "Plak alle te importeren ‘otpauth://’-uri's, een per regel."
 
-#: prefs.js:838
+#: prefs.js:839
 msgid "_Import"
 msgstr "_Importeren"
 
-#: prefs.js:909 indicator.js:68
+#: prefs.js:910 indicator.js:69
 msgid "Unlock OTP secrets..."
 msgstr "Otp-geheimen ontgrendelen..."
 
-#: prefs.js:912 indicator.js:64
+#: prefs.js:913 indicator.js:65
 msgid "Lock OTP secrets"
 msgstr "Otp-geheimen vergrendelen"
 
-#: prefs.js:987
+#: prefs.js:988
 msgid "Secrets"
 msgstr "Geheimen"
 
-#: prefs.js:988
+#: prefs.js:989
 msgid "A list of all TOTP secrets from the keyring."
 msgstr "Een lijst met totp-geheimen uit de sleutelbos."
 
-#: prefs.js:1008
+#: prefs.js:1009
 msgid "Add secret..."
 msgstr "Geheim toevoegen…"
 
-#: prefs.js:1017
+#: prefs.js:1018
 msgid "Refresh secrets."
 msgstr "Vernieuw geheimen."
 
-#: prefs.js:1027
+#: prefs.js:1028
 msgid "Import secrets..."
 msgstr "Geheimen importeren…"
 
-#: prefs.js:1036
+#: prefs.js:1037
 msgid "Export all secrets to the clipboard."
 msgstr "Exporteer alle geheimen naar het klembord."
 
-#: prefs.js:1089
+#: prefs.js:1093
 msgid "Creating new TOTP secret"
 msgstr "Totp-geheim aanmaken"
 
-#: prefs.js:1100
+#: prefs.js:1104
 msgid "Created new secret."
 msgstr "Nieuw geheim gecreëerd."
 
-#: prefs.js:1132
+#: prefs.js:1136
 msgid "Imported secrets:"
 msgstr "Geïmporteerde geheimen:"
 
-#: prefs.js:1156
+#: prefs.js:1160
 msgid "Copied all OTP secrets to clipboard."
 msgstr "Alle otp-geheimen zijn gekopieerd naar het klembord."
 
-#: prefs.js:1292
+#: prefs.js:1296
 msgid "Editing TOTP secret"
 msgstr "Bewerken van totp-geheim"
 
-#: prefs.js:1317
+#: prefs.js:1321
 msgid "Copied secret URI to clipboard."
 msgstr "Geheime URI naar klembord gekopieerd."
 
-#: prefs.js:1338
+#: prefs.js:1342
 msgid "Failed to parse \"qrencode-cmd\" option."
 msgstr "Kan de optie \"qrencode-cmd\" niet parseren."
 
-#: prefs.js:1379
+#: prefs.js:1383
 msgid "_Delete"
 msgstr "Verwij_deren"
 
-#: prefs.js:1382
+#: prefs.js:1386
 msgid "Deleting TOTP secret"
 msgstr "Verwijderen van totp-geheim"
 
-#: prefs.js:1383
+#: prefs.js:1387
 msgid "Deleting secret:"
 msgstr "Geheim verwijderen:"
 
-#: prefs.js:1394
+#: prefs.js:1398
 msgid "Failed to remove secret. Is it locked?"
 msgstr "Het geheim kan niet worden verwijderd. Is het geheim vergrendeld?"
 
-#: prefs.js:1396
+#: prefs.js:1400
 msgid "Deleted secret:"
 msgstr "Verwijderd geheim:"
 
-#: prefs.js:1438
+#: prefs.js:1442
 msgid "Revert option back to the default value."
 msgstr "Zet de optie terug naar de standaardwaarde."
 
-#: prefs.js:1474
+#: prefs.js:1478
 msgid "Options"
 msgstr "Opties"
 
-#: prefs.js:1480
+#: prefs.js:1484
 msgid "QR generator"
 msgstr "QR-generator"
 
-#: prefs.js:1481
+#: prefs.js:1485
 msgid ""
 "This command must read text from standard input, and write an image to the "
 "standard output."
@@ -260,11 +260,11 @@ msgstr ""
 "Deze opdracht moet tekst uit de standaardinvoer lezen en een afbeelding naar "
 "de standaarduitvoer schrijven."
 
-#: prefs.js:1488
+#: prefs.js:1492
 msgid "QR reader"
 msgstr "QR-lezer"
 
-#: prefs.js:1489
+#: prefs.js:1493
 msgid ""
 "This command must read an image from the standard input, and print the "
 "decoded URI to the standard output."
@@ -272,11 +272,11 @@ msgstr ""
 "Deze opdracht moet een afbeelding uit de standaardinvoer lezen en de "
 "gedecodeerde URI naar de standaarduitvoer afdrukken."
 
-#: prefs.js:1496
+#: prefs.js:1500
 msgid "QR scanner"
 msgstr "QR-scanner"
 
-#: prefs.js:1497
+#: prefs.js:1501
 msgid ""
 "This command must capture an image from a camera, and print the decoded URI "
 "to the standard output."
@@ -284,16 +284,16 @@ msgstr ""
 "Met deze opdracht moet een afbeelding van een camera worden vastgelegd en de "
 "gedecodeerde URI naar de standaarduitvoer worden afgedrukt."
 
-#: prefs.js:1502
+#: prefs.js:1506
 msgid "Clipboard clear delay"
 msgstr "Klembord duidelijke vertraging"
 
-#: prefs.js:1503
+#: prefs.js:1507
 msgid "Sensitive data is cleared from the clipboard after this many seconds."
 msgstr ""
 "Gevoelige gegevens worden na zoveel seconden van het klembord verwijderd."
 
-#: prefs.js:1504
+#: prefs.js:1508
 msgid ""
 "When exporting sensitive data (\"otpauth://\" URIs) they will be cleared "
 "from the clipboard after this time has passed. Authentication codes are not "
@@ -303,90 +303,90 @@ msgstr ""
 "na het verstrijken van deze tijd van het klembord verwijderd. "
 "Authenticatiecodes worden niet gewist."
 
-#: base32.js:27
+#: base32.js:28
 msgid "Invalid base32 input; missing padding."
 msgstr "Ongeldige base32-invoer - de opvulling ontbreekt."
 
-#: base32.js:43
+#: base32.js:44
 msgid "Invalid base32 character at position:"
 msgstr "Ongeldig base32-teken op positie:"
 
-#: base32.js:50
+#: base32.js:51
 msgid "Invalid padding."
 msgstr "Ongeldige opvulling."
 
-#: indicator.js:73
+#: indicator.js:74
 msgid "Settings..."
 msgstr "Instellingen..."
 
-#: indicator.js:77
+#: indicator.js:78
 msgid "OTP Secrets"
 msgstr "Otp-geheimen"
 
-#: indicator.js:129
+#: indicator.js:132
 msgid "Failed to lock OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden vergrendeld."
 
-#: indicator.js:133
+#: indicator.js:136
 msgid "Error locking OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden vergrendeld."
 
-#: indicator.js:145
+#: indicator.js:148
 msgid "Failed to unlock OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden ontgrendeld."
 
-#: indicator.js:149
+#: indicator.js:152
 msgid "Error unlocking OTP secrets."
 msgstr "De otp-geheimen kunnen niet worden ontgrendeld."
 
-#: indicator.js:176
+#: indicator.js:179
 msgid "Error retrieving OTP items."
 msgstr "De otp-items kunnen niet worden opgehaald."
 
-#: indicator.js:197
+#: indicator.js:200
 msgid "Error copying the OTP authentication code."
 msgstr "De otp-verificatiecode kan niet worden gekopieerd."
 
-#: secretUtils.js:147
+#: secretUtils.js:148
 msgid "Failed to lookup secret."
 msgstr "Het geheim kan niet worden opgevraagd."
 
-#: secretUtils.js:180
+#: secretUtils.js:181
 msgid "Failed to retrieve secret."
 msgstr "Het geheim kan niet worden opgehaald."
 
-#: secretUtils.js:213 secretUtils.js:249
+#: secretUtils.js:214 secretUtils.js:250
 msgid "Failed to lookup item."
 msgstr "Kan item niet opzoeken."
 
-#: secretUtils.js:220 secretUtils.js:256
+#: secretUtils.js:221 secretUtils.js:257
 msgid "Failed to set label."
 msgstr "Het label kan niet worden ingesteld."
 
-#: secretUtils.js:227
+#: secretUtils.js:228
 msgid "Failed to set attributes."
 msgstr "De eigenschappen kunnen niet worden ingesteld."
 
-#: secretUtils.js:233
+#: secretUtils.js:234
 msgid "Failed to set secret."
 msgstr "Het geheim kan niet worden ingesteld."
 
-#: totp.js:34 totp.js:51
+#: totp.js:35 totp.js:52
 msgid "Invalid algorithm."
 msgstr "Ongeldig algoritme."
 
-#: totp.js:118
+#: totp.js:119
 msgid "Failed to parse URI."
 msgstr "De uri kan niet worden verwerkt."
 
-#: totp.js:120
+#: totp.js:121
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Het uri-scherma dient te beginnen met ‘otpauth://…’"
 
-#: totp.js:122
+#: totp.js:123
 msgid "URI host should be \"totp\""
 msgstr "De uri-host dient ‘totp’ te zijn"
 
-#: totp.js:124
+#: totp.js:125
 msgid "Unexpected port number in URI."
 msgstr "Ongeldig poortnummer in uri."

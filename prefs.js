@@ -1,4 +1,5 @@
 /* prefs.js
+ * Copyright (C) 2025  Daniel K. O.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -1065,6 +1066,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         this.clearRows();
         try {
+            let locked = await SecretUtils.isOTPCollectionLocked();
+            if (locked)
+                return;
             const items = await SecretUtils.getOTPItems();
             this.#lock_button.updateState();
             items.forEach(item =>
@@ -1517,7 +1521,6 @@ class OptionsGroup extends Adw.PreferencesGroup {
                       Gio.SettingsBindFlags.DEFAULT);
 
         this.add(cb_clear_delay);
-
     }
 
 

@@ -1,4 +1,5 @@
 /* indicator.js
+ * Copyright (C) 2025  Daniel K. O.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -76,7 +77,6 @@ class Indicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(_('OTP Secrets')));
 
-
         Main.panel.addToStatusArea(ext.uuid, this);
     }
 
@@ -109,7 +109,10 @@ class Indicator extends PanelMenu.Button {
                 let locked = await SecretUtils.isOTPCollectionLocked();
                 this.#lock_item.visible = !locked;
                 this.#unlock_item.visible = locked;
-                await this.refreshTOTPItems();
+                if (locked)
+                    this.clearTOTPItems();
+                else
+                    await this.refreshTOTPItems();
             } else
                 this.clearTOTPItems();
         }
