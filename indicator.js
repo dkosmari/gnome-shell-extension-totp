@@ -1,4 +1,5 @@
 /* indicator.js
+ * Copyright (C) 2025  Daniel K. O.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -47,7 +48,6 @@ class Indicator extends PanelMenu.Button {
 
     #ext;
     #lock_item;
-    #settings;
     #totp_items = [];
     #unlock_item;
 
@@ -57,7 +57,6 @@ class Indicator extends PanelMenu.Button {
         super();
 
         this.#ext = ext;
-        this.#settings = ExtensionUtils.getSettings();
 
         this.add_child(
             new St.Icon({
@@ -113,7 +112,7 @@ class Indicator extends PanelMenu.Button {
                 let locked = await SecretUtils.isOTPCollectionLocked();
                 this.#lock_item.visible = !locked;
                 this.#unlock_item.visible = locked;
-                if (locked && this.#settings.get_boolean('hide-locked'))
+                if (locked)
                     this.clearTOTPItems();
                 else
                     await this.refreshTOTPItems();
