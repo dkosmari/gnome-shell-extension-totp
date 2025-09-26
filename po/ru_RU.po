@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-08-20 20:00-0300\n"
+"POT-Creation-Date: 2025-09-26 15:30-0300\n"
 "PO-Revision-Date: 2025-09-25 16:50+0300\n"
 "Last-Translator: Fraxinus Acer\n"
 "Language-Team: \n"
@@ -104,7 +104,7 @@ msgstr "Скопировать код в буфер обмена."
 msgid "Unlock"
 msgstr "Разблокировать"
 
-#: prefs.js:579 indicator.js:28
+#: prefs.js:579 indicator.js:31
 msgid "OTP code copied to clipboard."
 msgstr "OTP-код, скопированный в буфер обмена."
 
@@ -112,7 +112,7 @@ msgstr "OTP-код, скопированный в буфер обмена."
 msgid "QR code"
 msgstr "QR код"
 
-#: prefs.js:625 myAlertDialog.js:62
+#: prefs.js:625 myAlertDialog.js:63
 msgid "_Close"
 msgstr "_Закрыть"
 
@@ -128,8 +128,8 @@ msgid ""
 "Move this secret down; hold down the SHIFT key to move to the bottom of the "
 "list."
 msgstr ""
-"Переместить этот пароль вниз; удерживая нажатой клавишу SHIFT, переместите "
-"в конец списка."
+"Переместить этот пароль вниз; удерживая нажатой клавишу SHIFT, переместите в "
+"конец списка."
 
 #: prefs.js:736
 msgid "_Edit..."
@@ -161,11 +161,11 @@ msgstr ""
 msgid "_Import"
 msgstr "_Импортировать"
 
-#: prefs.js:910 indicator.js:69
+#: prefs.js:910 indicator.js:72
 msgid "Unlock OTP secrets..."
 msgstr "Разблокировать пароли OTP..."
 
-#: prefs.js:913 indicator.js:65
+#: prefs.js:913 indicator.js:68
 msgid "Lock OTP secrets"
 msgstr "Заблокировать пароли OTP"
 
@@ -305,90 +305,90 @@ msgstr ""
 "из буфера обмена по истечении этого времени. Коды аутентификации не "
 "очищаются."
 
-#: base32.js:28
+#: base32.js:27
 msgid "Invalid base32 input; missing padding."
 msgstr "Неверный ввод base32; отсутствует отступ."
 
-#: base32.js:44
+#: base32.js:43
 msgid "Invalid base32 character at position:"
 msgstr "Недопустимый символ base32 в позиции:"
 
-#: base32.js:51
+#: base32.js:50
 msgid "Invalid padding."
 msgstr "Недопустимое заполнение."
 
-#: indicator.js:74
+#: indicator.js:77
 msgid "Settings..."
 msgstr "Настройки..."
 
-#: indicator.js:78
+#: indicator.js:81
 msgid "OTP Secrets"
 msgstr "OTP пароли"
 
-#: indicator.js:132
+#: indicator.js:135
 msgid "Failed to lock OTP secrets."
 msgstr "Не удалось заблокировать OTP-пароли."
 
-#: indicator.js:136
+#: indicator.js:139
 msgid "Error locking OTP secrets."
 msgstr "Ошибка блокировки паролей OTP."
 
-#: indicator.js:148
+#: indicator.js:151
 msgid "Failed to unlock OTP secrets."
 msgstr "Не удалось разблокировать OTP-пароли."
 
-#: indicator.js:152
+#: indicator.js:155
 msgid "Error unlocking OTP secrets."
 msgstr "Ошибка разблокировки OTP-паролей."
 
-#: indicator.js:179
+#: indicator.js:182
 msgid "Error retrieving OTP items."
 msgstr "Ошибка при извлечении элементов OTP."
 
-#: indicator.js:200
+#: indicator.js:203
 msgid "Error copying the OTP authentication code."
 msgstr "Ошибка при копировании кода аутентификации OTP."
 
-#: secretUtils.js:148
+#: secretUtils.js:143
 msgid "Failed to lookup secret."
 msgstr "Не удалось найти пароль."
 
-#: secretUtils.js:181
+#: secretUtils.js:175
 msgid "Failed to retrieve secret."
 msgstr "Не удалось восстановить пароль."
 
-#: secretUtils.js:214 secretUtils.js:250
+#: secretUtils.js:207 secretUtils.js:242
 msgid "Failed to lookup item."
 msgstr "Не удалось выполнить поиск элемента."
 
-#: secretUtils.js:221 secretUtils.js:257
+#: secretUtils.js:214 secretUtils.js:249
 msgid "Failed to set label."
 msgstr "Не удалось установить метку."
 
-#: secretUtils.js:228
+#: secretUtils.js:221
 msgid "Failed to set attributes."
 msgstr "Не удалось установить атрибуты."
 
-#: secretUtils.js:234
+#: secretUtils.js:227
 msgid "Failed to set secret."
 msgstr "Не удалось установить пароль."
 
-#: totp.js:35 totp.js:52
+#: totp.js:37 totp.js:54
 msgid "Invalid algorithm."
 msgstr "Неверный алгоритм."
 
-#: totp.js:119
+#: totp.js:121
 msgid "Failed to parse URI."
 msgstr "Не удалось разобрать URI."
 
-#: totp.js:121
+#: totp.js:123
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Схема URI должна быть \"otpauth://...\""
 
-#: totp.js:123
+#: totp.js:125
 msgid "URI host should be \"totp\""
 msgstr "URI хоста должен быть \"totp\""
 
-#: totp.js:125
+#: totp.js:127
 msgid "Unexpected port number in URI."
 msgstr "Неожиданный номер порта в URI."
