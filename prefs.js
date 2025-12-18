@@ -251,7 +251,7 @@ class SecretDialog extends Gtk.Dialog {
     }
 
     static digits_list = ['5', '6', '7', '8'];
-    static period_list = ['15', '30', '60'];
+    static period_list = ['15', '30', '45', '60'];
     static algorithm_list = ['SHA-1', 'SHA-256', 'SHA-512'];
 
 
