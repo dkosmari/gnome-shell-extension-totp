@@ -24,7 +24,7 @@ function now()
 
 
 var TOTP =
-class TOTP extends OTP {
+class TOTP extends OTP.OTP {
 
     constructor({
         issuer = '',
