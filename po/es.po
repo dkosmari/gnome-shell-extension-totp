@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 16:17-0300\n"
+"POT-Creation-Date: 2025-12-23 18:05-0300\n"
 "PO-Revision-Date: 2024-04-14 09:14-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -377,23 +377,23 @@ msgstr "No se pudo buscar el secreto."
 msgid "Failed to retrieve secret."
 msgstr "No se pudo recuperar el secreto."
 
-#: secretUtils.js:259 secretUtils.js:297 secretUtils.js:320
+#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
 msgid "Failed to lookup item."
 msgstr "No se pudo buscar el artículo."
 
-#: secretUtils.js:266 secretUtils.js:304
+#: secretUtils.js:265 secretUtils.js:303
 msgid "Failed to set label."
 msgstr "No se pudo establecer la etiqueta."
 
-#: secretUtils.js:273
+#: secretUtils.js:272
 msgid "Failed to set attributes."
 msgstr "No se pudieron establecer los atributos."
 
-#: secretUtils.js:279
+#: secretUtils.js:278
 msgid "Failed to set secret."
 msgstr "No se pudo escribir el secreto."
 
-#: secretUtils.js:329
+#: secretUtils.js:328
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "No se pudo escribir el secreto."
@@ -403,22 +403,22 @@ msgstr "No se pudo escribir el secreto."
 msgid "URI host should be \"hotp\""
 msgstr "El host URI debe ser \"totp\""
 
-#: otp.js:40 otp.js:59
+#: otp.js:43 otp.js:62
 msgid "Invalid algorithm."
 msgstr "Algoritmo no válido."
 
-#: otp.js:108
+#: otp.js:111
 msgid "Failed to parse URI."
 msgstr "No se pudo analizar el URI."
 
-#: otp.js:110
+#: otp.js:113
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "El esquema de URI debe ser \"otpauth://...\""
 
-#: otp.js:112
+#: otp.js:115
 msgid "Unexpected port number in URI."
 msgstr "Número de puerto inesperado en URI."
 
-#: totp.js:52
+#: totp.js:54
 msgid "URI host should be \"totp\""
 msgstr "El host URI debe ser \"totp\""

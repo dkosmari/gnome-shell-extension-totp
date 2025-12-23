@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 16:17-0300\n"
+"POT-Creation-Date: 2025-12-23 18:05-0300\n"
 "PO-Revision-Date: 2024-11-24 10:29+0100\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
@@ -375,23 +375,23 @@ msgstr "A titok keresése sikertelen."
 msgid "Failed to retrieve secret."
 msgstr "A titok lekérdezése sikertelen."
 
-#: secretUtils.js:259 secretUtils.js:297 secretUtils.js:320
+#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
 msgid "Failed to lookup item."
 msgstr "Az elem keresése sikertelen."
 
-#: secretUtils.js:266 secretUtils.js:304
+#: secretUtils.js:265 secretUtils.js:303
 msgid "Failed to set label."
 msgstr "A címke beállítása sikertelen."
 
-#: secretUtils.js:273
+#: secretUtils.js:272
 msgid "Failed to set attributes."
 msgstr "Az attribútumok beállítása sikertelen."
 
-#: secretUtils.js:279
+#: secretUtils.js:278
 msgid "Failed to set secret."
 msgstr "Nem sikerült beállítani a titkot."
 
-#: secretUtils.js:329
+#: secretUtils.js:328
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Nem sikerült beállítani a titkot."
@@ -401,22 +401,22 @@ msgstr "Nem sikerült beállítani a titkot."
 msgid "URI host should be \"hotp\""
 msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
 
-#: otp.js:40 otp.js:59
+#: otp.js:43 otp.js:62
 msgid "Invalid algorithm."
 msgstr "Érvénytelen algoritmus."
 
-#: otp.js:108
+#: otp.js:111
 msgid "Failed to parse URI."
 msgstr "Nem sikerült elemezni az URI-t."
 
-#: otp.js:110
+#: otp.js:113
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Az URI-sémának a következőnek kell lennie: „otpauth://...”"
 
-#: otp.js:112
+#: otp.js:115
 msgid "Unexpected port number in URI."
 msgstr "Váratlan portszám az URI-ban."
 
-#: totp.js:52
+#: totp.js:54
 msgid "URI host should be \"totp\""
 msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
