@@ -25,6 +25,8 @@ EXTRA_SOURCES := \
 	myEntryRow.js \
 	mySpinRow.js \
 	secretUtils.js \
+	hotp.js \
+	otp.js \
 	totp.js
 
 

@@ -30,7 +30,7 @@ Gio._promisify(Secret.Service.prototype, 'unlock', 'unlock_finish');
 const OTP_COLLECTION_DBUS_PATH = '/org/freedesktop/secrets/collection/OTP';
 
 
-function makeSchema()
+function makeSchemaTOTP()
 {
     return new Secret.Schema('org.gnome.shell.extensions.totp',
                              Secret.SchemaFlags.NONE,
@@ -42,6 +42,31 @@ function makeSchema()
                                  period    : Secret.SchemaAttributeType.INTEGER,
                                  algorithm : Secret.SchemaAttributeType.STRING
                              });
+}
+
+
+function makeSchemaHOTP()
+{
+    return new Secret.Schema('org.gnome.shell.extensions.totp',
+                             Secret.SchemaFlags.NONE,
+                             {
+                                 type      : Secret.SchemaAttributeType.STRING,
+                                 issuer    : Secret.SchemaAttributeType.STRING,
+                                 name      : Secret.SchemaAttributeType.STRING,
+                                 digits    : Secret.SchemaAttributeType.INTEGER,
+                                 counter   : Secret.SchemaAttributeType.INTEGER,
+                                 algorithm : Secret.SchemaAttributeType.STRING
+                             });
+}
+
+
+function makeSchemaFor(otp)
+{
+    if (otp.type == 'TOTP')
+        return makeSchemaTOTP();
+    if (otp.type == 'HOTP')
+        return makeSchemaHOTP();
+    throw new Error(`BUG: otp.type is ${otp.type}`);
 }
 
 
@@ -123,11 +148,16 @@ async function getOTPItems(unlock = false)
         let flags = Secret.SearchFlags.ALL;
         if (unlock)
             flags |= Secret.SearchFlags.UNLOCK;
-        const items = await Secret.password_search(makeSchema(),
-                                                   { type: 'TOTP' },
-                                                   flags,
-                                                   null);
+        const totp_items = await Secret.password_search(makeSchemaTOTP(),
+                                                        { type: 'TOTP' },
+                                                        flags,
+                                                        null);
+        const hotp_items = await Secret.password_search(makeSchemaHOTP(),
+                                                        { type: 'HOTP' },
+                                                        flags,
+                                                        null);
         // return them sorted, using the label
+        const items = totp_items.concat(hotp_items);
         items.sort((a, b) => getOrder(a.get_label()) - getOrder(b.get_label()));
         return items;
     }
@@ -138,10 +168,13 @@ async function getOTPItems(unlock = false)
 
 
 export
-async function getOTPItem(totp)
+async function getOTPItem(otp)
 {
-    const [item] = await Secret.password_search(makeSchema(),
-                                                makeAttributes(totp),
+    let match = makeAttributesFor(otp);
+    if (otp.type == 'HOTP')
+        delete match.counter; // don't match the counter
+    const [item] = await Secret.password_search(makeSchemaFor(otp),
+                                                match,
                                                 Secret.SearchFlags.LOAD_SECRETS, // don't unlock
                                                 null);
     if (!item)
@@ -151,20 +184,31 @@ async function getOTPItem(totp)
 
 
 // libsecret wants the attributes to all be strings
-function makeAttributes({issuer, name, digits, period, algorithm})
+function makeAttributesFor(otp)
 {
-    return {
-        type: 'TOTP',
-        issuer: issuer,
-        name: name,
-        digits: digits.toString(),
-        period: period.toString(),
-        algorithm: algorithm
-    };
+    if (otp.type == 'TOTP')
+        return {
+            type: 'TOTP',
+            issuer: otp.issuer,
+            name: otp.name,
+            digits: otp.digits.toString(),
+            period: otp.period.toString(),
+            algorithm: otp.algorithm
+        };
+    if (otp.type == 'HOTP')
+        return {
+            type: 'HOTP',
+            issuer: otp.issuer,
+            name: otp.name,
+            digits: otp.digits.toString(),
+            counter: otp.counter.toString(),
+            algorithm: otp.algorithm
+        };
+    throw new Error(`BUG: otp.type is "${otp.type}"`);
 }
 
 
-function makeLabel({issuer, name}, order = -1)
+function makeLabelFor({issuer, name}, order = -1)
 {
     const prefix = order > -1 ? order : "-";
     return `${prefix}:${issuer}:${name}`;
@@ -172,13 +216,17 @@ function makeLabel({issuer, name}, order = -1)
 
 
 export
-async function getSecret(args)
+async function getSecret(otp)
 {
-    const secret = await Secret.password_lookup(makeSchema(),
-                                                makeAttributes(args),
+    const match = makeAttributesFor(otp);
+    if (otp.type == 'HOTP')
+        delete match.counter;
+    const secret = await Secret.password_lookup(makeSchemaFor(otp),
+                                                match,
                                                 null);
-    if (secret == null)
+    if (secret == null) {
         throw new Error(_('Failed to retrieve secret.'));
+    }
     return secret;
 }
 
@@ -199,14 +247,17 @@ function equalDictionaries(a, b)
 
 
 export
-async function updateTOTPItem(old_totp, new_totp)
+async function updateOTPItem(old_otp, new_otp)
 {
     const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    const old_attributes = makeAttributes(old_totp);
-    const [item] = await service.search(makeSchema(),
-                                        old_attributes,
+    const old_attr = makeAttributesFor(old_otp);
+    const match = {...old_attr};
+    if (old_otp.type == 'HOTP')
+        delete match.counter; // don't match the counter
+    const [item] = await service.search(makeSchemaFor(old_otp),
+                                        match,
                                         Secret.SearchFlags.UNLOCK
                                         | Secret.SearchFlags.LOAD_SECRETS,
                                         null);
@@ -215,21 +266,21 @@ async function updateTOTPItem(old_totp, new_totp)
 
     // check if label changed
     const old_label = item.get_label();
-    const new_label = makeLabel(new_totp, getOrder(old_label));
+    const new_label = makeLabelFor(new_otp, getOrder(old_label));
     if (old_label != new_label)
         if (!await item.set_label(new_label, null))
             throw new Error(_('Failed to set label.'));
 
     // check if attributes changed
-    const new_attributes = makeAttributes(new_totp);
+    const new_attr = makeAttributesFor(new_otp);
 
-    if (!equalDictionaries(old_attributes, new_attributes))
-        if (!await item.set_attributes(makeSchema(), new_attributes, null))
+    if (!equalDictionaries(old_attr, new_attr))
+        if (!await item.set_attributes(makeSchemaFor(new_otp), new_attr, null))
             throw new Error(_('Failed to set attributes.'));
 
     // check if secret changed
-    if (old_totp.secret != new_totp.secret) {
-        const secret_value = new Secret.Value(new_totp.secret, -1, "text/plain");
+    if (old_otp.secret != new_otp.secret) {
+        const secret_value = new Secret.Value(new_otp.secret, -1, "text/plain");
         if (!await item.set_secret(secret_value, null))
             throw new Error(_('Failed to set secret.'));
     }
@@ -237,20 +288,23 @@ async function updateTOTPItem(old_totp, new_totp)
 
 
 export
-async function updateTOTPOrder(totp, order)
+async function updateOTPOrder(otp, order)
 {
     const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    const [item] = await service.search(makeSchema(),
-                                        makeAttributes(totp),
+    const match = makeAttributesFor(otp);
+    if (otp.type == 'HOTP')
+        delete match.counter;
+    const [item] = await service.search(makeSchemaFor(otp),
+                                        match,
                                         Secret.SearchFlags.NONE,
                                         null);
     if (!item)
         throw new Error(_('Failed to lookup item.'));
 
     const old_label = item.get_label();
-    const new_label = makeLabel(totp, order);
+    const new_label = makeLabelFor(otp, order);
     if (new_label == old_label)
         return;
     if (!await item.set_label(new_label, null))
@@ -259,22 +313,48 @@ async function updateTOTPOrder(totp, order)
 
 
 export
-async function createTOTPItem(totp, order)
+async function incrementHOTP(otp)
+{
+    const service = await Secret.Service.get(
+        Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
+        null);
+    const match = makeAttributesFor(otp);
+    delete match.counter;
+    const [item] = await service.search(makeSchemaFor(otp),
+                                        match,
+                                        Secret.SearchFlags.NONE,
+                                        null);
+    if (!item)
+        throw new Error(_('Failed to lookup item.'));
+
+    const old_counter = parseInt(item.get_attributes().counter);
+    const new_counter = old_counter + 1;
+    const new_attr = makeAttributesFor(otp);
+    new_attr.counter = new_counter.toString();
+    if (!await item.set_attributes(makeSchemaFor(otp),
+                                   new_attr,
+                                   null))
+        throw new Error(_('Failed to set counter.'));
+    return new_counter;
+}
+
+export
+async function createOTPItem(otp, order)
 {
     await ensureCollection();
-    return await Secret.password_store(makeSchema(),
-                                       makeAttributes(totp),
+    return await Secret.password_store(makeSchemaFor(otp),
+                                       makeAttributesFor(otp),
                                        OTP_COLLECTION_DBUS_PATH,
-                                       makeLabel(totp, order),
-                                       totp.secret,
+                                       makeLabelFor(otp, order),
+                                       otp.secret,
                                        null);
 }
 
 
 export
-async function removeTOTPItem(totp)
+async function removeOTPItem(otp)
 {
-    return await Secret.password_clear(makeSchema(),
-                                       makeAttributes(totp),
+    return await Secret.password_clear(makeSchemaFor(otp),
+                                       makeAttributesFor(otp),
                                        null);
 }
