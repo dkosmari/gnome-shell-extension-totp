@@ -16,6 +16,7 @@ const PopupMenu = imports.ui.popupMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+const HOTP        = Me.imports.hotp.HOTP;
 const SecretUtils = Me.imports.secretUtils;
 const TOTP        = Me.imports.totp.TOTP;
 
@@ -48,7 +49,7 @@ class Indicator extends PanelMenu.Button {
 
     #ext;
     #lock_item;
-    #totp_items = [];
+    #otp_items = [];
     #unlock_item;
 
 
@@ -66,16 +67,16 @@ class Indicator extends PanelMenu.Button {
         );
 
         this.#lock_item = this.menu.addAction(_('Lock OTP secrets'),
-                                              this.lockTOTPSecrets.bind(this),
+                                              this.lockOTPSecrets.bind(this),
                                               'changes-prevent-symbolic');
 
         this.#unlock_item = this.menu.addAction(_('Unlock OTP secrets...'),
-                                                this.unlockTOTPSecrets.bind(this),
+                                                this.unlockOTPSecrets.bind(this),
                                                 'changes-allow-symbolic');
         this.#unlock_item.visible = !this.#lock_item.visible;
 
         this.menu.addAction(_('Settings...'),
-                            this.editTOTPSecrets.bind(this),
+                            this.editOTPSecrets.bind(this),
                             'preferences-other-symbolic');
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(_('OTP Secrets')));
@@ -98,7 +99,7 @@ class Indicator extends PanelMenu.Button {
         this.#unlock_item.destroy();
         this.#unlock_item = null;
 
-        this.clearTOTPItems();
+        this.clearOTPItems();
         super.destroy();
     }
 
@@ -113,11 +114,11 @@ class Indicator extends PanelMenu.Button {
                 this.#lock_item.visible = !locked;
                 this.#unlock_item.visible = locked;
                 if (locked)
-                    this.clearTOTPItems();
+                    this.clearOTPItems();
                 else
-                    await this.refreshTOTPItems();
+                    await this.refreshOTPItems();
             } else
-                this.clearTOTPItems();
+                this.clearOTPItems();
         }
         catch (e) {
             logError(e);
@@ -125,7 +126,7 @@ class Indicator extends PanelMenu.Button {
     }
 
 
-    async lockTOTPSecrets()
+    async lockOTPSecrets()
     {
         try {
             if (!await SecretUtils.lockOTPCollection())
@@ -141,7 +142,7 @@ class Indicator extends PanelMenu.Button {
     }
 
 
-    async unlockTOTPSecrets()
+    async unlockOTPSecrets()
     {
         try {
             if (!await SecretUtils.unlockOTPCollection())
@@ -157,24 +158,31 @@ class Indicator extends PanelMenu.Button {
     }
 
 
-    editTOTPSecrets()
+    editOTPSecrets()
     {
         this.#ext.openPreferences();
     }
 
 
-    async refreshTOTPItems()
+    async refreshOTPItems()
     {
         try {
             let secrets = await SecretUtils.getOTPItems();
-            this.clearTOTPItems();
+            this.clearOTPItems();
             secrets.forEach(x => {
-                let totp = new TOTP(x.get_attributes());
-                let label = makeLabel(totp);
+                let otp = null;
+                let args = x.get_attributes();
+                if (args.type == 'TOTP')
+                    otp = new TOTP(args);
+                if (args.type == 'HOTP')
+                    otp = new HOTP(args);
+                if (otp == null)
+                    throw Error(`BUG: args.type is ${args.type}`);
+                let label = makeLabel(otp);
                 let item = this.menu.addAction(label,
-                                               this.copyCode.bind(this, totp),
+                                               this.copyCode.bind(this, otp),
                                                'edit-copy-symbolic');
-                this.#totp_items.push(item);
+                this.#otp_items.push(item);
             });
         }
         catch (e) {
@@ -184,18 +192,22 @@ class Indicator extends PanelMenu.Button {
     }
 
 
-    clearTOTPItems()
+    clearOTPItems()
     {
-        this.#totp_items.forEach(x => x.destroy());
-        this.#totp_items = [];
+        this.#otp_items.forEach(x => x.destroy());
+        this.#otp_items = [];
     }
 
 
-    async copyCode(totp)
+    async copyCode(otp)
     {
         try {
-            totp.secret = await SecretUtils.getSecret(totp);
-            const code = totp.code();
+            otp.secret = await SecretUtils.getSecret(otp);
+            const code = otp.code();
+            if (otp.type == 'HOTP') {
+                const new_otp = otp.incremented();
+                await SecretUtils.updateOTPItem(otp, new_otp);
+            }
             copyToClipboard(code);
         }
         catch (e) {

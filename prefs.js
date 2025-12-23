@@ -19,6 +19,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const _ = ExtensionUtils.gettext;
 
 const Base32        = Me.imports.base32;
+const HOTP          = Me.imports.hotp.HOTP;
 const MyAlertDialog = Me.imports.myAlertDialog.AlertDialog;
 const MyEntryRow    = Me.imports.myEntryRow.EntryRow;
 const MySpinRow     = Me.imports.mySpinRow.SpinRow;
@@ -102,15 +103,60 @@ function makeStringList(...strings)
 }
 
 
-function totpToVariant(totp)
+function dict2OTP(dict)
 {
-    return new GLib.Variant('a{sv}', {
-        issuer    : GLib.Variant.new_string(totp.issuer),
-        name      : GLib.Variant.new_string(totp.name),
-        digits    : GLib.Variant.new_uint32(totp.digits),
-        period    : GLib.Variant.new_uint32(totp.period),
-        algorithm : GLib.Variant.new_string(totp.algorithm),
-    });
+    if (dict.type == 'TOTP')
+        return new TOTP(dict);
+    if (dict.type == 'HOTP')
+        return new HOTP(dict);
+    // log("dict is ", dict);
+    throw new Error(`dict is ${dict}`);
+}
+
+
+function OTP2variant(otp)
+{
+    if (otp.type == 'TOTP')
+        return new GLib.Variant('a{sv}', {
+            type      : GLib.Variant.new_string(otp.type),
+            issuer    : GLib.Variant.new_string(otp.issuer),
+            name      : GLib.Variant.new_string(otp.name),
+            digits    : GLib.Variant.new_uint32(otp.digits),
+            period    : GLib.Variant.new_uint32(otp.period),
+            algorithm : GLib.Variant.new_string(otp.algorithm),
+        });
+    if (otp.type == 'HOTP')
+        return new GLib.Variant('a{sv}', {
+            type      : GLib.Variant.new_string(otp.type),
+            issuer    : GLib.Variant.new_string(otp.issuer),
+            name      : GLib.Variant.new_string(otp.name),
+            digits    : GLib.Variant.new_uint32(otp.digits),
+            counter   : GLib.Variant.new_uint32(otp.counter),
+            algorithm : GLib.Variant.new_string(otp.algorithm),
+        });
+    throw new Error(`BUG: otp.type is ${otp.type}`);
+}
+
+
+function variant2OTP(args)
+{
+    return dict2OTP(args.recursiveUnpack());
+}
+
+
+function uri2OTP(uri)
+{
+    try {
+        return new TOTP({ uri: uri });
+    }
+    catch (e1) {
+        try {
+            return new HOTP({ uri: uri });
+        }
+        catch (e2) {
+            throw Error(`1: ${e1}\n2:${e2}`);
+        }
+    }
 }
 
 
@@ -250,9 +296,11 @@ class SecretDialog extends Gtk.Dialog {
                             (obj, name, arg) => obj.importURI(arg.unpack()));
     }
 
+    static type_list = ['TOTP', 'HOTP'];
+    static secret_type_list = ['Base32', 'Base64'];
     static digits_list = ['5', '6', '7', '8'];
     static period_list = ['15', '30', '45', '60'];
-    static algorithm_list = ['SHA-1', 'SHA-256', 'SHA-512'];
+    static algorithm_list = ['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'];
 
 
     #reject;
@@ -260,9 +308,9 @@ class SecretDialog extends Gtk.Dialog {
     #ui = {};
 
 
-    constructor({ title, totp, settings })
+    constructor({ title, otp, settings })
     {
-        const fields = totp.fields_non_destructive();
+        const fields = otp.fields_non_destructive();
 
         super({
             title: title,
@@ -289,6 +337,19 @@ class SecretDialog extends Gtk.Dialog {
         box.append(new PasteButton(settings));
         box.append(new ScanQRButton(settings));
 
+        // UI: type
+        this.#ui.type_drop = new Gtk.DropDown({
+            model: makeStringList(...SecretDialog.type_list),
+            selected: SecretDialog.type_list.indexOf(fields.type),
+        });
+
+        this.#ui.type_drop.connect('notify::selected-item', () => this.changedOTPtype());
+        this.#ui.type = new Adw.ActionRow({
+            title: _('Type'),
+            subtitle: _('Select time-based or counter-based OTP')
+        });
+        this.#ui.type.add_suffix(this.#ui.type_drop);
+        group.add(this.#ui.type);
 
         // UI: issuer
         this.#ui.issuer = new EntryRow({
@@ -312,7 +373,7 @@ class SecretDialog extends Gtk.Dialog {
             tooltip_text: _('The shared secret key.')
         });
         this.#ui.secret_type = new Gtk.DropDown({
-            model: makeStringList('Base32', 'Base64'),
+            model: makeStringList(...SecretDialog.secret_type_list),
             selected: 0,
             tooltip_text: _('How the secret key is encoded.')
         });
@@ -336,9 +397,27 @@ class SecretDialog extends Gtk.Dialog {
             subtitle: _('Time between code updates, in seconds.'),
             subtitle_lines: 1,
             model: makeStringList(...SecretDialog.period_list),
-            selected: SecretDialog.period_list.indexOf(fields.period)
+            selected: SecretDialog.period_list.indexOf(fields.period || '30')
         });
         group.add(this.#ui.period);
+
+        // UI: counter
+        const counter = parseInt(fields.counter || '0');
+        this.#ui.counter = new SpinRow({
+            title: _('Counter'),
+            tooltip_text: _('This counter must be synchronized with the server, and it increments every time a code is generated.'),
+            adjustment: new Gtk.Adjustment({
+                value: counter,
+                lower: 0,
+                upper: Number.MAX_SAFE_INTEGER,
+                step_increment: 1,
+                page_increment: 10,
+            }),
+            numeric: true,
+            width_chars: 5,
+            value: counter,
+        });
+        group.add(this.#ui.counter);
 
         // UI: algorithm
         this.#ui.algorithm = new Adw.ComboRow({
@@ -361,6 +440,8 @@ class SecretDialog extends Gtk.Dialog {
 
         // make sure the Issuer is focused
         this.#ui.issuer.grab_focus();
+
+        this.changedOTPtype();
     }
 
 
@@ -376,39 +457,72 @@ class SecretDialog extends Gtk.Dialog {
     on_response(response)
     {
         this.#resolve(response == Gtk.ResponseType.OK
-                      ? this.getTOTP()
+                      ? this.getOTP()
                       : null);
         this.close();
     }
 
 
-    getTOTP()
+    getOTP()
     {
         let secret = this.#ui.secret.text;
-        if (this.#ui.secret_type.selected == 1) // base64 -> base32
+        if (this.#ui.secret_type.selected_item.string == 'Base64')
             secret = Base32.encode(GLib.base64_decode(secret));
 
-        return new TOTP({
-            issuer: this.#ui.issuer.text,
-            name: this.#ui.name.text,
-            secret: secret,
-            digits: parseInt(this.#ui.digits.selected_item.string),
-            period: parseInt(this.#ui.period.selected_item.string),
-            algorithm: this.#ui.algorithm.selected_item.string
-        });
+        const type = this.#ui.type_drop.selected_item.string;
+        if (type == 'TOTP')
+            return new TOTP({
+                issuer: this.#ui.issuer.text,
+                name: this.#ui.name.text,
+                secret: secret,
+                digits: parseInt(this.#ui.digits.selected_item.string),
+                period: parseInt(this.#ui.period.selected_item.string),
+                algorithm: this.#ui.algorithm.selected_item.string
+            });
+        if (type == 'HOTP')
+            return new HOTP({
+                issuer: this.#ui.issuer.text,
+                name: this.#ui.name.text,
+                secret: secret,
+                digits: parseInt(this.#ui.digits.selected_item.string),
+                counter: this.#ui.counter.value,
+                algorithm: this.#ui.algorithm.selected_item.string
+            });
+        throw new Error(`BUG: type is ${type}`);
     }
 
 
-    setTOTP(totp)
+    setOTP(otp)
     {
-        const fields = totp.fields();
+        const fields = otp.fields();
+        this.#ui.type_drop.selected = SecretDialog.type_list.indexOf(fields.type);
         this.#ui.issuer.text = fields.issuer;
         this.#ui.name.text = fields.name;
         this.#ui.secret.text = fields.secret;
         this.#ui.secret_type.selected = 0;
         this.#ui.digits.selected = SecretDialog.digits_list.indexOf(fields.digits.toString());
-        this.#ui.period.selected = SecretDialog.period_list.indexOf(fields.period.toString());
+        if ('period' in fields)
+            this.#ui.period.selected = SecretDialog.period_list.indexOf(fields.period.toString());
+        if ('counter' in fields)
+            this.#ui.counter.value = fields.period;
         this.#ui.algorithm.selected = SecretDialog.algorithm_list.indexOf(fields.algorithm);
+    }
+
+
+    changedOTPtype()
+    {
+        if (!this.#ui.type_drop.selected_item)
+            return;
+        const type = this.#ui.type_drop.selected_item.string;
+        if (type == 'TOTP') {
+            this.#ui.counter.visible = false;
+            this.#ui.period.visible = true;
+        } else if (type == 'HOTP') {
+            this.#ui.period.visible = false;
+            this.#ui.counter.visible = true;
+        } else {
+            throw new Error(`BUG: type is ${type}`);
+        }
     }
 
 
@@ -428,7 +542,8 @@ class SecretDialog extends Gtk.Dialog {
     importURI(uri)
     {
         try {
-            this.setTOTP(new TOTP({ uri: uri }));
+            const otp = uri2OTP(uri);
+            this.setOTP(otp);
         }
         catch (e) {
             reportError(this.root, e);
@@ -449,18 +564,18 @@ class CopyCodeButton extends Gtk.Button {
     #expiry = 0;
     #label;
     #level;
-    #totp;
+    #otp;
     #update_source = 0;
 
 
-    constructor(totp)
+    constructor(otp)
     {
         super({
             tooltip_text: _('Copy code to clipboard.'),
             valign: Gtk.Align.CENTER,
         });
 
-        this.#totp = totp;
+        this.#otp = otp;
 
         const box = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
@@ -479,19 +594,21 @@ class CopyCodeButton extends Gtk.Button {
         });
         box.append(this.#label);
 
-        this.#level = new Gtk.LevelBar({
-            inverted: true,
-            max_value: this.#totp.period,
-            min_value: 0,
-            mode: Gtk.LevelBarMode.CONTINUOUS,
-            orientation: Gtk.Orientation.VERTICAL
-        });
-        this.#level.add_css_class('totp-code-level');
-        this.#level.add_offset_value('full', this.#totp.period);
-        this.#level.add_offset_value('high', 10);
-        this.#level.add_offset_value('low', 5);
+        if (this.#otp.type == 'TOTP') {
+            this.#level = new Gtk.LevelBar({
+                inverted: true,
+                max_value: this.#otp.period,
+                min_value: 0,
+                mode: Gtk.LevelBarMode.CONTINUOUS,
+                orientation: Gtk.Orientation.VERTICAL
+            });
+            this.#level.add_css_class('totp-code-level');
+            this.#level.add_offset_value('full', this.#otp.period);
+            this.#level.add_offset_value('high', 10);
+            this.#level.add_offset_value('low', 5);
 
-        box.append(this.#level);
+            box.append(this.#level);
+        }
 
         this.#update_source = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
                                                500,
@@ -505,7 +622,6 @@ class CopyCodeButton extends Gtk.Button {
                                                    }
                                                    return GLib.SOURCE_CONTINUE;
                                                });
-
     }
 
 
@@ -518,22 +634,30 @@ class CopyCodeButton extends Gtk.Button {
     async updateCode()
     {
         try {
+            const type = this.#otp.type;
             if (this.expired()) {
-                const item = await SecretUtils.getOTPItem(this.#totp);
+                const item = await SecretUtils.getOTPItem(this.#otp);
                 if (item.locked) {
-                    this.#level.value = 0;
+                    if (type == 'TOTP')
+                        this.#level.value = 0;
                     this.#label.label = _('Unlock');
                     this.#label.use_markup = false;
                     return;
                 }
 
-                this.#totp.secret = await SecretUtils.getSecret(this.#totp);
+                this.#otp.secret = await SecretUtils.getSecret(this.#otp);
 
-                const [code, expiry] = this.#totp.code_and_expiry();
-                this.#expiry = expiry;
-                this.#code = code;
+                if (type == 'TOTP') {
+                    const [code, expiry] = this.#otp.code_and_expiry();
+                    this.#expiry = expiry;
+                    this.#code = code;
+                } else if (type == 'HOTP') {
+                    this.#code = this.#otp.code();
+                }
             }
-            this.#level.value = Math.max(this.#expiry - now(), 0);
+
+            if (type == 'TOTP')
+                this.#level.value = Math.max(this.#expiry - now(), 0);
             this.#label.label = `<tt>${this.#code}</tt>`;
             this.#label.use_markup = true;
         }
@@ -541,7 +665,7 @@ class CopyCodeButton extends Gtk.Button {
             /*
              * Note: errors here are harmless, it usually means the item was deleted or
              * edited while this async function was running. So we just disable the button
-             * and call .destroy() to disable the callback.
+             * and cancel future updates.
              */
             this.sensitive = false;
             this.cancelUpdates();
@@ -560,6 +684,8 @@ class CopyCodeButton extends Gtk.Button {
 
     expired()
     {
+        if (this.#otp.type == 'HOTP')
+            return true;
         if (!this.#expiry == 0 || !this.#code)
             return true;
         if (this.#expiry < now())
@@ -571,15 +697,21 @@ class CopyCodeButton extends Gtk.Button {
     async on_clicked()
     {
         try {
-            this.#totp.secret = await SecretUtils.getSecret(this.#totp);
-            const code = this.#totp.code();
+            this.#otp.secret = await SecretUtils.getSecret(this.#otp);
+            const code = this.#otp.code();
+            if (this.#otp.type == 'HOTP') {
+                const new_otp = this.#otp.incremented();
+                // log(`old: ${this.#otp.counter}, new: ${new_otp.counter}`);
+                await SecretUtils.updateOTPItem(this.#otp, new_otp);
+                this.#otp.counter = new_otp.counter;
+            }
             const arg = new GLib.Variant('(ssb)',
                                          [
                                              code,
                                              _('OTP code copied to clipboard.'),
                                              false
                                          ]);
-            this.activate_action('totp.copy-to-clipboard', arg);
+            this.activate_action('otp.copy-to-clipboard', arg);
         }
         catch (e) {
             reportError(this.root, e);
@@ -653,7 +785,7 @@ class MoveButton extends Gtk.Button {
                            : _('Move this secret down; hold down the SHIFT key to move to the bottom of the list.'))
         });
         this.add_css_class('flat');
-        this.add_css_class('totp-sort-button');
+        this.add_css_class('otp-sort-button');
         this.#group = group;
         this.#row = row;
         this.#direction = direction;
@@ -695,17 +827,17 @@ class SecretRow extends Adw.ActionRow {
     #up_button;
 
 
-    constructor(totp, group, settings)
+    constructor(otp, group, settings)
     {
         super({
-            title: totp.issuer,
+            title: otp.issuer,
             title_lines: 1,
-            subtitle: totp.name,
+            subtitle: otp.name,
             subtitle_lines: 1,
         });
 
 
-        this._totp = totp; // used by storeAllRowsOrders()
+        this._otp = otp; // used by storeAllRowsOrders()
 
         const box = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
@@ -719,7 +851,7 @@ class SecretRow extends Adw.ActionRow {
         box.append(this.#up_button);
         box.append(this.#down_button);
 
-        this.#copy_code_button = new CopyCodeButton(totp);
+        this.#copy_code_button = new CopyCodeButton(otp);
         this.add_suffix(this.#copy_code_button);
 
 
@@ -729,21 +861,21 @@ class SecretRow extends Adw.ActionRow {
         const add_item = (label, action) => {
             const item = new Gio.MenuItem();
             item.set_label(label);
-            item.set_action_and_target_value(action, totpToVariant(totp));
+            item.set_action_and_target_value(action, OTP2variant(otp));
             menu.append_item(item);
         };
 
         add_item(_('_Edit...'),
-                 'totp.edit-secret');
+                 'otp.edit-secret');
 
         add_item(_('_Copy to clipboard'),
-                 'totp.export-secret-clipboard');
+                 'otp.export-secret-clipboard');
 
         add_item(_('Export to _QR code...'),
-                 'totp.export-secret-qr');
+                 'otp.export-secret-qr');
 
         add_item(_('_Remove'),
-                 'totp.remove-secret');
+                 'otp.remove-secret');
 
         this.add_suffix(new Gtk.MenuButton({
             icon_name: 'open-menu-symbolic',
@@ -926,7 +1058,7 @@ class LockButton extends Gtk.Button {
                 ? await SecretUtils.unlockOTPCollection()
                 : await SecretUtils.lockOTPCollection();
             await this.updateState();
-            this.activate_action('totp.refresh', null);
+            this.activate_action('otp.refresh', null);
         }
         catch (e) {
             reportError(this.root, e);
@@ -941,38 +1073,37 @@ class SecretsGroup extends Adw.PreferencesGroup {
     static {
         GObject.registerClass(this);
 
-        this.install_action('totp.create', null,
+        this.install_action('otp.create', null,
                             obj => obj.createSecret());
 
-        this.install_action('totp.refresh', null,
+        this.install_action('otp.refresh', null,
                             obj => obj.refreshRows());
 
-        this.install_action('totp.import', null,
+        this.install_action('otp.import', null,
                             obj => obj.importSecrets());
 
-        this.install_action('totp.export-all', null,
+        this.install_action('otp.export-all', null,
                             obj => obj.exportAllSecrets());
 
-        this.install_action('totp.copy-to-clipboard', '(ssb)',
+        this.install_action('otp.copy-to-clipboard', '(ssb)',
                             (obj, name, args) =>
-                            obj.copyToClipboard(...args.recursiveUnpack()));
+                                obj.copyToClipboard(...args.recursiveUnpack()));
 
-        this.install_action('totp.edit-secret', 'a{sv}',
+        this.install_action('otp.edit-secret', 'a{sv}',
                             (obj, name, args) =>
-                                obj.editSecret(new TOTP(args.recursiveUnpack())));
+                                obj.editSecret(variant2OTP(args)));
 
-        this.install_action('totp.export-secret-clipboard', 'a{sv}',
+        this.install_action('otp.export-secret-clipboard', 'a{sv}',
                             (obj, name, args) =>
-                                obj.exportSecretClipboard(new TOTP(args.recursiveUnpack())));
+                                obj.exportSecretClipboard(variant2OTP(args)));
 
-        this.install_action('totp.export-secret-qr', 'a{sv}',
+        this.install_action('otp.export-secret-qr', 'a{sv}',
                             (obj, name, args) =>
-                                obj.exportSecretQR(new TOTP(args.recursiveUnpack())));
+                                obj.exportSecretQR(variant2OTP(args)));
 
-        this.install_action('totp.remove-secret', 'a{sv}',
+        this.install_action('otp.remove-secret', 'a{sv}',
                             (obj, name, args) =>
-                                obj.removeSecret(new TOTP(args.recursiveUnpack())));
-
+                                obj.removeSecret(variant2OTP(args)));
     }
 
 
@@ -986,7 +1117,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         super({
             title: _('Secrets'),
-            description: _('A list of all TOTP secrets from the keyring.')
+            description: _('A list of all OTP secrets from the keyring.')
         });
 
         const listbox = findListBoxChild(this);
@@ -1007,7 +1138,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 icon_name: 'document-new-symbolic',
                 tooltip_text: _('Add secret...'),
-                action_name: 'totp.create',
+                action_name: 'otp.create',
                 valign: Gtk.Align.CENTER,
             })
         );
@@ -1016,7 +1147,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
             new Gtk.Button({
                 icon_name: 'view-refresh-symbolic',
                 tooltip_text: _('Refresh secrets.'),
-                action_name: 'totp.refresh',
+                action_name: 'otp.refresh',
                 valign: Gtk.Align.CENTER,
             })
         );
@@ -1024,7 +1155,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         box.append(
             new Gtk.Button({
                 icon_name: 'document-import-symbolic',
-                action_name: 'totp.import',
+                action_name: 'otp.import',
                 tooltip_text: _('Import secrets...'),
                 valign: Gtk.Align.CENTER,
             })
@@ -1033,7 +1164,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
         box.append(
             new Gtk.Button({
                 icon_name: 'document-export-symbolic',
-                action_name: 'totp.export-all',
+                action_name: 'otp.export-all',
                 tooltip_text: _('Export all secrets to the clipboard.'),
                 valign: Gtk.Align.CENTER,
             })
@@ -1073,8 +1204,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
             this.#lock_button.updateState();
             items.forEach(item =>
                 {
-                    const totp = new TOTP(item.get_attributes());
-                    const row = new SecretRow(totp, this, this.#settings);
+                    const attr = item.get_attributes();
+                    const otp = dict2OTP(attr);
+                    const row = new SecretRow(otp, this, this.#settings);
                     this.#rows.push(row);
                     this.add(row);
                 });
@@ -1090,17 +1222,17 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             const dialog = new SecretDialog({
-                title: _('Creating new TOTP secret'),
-                totp: new TOTP(),
+                title: _('Creating new OTP secret'),
+                otp: new TOTP(),
                 settings: this.#settings
             });
 
-            const totp = await dialog.choose(this.root);
-            if (!totp)
+            const otp = await dialog.choose(this.root);
+            if (!otp)
                 return;
 
             const n = this.#rows.length;
-            await SecretUtils.createTOTPItem(totp, n);
+            await SecretUtils.createOTPItem(otp, n);
             this.root?.add_toast(new Adw.Toast({ title: _('Created new secret.') }));
             await this.refreshRows();
         }
@@ -1124,8 +1256,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
             let successes = 0;
             for (let i = 0; i < uris.length; ++i) {
                 try {
-                    const totp = new TOTP({ uri: uris[i] });
-                    await SecretUtils.createTOTPItem(totp, n + i);
+                    const otp = uri2OTP(uris[i]);
+                    await SecretUtils.createOTPItem(otp, n + i);
                     ++successes;
                 }
                 catch (e) {
@@ -1153,8 +1285,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
             for (let i = 0; i < items.length; ++i) {
                 const attrs = items[i].get_attributes();
                 attrs.secret = await SecretUtils.getSecret(attrs);
-                const totp = new TOTP(attrs);
-                uris.push(totp.uri());
+                const otp = dict2OTP(attrs);
+                uris.push(otp.uri());
             }
             this.copyToClipboard(uris.join('\n'),
                                  _('Copied all OTP secrets to clipboard.'),
@@ -1172,8 +1304,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             const idx = this.#rows.indexOf(row);
-            const totp = row._totp;
-            await SecretUtils.updateTOTPOrder(totp, idx);
+            const otp = row._otp;
+            await SecretUtils.updateOTPOrder(otp, idx);
         }
         catch (e) {
             logError(e);
@@ -1184,8 +1316,8 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             for (let i = 0; i < this.#rows.length; ++i) {
-                const totp = this.#rows[i]._totp;
-                await SecretUtils.updateTOTPOrder(totp, i);
+                const otp = this.#rows[i]._otp;
+                await SecretUtils.updateOTPOrder(otp, i);
             }
         }
         catch (e) {
@@ -1287,23 +1419,23 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async editSecret(totp)
+    async editSecret(otp)
     {
         try {
-            totp.secret = await SecretUtils.getSecret(totp);
+            otp.secret = await SecretUtils.getSecret(otp);
 
             const dialog = new SecretDialog({
-                title: _('Editing TOTP secret'),
-                totp: totp,
+                title: _('Editing OTP secret'),
+                otp: otp,
                 settings: this.#settings
             });
 
-            const new_totp = await dialog.choose(this.root);
-            if (!new_totp)
+            const new_otp = await dialog.choose(this.root);
+            if (!new_otp)
                 return;
 
-            await SecretUtils.updateTOTPItem(totp, new_totp);
-            totp.wipe();
+            await SecretUtils.updateOTPItem(otp, new_otp);
+            otp.wipe_secret();
             await this.refreshRows();
         }
         catch (e) {
@@ -1312,11 +1444,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async exportSecretClipboard(totp)
+    async exportSecretClipboard(otp)
     {
         try {
-            totp.secret = await SecretUtils.getSecret(totp);
-            const uri = totp.uri();
+            otp.secret = await SecretUtils.getSecret(otp);
+            const uri = otp.uri();
             this.copyToClipboard(uri,
                                  _('Copied secret URI to clipboard.'),
                                  true);
@@ -1327,11 +1459,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async exportSecretQR(totp)
+    async exportSecretQR(otp)
     {
         try {
-            totp.secret = await SecretUtils.getSecret(totp);
-            const uri = totp.uri();
+            otp.secret = await SecretUtils.getSecret(otp);
+            const uri = otp.uri();
 
             const te = new TextEncoder();
             const uri_data = te.encode(uri);
@@ -1375,15 +1507,15 @@ class SecretsGroup extends Adw.PreferencesGroup {
     }
 
 
-    async removeSecret(totp)
+    async removeSecret(otp)
     {
         try {
             const cancel_response = 0;
             const delete_response = 1;
             const buttons = [_('_Cancel'), _('_Delete')];
-            const label = makeLabel(totp);
+            const label = makeLabel(otp);
             const dialog = new AlertDialog({
-                message: _('Deleting TOTP secret'),
+                message: _('Deleting OTP secret'),
                 detail: _('Deleting secret:') + ` "${label}"`,
                 modal: true,
                 default_button: delete_response,
@@ -1393,7 +1525,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
             const response = await dialog.choose(this.root, null);
             if (response == delete_response) {
-                const success = await SecretUtils.removeTOTPItem(totp);
+                const success = await SecretUtils.removeOTPItem(otp);
                 if (!success)
                     throw new Error(_('Failed to remove secret. Is it locked?'));
                 this.root?.add_toast(
@@ -1514,7 +1646,8 @@ class OptionsGroup extends Adw.PreferencesGroup {
                 page_increment: 10,
             }),
             numeric: true,
-            width_chars: 5
+            width_chars: 5,
+            value: 30,
         });
         settings.bind('clipboard-clear-delay',
                       cb_clear_delay, 'value',
