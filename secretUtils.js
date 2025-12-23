@@ -165,8 +165,11 @@ async function getOTPItems(unlock = false)
 
 async function getOTPItem(otp)
 {
+    let match = makeAttributesFor(otp);
+    if (otp.type == 'HOTP')
+        delete match.counter; // don't match the counter
     const [item] = await Secret.password_search(makeSchemaFor(otp),
-                                                makeAttributesFor(otp),
+                                                match,
                                                 Secret.SearchFlags.LOAD_SECRETS, // don't unlock
                                                 null);
     if (!item)
@@ -209,11 +212,13 @@ function makeLabelFor({issuer, name}, order = -1)
 
 async function getSecret(otp)
 {
+    const match = makeAttributesFor(otp);
+    if (otp.type == 'HOTP')
+        delete match.counter;
     const secret = await Secret.password_lookup(makeSchemaFor(otp),
-                                                makeAttributesFor(otp),
+                                                match,
                                                 null);
     if (secret == null) {
-        log("otp:", otp);
         throw new Error(_('Failed to retrieve secret.'));
     }
     return secret;
@@ -241,9 +246,12 @@ async function updateOTPItem(old_otp, new_otp)
     const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    const old_attributes = makeAttributesFor(old_otp);
+    const old_attr = makeAttributesFor(old_otp);
+    const match = {...old_attr};
+    if (old_otp.type == 'HOTP')
+        delete match.counter; // don't match the counter
     const [item] = await service.search(makeSchemaFor(old_otp),
-                                        old_attributes,
+                                        match,
                                         Secret.SearchFlags.UNLOCK
                                         | Secret.SearchFlags.LOAD_SECRETS,
                                         null);
@@ -258,10 +266,10 @@ async function updateOTPItem(old_otp, new_otp)
             throw new Error(_('Failed to set label.'));
 
     // check if attributes changed
-    const new_attributes = makeAttributesFor(new_otp);
+    const new_attr = makeAttributesFor(new_otp);
 
-    if (!equalDictionaries(old_attributes, new_attributes))
-        if (!await item.set_attributes(makeSchemaFor(new_otp), new_attributes, null))
+    if (!equalDictionaries(old_attr, new_attr))
+        if (!await item.set_attributes(makeSchemaFor(new_otp), new_attr, null))
             throw new Error(_('Failed to set attributes.'));
 
     // check if secret changed
@@ -278,8 +286,11 @@ async function updateOTPOrder(otp, order)
     const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
+    const match = makeAttributesFor(otp);
+    if (otp.type == 'HOTP')
+        delete match.counter;
     const [item] = await service.search(makeSchemaFor(otp),
-                                        makeAttributesFor(otp),
+                                        match,
                                         Secret.SearchFlags.NONE,
                                         null);
     if (!item)
@@ -293,6 +304,31 @@ async function updateOTPOrder(otp, order)
         throw new Error(_('Failed to set label.'));
 }
 
+
+async function incrementHOTP(otp)
+{
+    const service = await Secret.Service.get(
+        Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
+        null);
+    const match = makeAttributesFor(otp);
+    delete match.counter;
+    const [item] = await service.search(makeSchemaFor(otp),
+                                        match,
+                                        Secret.SearchFlags.NONE,
+                                        null);
+    if (!item)
+        throw new Error(_('Failed to lookup item.'));
+
+    const old_counter = parseInt(item.get_attributes().counter);
+    const new_counter = old_counter + 1;
+    const new_attr = makeAttributesFor(otp);
+    new_attr.counter = new_counter.toString();
+    if (!await item.set_attributes(makeSchemaFor(otp),
+                                   new_attr,
+                                   null))
+        throw new Error(_('Failed to set counter.'));
+    return new_counter;
+}
 
 async function createOTPItem(otp, order)
 {

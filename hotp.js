@@ -67,20 +67,6 @@ class HOTP extends OTP.OTP {
     }
 
 
-    incremented()
-    {
-        return new HOTP({
-            type: this.type,
-            issuer: this.issuer,
-            name: this.name,
-            secret: this.secret,
-            digits: this.digits,
-            counter: this.counter + 1,
-            algorithm: this.algorithm
-        });
-    }
-
-
     uri()
     {
         let args = {};

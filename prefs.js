@@ -109,7 +109,6 @@ function dict2OTP(dict)
         return new TOTP(dict);
     if (dict.type == 'HOTP')
         return new HOTP(dict);
-    // log("dict is ", dict);
     throw new Error(`dict is ${dict}`);
 }
 
@@ -652,6 +651,7 @@ class CopyCodeButton extends Gtk.Button {
                     this.#expiry = expiry;
                     this.#code = code;
                 } else if (type == 'HOTP') {
+                    this.#otp.counter = parseInt(item.get_attributes().counter);
                     this.#code = this.#otp.code();
                 }
             }
@@ -699,12 +699,8 @@ class CopyCodeButton extends Gtk.Button {
         try {
             this.#otp.secret = await SecretUtils.getSecret(this.#otp);
             const code = this.#otp.code();
-            if (this.#otp.type == 'HOTP') {
-                const new_otp = this.#otp.incremented();
-                // log(`old: ${this.#otp.counter}, new: ${new_otp.counter}`);
-                await SecretUtils.updateOTPItem(this.#otp, new_otp);
-                this.#otp.counter = new_otp.counter;
-            }
+            if (this.#otp.type == 'HOTP')
+                this.#otp.counter = await SecretUtils.incrementHOTP(this.#otp);
             const arg = new GLib.Variant('(ssb)',
                                          [
                                              code,
@@ -1423,7 +1419,11 @@ class SecretsGroup extends Adw.PreferencesGroup {
     {
         try {
             otp.secret = await SecretUtils.getSecret(otp);
-
+            if (otp.type == 'HOTP') {
+                const item = await SecretUtils.getOTPItem(otp);
+                const attr = item.get_attributes();
+                otp.counter = parseInt(attr.counter);
+            }
             const dialog = new SecretDialog({
                 title: _('Editing OTP secret'),
                 otp: otp,

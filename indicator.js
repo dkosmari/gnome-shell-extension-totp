@@ -204,10 +204,8 @@ class Indicator extends PanelMenu.Button {
         try {
             otp.secret = await SecretUtils.getSecret(otp);
             const code = otp.code();
-            if (otp.type == 'HOTP') {
-                const new_otp = otp.incremented();
-                await SecretUtils.updateOTPItem(otp, new_otp);
-            }
+            if (otp.type == 'HOTP')
+                await SecretUtils.incrementHOTP(otp);
             copyToClipboard(code);
         }
         catch (e) {

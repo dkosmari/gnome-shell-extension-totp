@@ -180,12 +180,6 @@ class OTP {
     }
 
 
-    incremented()
-    {
-        return null;
-    }
-
-
     uri(args)
     {
         // See https://github.com/google/google-authenticator/wiki/Key-Uri-Format
