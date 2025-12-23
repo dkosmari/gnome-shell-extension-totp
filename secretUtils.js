@@ -242,7 +242,6 @@ function equalDictionaries(a, b)
 
 async function updateOTPItem(old_otp, new_otp)
 {
-    // TODO: handle changing type beween TOTP and HOTP
     const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);

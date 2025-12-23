@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// See RFC 6238
 
 const GLib = imports.gi.GLib;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const OTP = Me.imports.otp;
+const OTP = Me.imports.otp.OTP;
 
 
 // strings will be translated by gettext in the frontend
@@ -23,7 +24,7 @@ function now()
 
 
 var TOTP =
-class TOTP extends OTP.OTP {
+class TOTP extends OTP {
 
     constructor({
         issuer = '',
@@ -43,22 +44,23 @@ class TOTP extends OTP.OTP {
             let {
                 host = null,
                 issuer = '',
+                name = '',
                 secret = '',
                 digits = 6,
-                period = 0,
+                period = 30,
                 algorithm = 'SHA-1'
             } = OTP.parseURI(uri);
             if (host.toLowerCase() != "totp")
                 throw new Error(_('URI host should be "totp"'));
             this.issuer = issuer;
-            this.name = name;
+            this.name   = name;
             this.secret = secret;
             this.digits = parseInt(digits);
             this.period = parseInt(period);
             this.set_algorithm(algorithm);
         } else {
             this.issuer = issuer;
-            this.name = name;
+            this.name   = name;
             this.secret = secret;
             this.digits = parseInt(digits);
             this.period = parseInt(period);

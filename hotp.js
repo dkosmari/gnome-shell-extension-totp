@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-
-const GLib = imports.gi.GLib;
+// See RFC 4226
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -37,6 +36,7 @@ class HOTP extends OTP.OTP {
             let {
                 host = null,
                 issuer = '',
+                name = '',
                 secret = '',
                 digits = 6,
                 counter = 0,
@@ -44,18 +44,18 @@ class HOTP extends OTP.OTP {
             } = OTP.parseURI(uri);
             if (host.toLowerCase() != 'hotp')
                 throw new Error(_('URI host should be "hotp"'));
-            this.issuer    = issuer;
-            this.name      = name;
-            this.secret    = secret;
-            this.digits    = parseInt(digits);
-            this.counter   = parseInt(counter);
+            this.issuer  = issuer;
+            this.name    = name;
+            this.secret  = secret;
+            this.digits  = parseInt(digits);
+            this.counter = parseInt(counter);
             this.set_algorithm(algorithm);
         } else {
-            this.issuer    = issuer;
-            this.name      = name;
-            this.secret    = secret;
-            this.digits    = parseInt(digits);
-            this.counter   = parseInt(counter);
+            this.issuer  = issuer;
+            this.name    = name;
+            this.secret  = secret;
+            this.digits  = parseInt(digits);
+            this.counter = parseInt(counter);
             this.set_algorithm(algorithm);
         }
     }

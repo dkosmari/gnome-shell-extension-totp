@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// See RFC 4226, 6238
 
 const GLib = imports.gi.GLib;
 
@@ -115,9 +116,6 @@ function parseURI(uri)
 
     result.host = host;
     result.name = path.substring(1);
-    result.digits = parseInt(result.digits);
-    result.period = parseInt(result.period);
-    result.algorithm = Algorithm.str(Algorithm.parse(result.algorithm));
 
     return result;
 }

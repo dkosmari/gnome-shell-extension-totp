@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// See RFC 4648
 
 // strings will be translated by gettext in the frontend
 const _ = x => x;
@@ -12,7 +13,6 @@ const _ = x => x;
 const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 
-// See RFC 4648
 function decode(input, strict = true)
 {
     console.assert(digits.length == 32);
