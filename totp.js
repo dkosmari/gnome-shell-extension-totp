@@ -10,7 +10,7 @@ const GLib = imports.gi.GLib;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const OTP = Me.imports.otp.OTP;
+const OTP = Me.imports.otp;
 
 
 // strings will be translated by gettext in the frontend
