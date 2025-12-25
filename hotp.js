@@ -4,7 +4,35 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// See RFC 4226
+/*
+ * See RFC 4226
+ *
+ * Test case, from Appendix D:
+ * secret = "12345678901234567890"
+ *        = base64("MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=")
+ *        = base32("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ")
+ * everything else is default:
+ *  digits = 6
+ *  counter = 0
+ *  algorithm = SHA-1
+ *
+ * URI: otpauth://hotp/Test?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=RFC%204226
+ *
+ * Expected output:
+ *
+ *   counter   code
+ *   ---------------
+ *      0     755224
+ *      1     287082
+ *      2     359152
+ *      3     969429
+ *      4     338314
+ *      5     254676
+ *      6     287922
+ *      7     162583
+ *      8     399871
+ *      9     520489
+ */
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();

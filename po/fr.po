@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 18:05-0300\n"
+"POT-Creation-Date: 2025-12-25 07:04-0300\n"
 "PO-Revision-Date: 2024-04-14 09:14-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -369,36 +369,36 @@ msgstr "Erreur lors de la récupération des éléments OTP."
 msgid "Error copying the OTP authentication code."
 msgstr "Erreur lors de la copie du code d'authentification OTP."
 
-#: secretUtils.js:176
+#: secretUtils.js:185
 msgid "Failed to lookup secret."
 msgstr "Échec de la recherche du secret."
 
-#: secretUtils.js:222
+#: secretUtils.js:224
 msgid "Failed to retrieve secret."
 msgstr "Échec de la récupération du secret."
 
-#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
+#: secretUtils.js:260 secretUtils.js:298 secretUtils.js:321
 msgid "Failed to lookup item."
 msgstr "Échec de la recherche de l'élément."
 
-#: secretUtils.js:265 secretUtils.js:303
+#: secretUtils.js:267 secretUtils.js:305
 msgid "Failed to set label."
 msgstr "Échec de la définition du libellé."
 
-#: secretUtils.js:272
+#: secretUtils.js:274
 msgid "Failed to set attributes."
 msgstr "Échec de la définition des attributs."
 
-#: secretUtils.js:278
+#: secretUtils.js:280
 msgid "Failed to set secret."
 msgstr "Échec de la définition du secret."
 
-#: secretUtils.js:328
+#: secretUtils.js:330
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Échec de la définition du secret."
 
-#: hotp.js:46
+#: hotp.js:72
 #, fuzzy
 msgid "URI host should be \"hotp\""
 msgstr "L'hôte URI doit être \"totp\""
@@ -407,15 +407,15 @@ msgstr "L'hôte URI doit être \"totp\""
 msgid "Invalid algorithm."
 msgstr "Algorithme invalide."
 
-#: otp.js:111
+#: otp.js:135
 msgid "Failed to parse URI."
 msgstr "Échec de l'analyse de l'URI."
 
-#: otp.js:113
+#: otp.js:137
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Le schéma d'URI doit être \"otpauth://...\""
 
-#: otp.js:115
+#: otp.js:139
 msgid "Unexpected port number in URI."
 msgstr "Numéro de port inattendu dans l'URI."
 

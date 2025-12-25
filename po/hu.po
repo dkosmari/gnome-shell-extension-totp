@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 18:05-0300\n"
+"POT-Creation-Date: 2025-12-25 07:04-0300\n"
 "PO-Revision-Date: 2024-11-24 10:29+0100\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
@@ -367,36 +367,36 @@ msgstr "Hiba az OTP-elemek lekérdezésekor."
 msgid "Error copying the OTP authentication code."
 msgstr "Hiba az OTP hitelesítési kód másolásakor."
 
-#: secretUtils.js:176
+#: secretUtils.js:185
 msgid "Failed to lookup secret."
 msgstr "A titok keresése sikertelen."
 
-#: secretUtils.js:222
+#: secretUtils.js:224
 msgid "Failed to retrieve secret."
 msgstr "A titok lekérdezése sikertelen."
 
-#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
+#: secretUtils.js:260 secretUtils.js:298 secretUtils.js:321
 msgid "Failed to lookup item."
 msgstr "Az elem keresése sikertelen."
 
-#: secretUtils.js:265 secretUtils.js:303
+#: secretUtils.js:267 secretUtils.js:305
 msgid "Failed to set label."
 msgstr "A címke beállítása sikertelen."
 
-#: secretUtils.js:272
+#: secretUtils.js:274
 msgid "Failed to set attributes."
 msgstr "Az attribútumok beállítása sikertelen."
 
-#: secretUtils.js:278
+#: secretUtils.js:280
 msgid "Failed to set secret."
 msgstr "Nem sikerült beállítani a titkot."
 
-#: secretUtils.js:328
+#: secretUtils.js:330
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Nem sikerült beállítani a titkot."
 
-#: hotp.js:46
+#: hotp.js:72
 #, fuzzy
 msgid "URI host should be \"hotp\""
 msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
@@ -405,15 +405,15 @@ msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
 msgid "Invalid algorithm."
 msgstr "Érvénytelen algoritmus."
 
-#: otp.js:111
+#: otp.js:135
 msgid "Failed to parse URI."
 msgstr "Nem sikerült elemezni az URI-t."
 
-#: otp.js:113
+#: otp.js:137
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Az URI-sémának a következőnek kell lennie: „otpauth://...”"
 
-#: otp.js:115
+#: otp.js:139
 msgid "Unexpected port number in URI."
 msgstr "Váratlan portszám az URI-ban."
 

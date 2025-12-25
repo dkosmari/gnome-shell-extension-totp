@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 18:11-0300\n"
+"POT-Creation-Date: 2025-12-25 07:04-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -349,35 +349,35 @@ msgstr ""
 msgid "Error copying the OTP authentication code."
 msgstr ""
 
-#: secretUtils.js:176
+#: secretUtils.js:185
 msgid "Failed to lookup secret."
 msgstr ""
 
-#: secretUtils.js:222
+#: secretUtils.js:224
 msgid "Failed to retrieve secret."
 msgstr ""
 
-#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
+#: secretUtils.js:260 secretUtils.js:298 secretUtils.js:321
 msgid "Failed to lookup item."
 msgstr ""
 
-#: secretUtils.js:265 secretUtils.js:303
+#: secretUtils.js:267 secretUtils.js:305
 msgid "Failed to set label."
 msgstr ""
 
-#: secretUtils.js:272
+#: secretUtils.js:274
 msgid "Failed to set attributes."
 msgstr ""
 
-#: secretUtils.js:278
+#: secretUtils.js:280
 msgid "Failed to set secret."
 msgstr ""
 
-#: secretUtils.js:328
+#: secretUtils.js:330
 msgid "Failed to set counter."
 msgstr ""
 
-#: hotp.js:46
+#: hotp.js:72
 msgid "URI host should be \"hotp\""
 msgstr ""
 
@@ -385,15 +385,15 @@ msgstr ""
 msgid "Invalid algorithm."
 msgstr ""
 
-#: otp.js:111
+#: otp.js:135
 msgid "Failed to parse URI."
 msgstr ""
 
-#: otp.js:113
+#: otp.js:137
 msgid "URI scheme should be \"otpauth://...\""
 msgstr ""
 
-#: otp.js:115
+#: otp.js:139
 msgid "Unexpected port number in URI."
 msgstr ""
 

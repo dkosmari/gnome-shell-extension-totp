@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 18:05-0300\n"
+"POT-Creation-Date: 2025-12-25 07:04-0300\n"
 "PO-Revision-Date: 2024-04-14 09:13-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -372,36 +372,36 @@ msgstr "Fehler beim Abrufen von OTP-Elementen."
 msgid "Error copying the OTP authentication code."
 msgstr "Fehler beim Kopieren des OTP-Authentifizierungscodes."
 
-#: secretUtils.js:176
+#: secretUtils.js:185
 msgid "Failed to lookup secret."
 msgstr "Das Geheimnis konnte nicht gesucht werden."
 
-#: secretUtils.js:222
+#: secretUtils.js:224
 msgid "Failed to retrieve secret."
 msgstr "Das Abrufen des Geheimnisses ist fehlgeschlagen."
 
-#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
+#: secretUtils.js:260 secretUtils.js:298 secretUtils.js:321
 msgid "Failed to lookup item."
 msgstr "Das Element konnte nicht gesucht werden."
 
-#: secretUtils.js:265 secretUtils.js:303
+#: secretUtils.js:267 secretUtils.js:305
 msgid "Failed to set label."
 msgstr "Das Label konnte nicht festgelegt werden."
 
-#: secretUtils.js:272
+#: secretUtils.js:274
 msgid "Failed to set attributes."
 msgstr "Attribute konnten nicht festgelegt werden."
 
-#: secretUtils.js:278
+#: secretUtils.js:280
 msgid "Failed to set secret."
 msgstr "Geheimnis konnte nicht festgelegt werden."
 
-#: secretUtils.js:328
+#: secretUtils.js:330
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Geheimnis konnte nicht festgelegt werden."
 
-#: hotp.js:46
+#: hotp.js:72
 #, fuzzy
 msgid "URI host should be \"hotp\""
 msgstr "Der URI-Host sollte „totp“ sein."
@@ -410,15 +410,15 @@ msgstr "Der URI-Host sollte „totp“ sein."
 msgid "Invalid algorithm."
 msgstr "Ungültiger Algorithmus."
 
-#: otp.js:111
+#: otp.js:135
 msgid "Failed to parse URI."
 msgstr "URI konnte nicht analysiert werden."
 
-#: otp.js:113
+#: otp.js:137
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Das URI-Schema sollte „otpauth://…“ sein."
 
-#: otp.js:115
+#: otp.js:139
 msgid "Unexpected port number in URI."
 msgstr "Unerwartete Portnummer im URI."
 

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 18:05-0300\n"
+"POT-Creation-Date: 2025-12-25 07:04-0300\n"
 "PO-Revision-Date: 2024-04-14 09:13-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -368,36 +368,36 @@ msgstr "Erro obtendo itens OTP."
 msgid "Error copying the OTP authentication code."
 msgstr "Erro copiando código de autenticação OTP."
 
-#: secretUtils.js:176
+#: secretUtils.js:185
 msgid "Failed to lookup secret."
 msgstr "Falha em obter segredo."
 
-#: secretUtils.js:222
+#: secretUtils.js:224
 msgid "Failed to retrieve secret."
 msgstr "Falha em obter segredo."
 
-#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
+#: secretUtils.js:260 secretUtils.js:298 secretUtils.js:321
 msgid "Failed to lookup item."
 msgstr "Falha em obter item."
 
-#: secretUtils.js:265 secretUtils.js:303
+#: secretUtils.js:267 secretUtils.js:305
 msgid "Failed to set label."
 msgstr "Falha em definir rótulo."
 
-#: secretUtils.js:272
+#: secretUtils.js:274
 msgid "Failed to set attributes."
 msgstr "Falha em definir atributos."
 
-#: secretUtils.js:278
+#: secretUtils.js:280
 msgid "Failed to set secret."
 msgstr "Falha em definir segredo."
 
-#: secretUtils.js:328
+#: secretUtils.js:330
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Falha em definir segredo."
 
-#: hotp.js:46
+#: hotp.js:72
 #, fuzzy
 msgid "URI host should be \"hotp\""
 msgstr "Host URI deveria ser \"totp\""
@@ -406,15 +406,15 @@ msgstr "Host URI deveria ser \"totp\""
 msgid "Invalid algorithm."
 msgstr "Algorítimo inválido."
 
-#: otp.js:111
+#: otp.js:135
 msgid "Failed to parse URI."
 msgstr "Falha ao ler URI."
 
-#: otp.js:113
+#: otp.js:137
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Esquema URI deveria ser \"otpauth://...\""
 
-#: otp.js:115
+#: otp.js:139
 msgid "Unexpected port number in URI."
 msgstr "Número de porta não esperado na URI."
 

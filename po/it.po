@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 18:05-0300\n"
+"POT-Creation-Date: 2025-12-25 07:04-0300\n"
 "PO-Revision-Date: 2024-04-14 09:14-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -370,36 +370,36 @@ msgstr "Errore durante il recupero degli elementi OTP."
 msgid "Error copying the OTP authentication code."
 msgstr "Errore durante la copia del codice di autenticazione OTP."
 
-#: secretUtils.js:176
+#: secretUtils.js:185
 msgid "Failed to lookup secret."
 msgstr "Impossibile cercare il segreto."
 
-#: secretUtils.js:222
+#: secretUtils.js:224
 msgid "Failed to retrieve secret."
 msgstr "Impossibile recuperare il segreto."
 
-#: secretUtils.js:258 secretUtils.js:296 secretUtils.js:319
+#: secretUtils.js:260 secretUtils.js:298 secretUtils.js:321
 msgid "Failed to lookup item."
 msgstr "Impossibile cercare l'elemento."
 
-#: secretUtils.js:265 secretUtils.js:303
+#: secretUtils.js:267 secretUtils.js:305
 msgid "Failed to set label."
 msgstr "Impossibile impostare l'etichetta."
 
-#: secretUtils.js:272
+#: secretUtils.js:274
 msgid "Failed to set attributes."
 msgstr "Impossibile impostare gli attributi."
 
-#: secretUtils.js:278
+#: secretUtils.js:280
 msgid "Failed to set secret."
 msgstr "Impossibile impostare il segreto."
 
-#: secretUtils.js:328
+#: secretUtils.js:330
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Impossibile impostare il segreto."
 
-#: hotp.js:46
+#: hotp.js:72
 #, fuzzy
 msgid "URI host should be \"hotp\""
 msgstr "L'host URI dovrebbe essere \"totp\""
@@ -408,15 +408,15 @@ msgstr "L'host URI dovrebbe essere \"totp\""
 msgid "Invalid algorithm."
 msgstr "Algoritmo non valido."
 
-#: otp.js:111
+#: otp.js:135
 msgid "Failed to parse URI."
 msgstr "Impossibile analizzare l'URI."
 
-#: otp.js:113
+#: otp.js:137
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Lo schema URI dovrebbe essere \"otpauth://...\""
 
-#: otp.js:115
+#: otp.js:139
 msgid "Unexpected port number in URI."
 msgstr "Numero di porta imprevisto nell'URI."
 
