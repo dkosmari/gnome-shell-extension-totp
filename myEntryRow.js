@@ -83,4 +83,4 @@ class EntryRow extends Adw.ActionRow {
         this.add_suffix(entry);
     }
 
-};
+}; // class EntryRow

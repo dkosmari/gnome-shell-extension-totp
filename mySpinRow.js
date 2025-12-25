@@ -75,4 +75,4 @@ class SpinRow extends Adw.ActionRow {
     }
 
 
-};
+}; // class SpinRow
