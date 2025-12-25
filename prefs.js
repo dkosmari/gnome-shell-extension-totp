@@ -345,7 +345,7 @@ class SecretDialog extends Gtk.Dialog {
         this.#ui.type_drop.connect('notify::selected-item', () => this.changedOTPtype());
         this.#ui.type = new Adw.ActionRow({
             title: _('Type'),
-            subtitle: _('Select time-based or counter-based OTP')
+            subtitle: _('Select between time-based or counter-based OTP.')
         });
         this.#ui.type.add_suffix(this.#ui.type_drop);
         group.add(this.#ui.type);

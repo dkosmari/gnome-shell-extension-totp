@@ -1,5 +1,5 @@
 # TOTP - A GNOME extension to generate TOTP/OTP/2FA authentication codes.
-# Copyright (C) 2024 Daniel K. O.
+# Copyright (C) 2025 Daniel K. O.
 # This file is distributed under the same license as the TOTP package.
 #
 msgid ""
@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-25 09:08-0300\n"
-"PO-Revision-Date: 2024-04-14 09:14-0300\n"
+"POT-Creation-Date: 2025-12-25 10:14-0300\n"
+"PO-Revision-Date: 2025-12-25 09:37-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.5\n"
 
 #: prefs.js:58
 msgid "Error"
@@ -40,11 +40,11 @@ msgstr "Échec de l'analyse de l'option \"qrimage-cmd\"."
 
 #: prefs.js:347
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: prefs.js:348
-msgid "Select time-based or counter-based OTP"
-msgstr ""
+msgid "Select between time-based or counter-based OTP."
+msgstr "Choisissez entre un OTP basé sur le temps ou sur un compteur."
 
 #: prefs.js:355
 msgid "Issuer"
@@ -89,13 +89,15 @@ msgstr "Temps entre les mises à jour du code, en secondes."
 
 #: prefs.js:406
 msgid "Counter"
-msgstr ""
+msgstr "Compteur"
 
 #: prefs.js:407
 msgid ""
 "This counter must be synchronized with the server, and it increments every "
 "time a code is generated."
 msgstr ""
+"Ce compteur doit être synchronisé avec le serveur et il s'incrémente à "
+"chaque génération de code."
 
 #: prefs.js:423
 msgid "Algorithm"
@@ -190,9 +192,8 @@ msgid "Secrets"
 msgstr "Secrets"
 
 #: prefs.js:1116
-#, fuzzy
 msgid "A list of all OTP secrets from the keyring."
-msgstr "Une liste de tous les secrets TOTP du porte-clés."
+msgstr "Une liste de tous les secrets OTP du porte-clés."
 
 #: prefs.js:1136
 msgid "Add secret..."
@@ -211,9 +212,8 @@ msgid "Export all secrets to the clipboard."
 msgstr "Exportez tous les secrets dans le presse-papiers."
 
 #: prefs.js:1221
-#, fuzzy
 msgid "Creating new OTP secret"
-msgstr "Création d'un nouveau secret TOTP"
+msgstr "Création d'un nouveau secret OTP"
 
 #: prefs.js:1232
 msgid "Created new secret."
@@ -228,9 +228,8 @@ msgid "Copied all OTP secrets to clipboard."
 msgstr "Copié tous les secrets OTP dans le presse-papiers."
 
 #: prefs.js:1428
-#, fuzzy
 msgid "Editing OTP secret"
-msgstr "Modification du secret TOTP"
+msgstr "Modification du secret OTP"
 
 #: prefs.js:1453
 msgid "Copied secret URI to clipboard."
@@ -245,9 +244,8 @@ msgid "_Delete"
 msgstr "_Supprimer"
 
 #: prefs.js:1518
-#, fuzzy
 msgid "Deleting OTP secret"
-msgstr "Suppression du secret TOTP"
+msgstr "Suppression du secret OTP"
 
 #: prefs.js:1519
 msgid "Deleting secret:"
@@ -394,17 +392,14 @@ msgid "Failed to set secret."
 msgstr "Échec de la définition du secret."
 
 #: secretUtils.js:339
-#, fuzzy
 msgid "Failed to set counter."
-msgstr "Échec de la définition du secret."
+msgstr "Impossible de définir le compteur."
 
 #: hotp.js:72
-#, fuzzy
 msgid "URI host should be \"hotp\""
-msgstr "L'hôte URI doit être \"totp\""
+msgstr "L'hôte URI doit être \"hotp\""
 
 #: otp.js:40
-#, fuzzy
 msgid "Invalid algorithm."
 msgstr "Algorithme invalide."
 
@@ -423,7 +418,3 @@ msgstr "Numéro de port inattendu dans l'URI."
 #: totp.js:50
 msgid "URI host should be \"totp\""
 msgstr "L'hôte URI doit être \"totp\""
-
-#, fuzzy
-#~ msgid "Invalid algorithm 2."
-#~ msgstr "Algorithme invalide."

@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-25 09:08-0300\n"
-"PO-Revision-Date: 2025-09-25 16:50+0300\n"
-"Last-Translator: Fraxinus Acer\n"
+"POT-Creation-Date: 2025-12-25 10:14-0300\n"
+"PO-Revision-Date: 2025-12-25 09:52-0300\n"
+"Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.5\n"
 
 #: prefs.js:58
 msgid "Error"
@@ -41,11 +41,12 @@ msgstr "Не удалось разобрать параметр \"qrimage-cmd\".
 
 #: prefs.js:347
 msgid "Type"
-msgstr ""
+msgstr "Тип"
 
 #: prefs.js:348
-msgid "Select time-based or counter-based OTP"
+msgid "Select between time-based or counter-based OTP."
 msgstr ""
+"Выберите между одноразовым паролем, основанным на времени, или на счетчике."
 
 #: prefs.js:355
 msgid "Issuer"
@@ -90,13 +91,15 @@ msgstr "Время между обновлениями кода в секунд�
 
 #: prefs.js:406
 msgid "Counter"
-msgstr ""
+msgstr "Счетчик"
 
 #: prefs.js:407
 msgid ""
 "This counter must be synchronized with the server, and it increments every "
 "time a code is generated."
 msgstr ""
+"Этот счетчик должен быть синхронизирован с сервером и увеличивается каждый "
+"раз при генерации кода."
 
 #: prefs.js:423
 msgid "Algorithm"
@@ -192,9 +195,8 @@ msgid "Secrets"
 msgstr "Пароли"
 
 #: prefs.js:1116
-#, fuzzy
 msgid "A list of all OTP secrets from the keyring."
-msgstr "Список всех паролей TOTP на связке ключей."
+msgstr "Список всех паролей OTP на связке ключей."
 
 #: prefs.js:1136
 msgid "Add secret..."
@@ -213,9 +215,8 @@ msgid "Export all secrets to the clipboard."
 msgstr "Экспортировать все пароли в буфер обмена."
 
 #: prefs.js:1221
-#, fuzzy
 msgid "Creating new OTP secret"
-msgstr "Создать новый TOTP пароль"
+msgstr "Создать новый OTP пароль"
 
 #: prefs.js:1232
 msgid "Created new secret."
@@ -230,9 +231,8 @@ msgid "Copied all OTP secrets to clipboard."
 msgstr "Копировать все OTP пароли в буфер обмена."
 
 #: prefs.js:1428
-#, fuzzy
 msgid "Editing OTP secret"
-msgstr "Редактирование пароля TOTP"
+msgstr "Редактирование пароля OTP"
 
 #: prefs.js:1453
 msgid "Copied secret URI to clipboard."
@@ -247,9 +247,8 @@ msgid "_Delete"
 msgstr "_Удалить"
 
 #: prefs.js:1518
-#, fuzzy
 msgid "Deleting OTP secret"
-msgstr "Удалить пароль TOTP"
+msgstr "Удалить пароль OTP"
 
 #: prefs.js:1519
 msgid "Deleting secret:"
@@ -396,17 +395,14 @@ msgid "Failed to set secret."
 msgstr "Не удалось установить пароль."
 
 #: secretUtils.js:339
-#, fuzzy
 msgid "Failed to set counter."
-msgstr "Не удалось установить пароль."
+msgstr "Не удалось установить счётчик."
 
 #: hotp.js:72
-#, fuzzy
 msgid "URI host should be \"hotp\""
-msgstr "URI хоста должен быть \"totp\""
+msgstr "URI хоста должен быть \"hotp\""
 
 #: otp.js:40
-#, fuzzy
 msgid "Invalid algorithm."
 msgstr "Неверный алгоритм."
 
@@ -425,7 +421,3 @@ msgstr "Неожиданный номер порта в URI."
 #: totp.js:50
 msgid "URI host should be \"totp\""
 msgstr "URI хоста должен быть \"totp\""
-
-#, fuzzy
-#~ msgid "Invalid algorithm 2."
-#~ msgstr "Неверный алгоритм."

@@ -1,23 +1,22 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Daniel K. O.
+# TOTP - A GNOME extension to generate TOTP/OTP/2FA authentication codes.
+# Copyright (C) 2025 Daniel K. O.
 # This file is distributed under the same license as the TOTP package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-25 09:08-0300\n"
-"PO-Revision-Date: 2024-11-24 10:29+0100\n"
-"Last-Translator: summoner <summoner@vivaldi.net>\n"
+"POT-Creation-Date: 2025-12-25 10:14-0300\n"
+"PO-Revision-Date: 2025-12-25 09:42-0300\n"
+"Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.5\n"
 
 #: prefs.js:58
 msgid "Error"
@@ -41,11 +40,11 @@ msgstr "Nem sikerült feldolgozni a „qrimage-cmd” beállítást."
 
 #: prefs.js:347
 msgid "Type"
-msgstr ""
+msgstr "Típus"
 
 #: prefs.js:348
-msgid "Select time-based or counter-based OTP"
-msgstr ""
+msgid "Select between time-based or counter-based OTP."
+msgstr "Válasszon az időalapú vagy a számlálóalapú OTP között."
 
 #: prefs.js:355
 msgid "Issuer"
@@ -90,13 +89,15 @@ msgstr "A kódfrissítések közötti idő másodpercben."
 
 #: prefs.js:406
 msgid "Counter"
-msgstr ""
+msgstr "Zseton"
 
 #: prefs.js:407
 msgid ""
 "This counter must be synchronized with the server, and it increments every "
 "time a code is generated."
 msgstr ""
+"Ezt a számlálót szinkronizálni kell a szerverrel, és minden kódgeneráláskor "
+"növekszik."
 
 #: prefs.js:423
 msgid "Algorithm"
@@ -191,9 +192,8 @@ msgid "Secrets"
 msgstr "Titkok"
 
 #: prefs.js:1116
-#, fuzzy
 msgid "A list of all OTP secrets from the keyring."
-msgstr "A kulcstartóból származó összes TOTP-titok listája."
+msgstr "A kulcstartóból származó összes OTP-titok listája."
 
 #: prefs.js:1136
 msgid "Add secret..."
@@ -212,7 +212,6 @@ msgid "Export all secrets to the clipboard."
 msgstr "Összes titok exportálása a vágólapra."
 
 #: prefs.js:1221
-#, fuzzy
 msgid "Creating new OTP secret"
 msgstr "Új OTP-titok létrehozása"
 
@@ -229,9 +228,8 @@ msgid "Copied all OTP secrets to clipboard."
 msgstr "Összes titok a vágólapra másolva."
 
 #: prefs.js:1428
-#, fuzzy
 msgid "Editing OTP secret"
-msgstr "TOTP-titok szerkesztése"
+msgstr "OTP-titok szerkesztése"
 
 #: prefs.js:1453
 msgid "Copied secret URI to clipboard."
@@ -246,9 +244,8 @@ msgid "_Delete"
 msgstr "_Törlés"
 
 #: prefs.js:1518
-#, fuzzy
 msgid "Deleting OTP secret"
-msgstr "TOTP-titok törlése"
+msgstr "OTP-titok törlése"
 
 #: prefs.js:1519
 msgid "Deleting secret:"
@@ -392,17 +389,14 @@ msgid "Failed to set secret."
 msgstr "Nem sikerült beállítani a titkot."
 
 #: secretUtils.js:339
-#, fuzzy
 msgid "Failed to set counter."
-msgstr "Nem sikerült beállítani a titkot."
+msgstr "Nem sikerült beállítani a számlálót."
 
 #: hotp.js:72
-#, fuzzy
 msgid "URI host should be \"hotp\""
-msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
+msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „hotp”"
 
 #: otp.js:40
-#, fuzzy
 msgid "Invalid algorithm."
 msgstr "Érvénytelen algoritmus."
 
@@ -421,7 +415,3 @@ msgstr "Váratlan portszám az URI-ban."
 #: totp.js:50
 msgid "URI host should be \"totp\""
 msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
-
-#, fuzzy
-#~ msgid "Invalid algorithm 2."
-#~ msgstr "Érvénytelen algoritmus."
