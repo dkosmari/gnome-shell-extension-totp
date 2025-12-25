@@ -740,14 +740,14 @@ class ExportQRWindow extends Gtk.Window {
 
         const pbuf = GdkPixbuf.Pixbuf.new_from_stream(img_stream, null);
 
-        const img = new Gtk.Image({
+        const pic = new Gtk.Picture({
             hexpand: true,
             vexpand: true,
             height_request: 400,
             width_request: 400,
         });
-        img.set_from_pixbuf(pbuf);
-        box.append(img);
+        pic.set_pixbuf(pbuf);
+        box.append(pic);
 
         const button = new Gtk.Button({
             label: _('_Close'),
