@@ -34,6 +34,9 @@ Prerequisites:
 
   - [jq](https://stedolan.github.io/jq/)
 
+  - glib2-devel (Fedora) or glib2.0-common (Mageia) or libgio-2.0-dev-bin (Ubuntu):
+    whatever is the package that provides the `glib-compile-resources` tool.
+
 Run:
 
     make install
