@@ -1,11 +1,13 @@
 # Steam Guard
 
-Steam Guard uses mostly standard TOTP:
+The Steam Guard mobile app uses mostly standard TOTP:
 
  - The TOTP secret is named `shared_secret`, and will be stored in `Base64`
    encoding. After you save, the extension will convert it to `Base32`.
 
- - Steam Guard uses:
+ - Steam Guard parameters:
+
+     - Type: TOTP
 
      - Digits: 5
 
@@ -36,7 +38,7 @@ obtain it, but here is one that's known to work:
    > Note that the latest frida version might not work with your Android version. You might need
    > to try older versions until you find one that works.
 
- - `adb`: Usually part of `android-tools` or `android-tools-adb` package.
+ - `adb`: It's usually part of `android-tools` or `android-tools-adb` package.
 
  - USB cable to connect your phone to your PC.
 
@@ -55,26 +57,26 @@ obtain it, but here is one that's known to work:
 
    ```python
    #!/bin/env python3
-   
+
    import json
    import frida
    import sys
-   
+
    package = "com.valvesoftware.android.steam.community"
    cmd = """
    'use strict;'
-   
+
    if (Java.available) {
      Java.perform(function() {
-   
+
        //Cipher stuff
        const Cipher = Java.use('javax.crypto.Cipher');
-   
+
        Cipher.doFinal.overload('[B').implementation = function (input) {
            var result = this.doFinal.overload('[B').call(this, input);
            send(result);
        }
-   
+
      }
    )}
    """
@@ -85,7 +87,7 @@ obtain it, but here is one that's known to work:
        script = session.create_script(cmd_)
        script.on('message', on_message)
        script.load()
-   
+
    def on_message(message, _):
        try:
            if message:
@@ -94,7 +96,7 @@ obtain it, but here is one that's known to work:
                    print(json.dumps(json.loads(result), indent=2, ensure_ascii=False))
        except Exception as e:
            print(e)
-   
+
    if __name__ == '__main__':
        try:
            print('[*] Spawning', package)
@@ -105,7 +107,7 @@ obtain it, but here is one that's known to work:
            dev.resume(pid)
            print('')
            sys.stdin.read()
-   
+
        except KeyboardInterrupt:
            sys.exit(0)
        except Exception as e:
@@ -123,28 +125,28 @@ obtain it, but here is one that's known to work:
 
 1. Connect your phone to your PC using the USB cable. You must enable "USB debugging" in
    the developer options.
-   
+
 2. On your PC, run `adb devices` to verify everything is working. You might need to
    authorize the ADB connection on the phone before it can connect successfully.
-   
+
 3. Put the `frida-server` executable in your phone, by running this command:
 
        adb push frida-server-X.Y.Z-android-ARCH /data/local/tmp/
 
    Example:
-   
+
        adb push frida-server-16.5.9-android-arm /data/local/tmp/
 
 4. Log into your phone as root; one of these might work:
-   
+
        adb root
        adb shell
 
    or
-   
+
        adb shell
        su
-   
+
    You might see a prompt on your phone to authorize root access for the adb shell. Make
    sure you allow root access.
 
@@ -157,7 +159,7 @@ obtain it, but here is one that's known to work:
     If you see any error messages, this probably means this version of `frida-server` is
     not compatible. Go download a different version and try again. You can press `Ctrl+C`
     to stop `frida-server`.
-    
+
 6. Run the `dump.py` script:
 
        ./dump.py
@@ -194,11 +196,10 @@ obtain it, but here is one that's known to work:
 
 13. Open the Steam app again, and VERIFY that it generates the same authentication codes
     as the extension.
-    
+
     > If the codes don't match, either you copied the `shared_secret` incorrectly, or you
     > didn't configure it correctly.
 
 14. Delete the `frida-server` executable form your phone:
-    
-        rm frida-server-X.Y.Z-android-ARCH
 
+        rm frida-server-X.Y.Z-android-ARCH

@@ -1,5 +1,5 @@
 # TOTP - A GNOME extension to generate TOTP/OTP/2FA authentication codes.
-# Copyright (C) 2024 Daniel K. O.
+# Copyright (C) 2025 Daniel K. O.
 # This file is distributed under the same license as the TOTP package.
 #
 msgid ""
