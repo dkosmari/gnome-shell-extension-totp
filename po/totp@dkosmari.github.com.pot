@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-25 06:44-0300\n"
+"POT-Creation-Date: 2025-12-25 09:12-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -377,23 +377,23 @@ msgstr ""
 msgid "Failed to set counter."
 msgstr ""
 
-#: hotp.js:44
+#: hotp.js:72
 msgid "URI host should be \"hotp\""
 msgstr ""
 
-#: otp.js:39 otp.js:58
+#: otp.js:40
 msgid "Invalid algorithm."
 msgstr ""
 
-#: otp.js:108
+#: otp.js:132
 msgid "Failed to parse URI."
 msgstr ""
 
-#: otp.js:110
+#: otp.js:134
 msgid "URI scheme should be \"otpauth://...\""
 msgstr ""
 
-#: otp.js:112
+#: otp.js:136
 msgid "Unexpected port number in URI."
 msgstr ""
 
