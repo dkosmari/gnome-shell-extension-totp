@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 17:47-0300\n"
+"POT-Creation-Date: 2025-12-25 06:44-0300\n"
 "PO-Revision-Date: 2024-04-14 09:14-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -369,62 +369,61 @@ msgstr "Erreur lors de la récupération des éléments OTP."
 msgid "Error copying the OTP authentication code."
 msgstr "Erreur lors de la copie du code d'authentification OTP."
 
-#: secretUtils.js:181
+#: secretUtils.js:190
 msgid "Failed to lookup secret."
 msgstr "Échec de la recherche du secret."
 
-#: secretUtils.js:228
+#: secretUtils.js:230
 msgid "Failed to retrieve secret."
 msgstr "Échec de la récupération du secret."
 
-#: secretUtils.js:265 secretUtils.js:304 secretUtils.js:328
+#: secretUtils.js:267 secretUtils.js:306 secretUtils.js:330
 msgid "Failed to lookup item."
 msgstr "Échec de la recherche de l'élément."
 
-#: secretUtils.js:272 secretUtils.js:311
+#: secretUtils.js:274 secretUtils.js:313
 msgid "Failed to set label."
 msgstr "Échec de la définition du libellé."
 
-#: secretUtils.js:279
+#: secretUtils.js:281
 msgid "Failed to set attributes."
 msgstr "Échec de la définition des attributs."
 
-#: secretUtils.js:285
+#: secretUtils.js:287
 msgid "Failed to set secret."
 msgstr "Échec de la définition du secret."
 
-#: secretUtils.js:337
+#: secretUtils.js:339
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Échec de la définition du secret."
 
-#: hotp.js:43
+#: hotp.js:44
 #, fuzzy
 msgid "URI host should be \"hotp\""
 msgstr "L'hôte URI doit être \"totp\""
 
-#: otp.js:38
+#: otp.js:39 otp.js:58
 #, fuzzy
-msgid "Invalid algorithm 1."
+msgid "Invalid algorithm."
 msgstr "Algorithme invalide."
 
-#: otp.js:57
-#, fuzzy
-msgid "Invalid algorithm 2."
-msgstr "Algorithme invalide."
-
-#: otp.js:107
+#: otp.js:108
 msgid "Failed to parse URI."
 msgstr "Échec de l'analyse de l'URI."
 
-#: otp.js:109
+#: otp.js:110
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Le schéma d'URI doit être \"otpauth://...\""
 
-#: otp.js:111
+#: otp.js:112
 msgid "Unexpected port number in URI."
 msgstr "Numéro de port inattendu dans l'URI."
 
-#: totp.js:49
+#: totp.js:50
 msgid "URI host should be \"totp\""
 msgstr "L'hôte URI doit être \"totp\""
+
+#, fuzzy
+#~ msgid "Invalid algorithm 2."
+#~ msgstr "Algorithme invalide."

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-23 17:47-0300\n"
+"POT-Creation-Date: 2025-12-25 06:44-0300\n"
 "PO-Revision-Date: 2024-11-24 10:29+0100\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
@@ -367,62 +367,61 @@ msgstr "Hiba az OTP-elemek lekérdezésekor."
 msgid "Error copying the OTP authentication code."
 msgstr "Hiba az OTP hitelesítési kód másolásakor."
 
-#: secretUtils.js:181
+#: secretUtils.js:190
 msgid "Failed to lookup secret."
 msgstr "A titok keresése sikertelen."
 
-#: secretUtils.js:228
+#: secretUtils.js:230
 msgid "Failed to retrieve secret."
 msgstr "A titok lekérdezése sikertelen."
 
-#: secretUtils.js:265 secretUtils.js:304 secretUtils.js:328
+#: secretUtils.js:267 secretUtils.js:306 secretUtils.js:330
 msgid "Failed to lookup item."
 msgstr "Az elem keresése sikertelen."
 
-#: secretUtils.js:272 secretUtils.js:311
+#: secretUtils.js:274 secretUtils.js:313
 msgid "Failed to set label."
 msgstr "A címke beállítása sikertelen."
 
-#: secretUtils.js:279
+#: secretUtils.js:281
 msgid "Failed to set attributes."
 msgstr "Az attribútumok beállítása sikertelen."
 
-#: secretUtils.js:285
+#: secretUtils.js:287
 msgid "Failed to set secret."
 msgstr "Nem sikerült beállítani a titkot."
 
-#: secretUtils.js:337
+#: secretUtils.js:339
 #, fuzzy
 msgid "Failed to set counter."
 msgstr "Nem sikerült beállítani a titkot."
 
-#: hotp.js:43
+#: hotp.js:44
 #, fuzzy
 msgid "URI host should be \"hotp\""
 msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
 
-#: otp.js:38
+#: otp.js:39 otp.js:58
 #, fuzzy
-msgid "Invalid algorithm 1."
+msgid "Invalid algorithm."
 msgstr "Érvénytelen algoritmus."
 
-#: otp.js:57
-#, fuzzy
-msgid "Invalid algorithm 2."
-msgstr "Érvénytelen algoritmus."
-
-#: otp.js:107
+#: otp.js:108
 msgid "Failed to parse URI."
 msgstr "Nem sikerült elemezni az URI-t."
 
-#: otp.js:109
+#: otp.js:110
 msgid "URI scheme should be \"otpauth://...\""
 msgstr "Az URI-sémának a következőnek kell lennie: „otpauth://...”"
 
-#: otp.js:111
+#: otp.js:112
 msgid "Unexpected port number in URI."
 msgstr "Váratlan portszám az URI-ban."
 
-#: totp.js:49
+#: totp.js:50
 msgid "URI host should be \"totp\""
 msgstr "Az URI-kiszolgálónak a következőnek kell lennie: „totp”"
+
+#, fuzzy
+#~ msgid "Invalid algorithm 2."
+#~ msgstr "Érvénytelen algoritmus."

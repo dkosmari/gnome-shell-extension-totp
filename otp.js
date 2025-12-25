@@ -31,6 +31,9 @@ class Algorithm {
             return GLib.ChecksumType.SHA256;
         case 'SHA384':
         case 'SHA-384':
+            const version_error = GLib.check_version(2, 51, 0);
+            if (version_error)
+                throw new Error(version_error);
             return GLib.ChecksumType.SHA384;
         case 'SHA512':
         case 'SHA-512':
@@ -93,7 +96,30 @@ function splitQuery(query)
 }
 
 
-export
+// See RFC 4226, section 5.3, function DT()
+function dynamicTruncation(hmac)
+{
+    // extract offset from the lower nibble of the last byte
+    const offset = hmac.at(-1) & 0xf;
+    const view = new DataView(hmac.buffer);
+    return view.getUint32(offset) & 0x7fffffff;
+}
+
+
+// Steam code generator
+function toSteam(value, digits)
+{
+    // Steam OTP uses this custom base-26 encoding, in reverse.
+    let result = "";
+    const steam_digits = "23456789BCDFGHJKMNPQRTVWXY";
+    for (let i = 0; i < digits; ++i) {
+        result += steam_digits[value % 26];
+        value = Math.trunc(value / 26);
+    }
+    return result;
+}
+
+
 function parseURI(uri)
 {
     let [success,
@@ -140,6 +166,7 @@ class OTP {
     code(counter)
     {
         const secret_bytes = Base32.decode(this.secret, false);
+        this.wipe_secret();
         const counter_hex = `${counter.toString(16)}`.padStart(16, '0');
         const counter_bytes = hex_to_bytes(counter_hex);
         const algorithm = Algorithm.parse(this.algorithm);
@@ -149,29 +176,17 @@ class OTP {
                                                      counter_bytes);
         const hmac = hex_to_bytes(hmac_hex);
 
-        // extract offset from the lower nibble of the last byte
-        const offset = hmac.at(-1) & 0xf;
-
-        // load the big endian uint32 starting at offset, discard top bit
-        const view = new DataView(hmac.buffer);
-        let value = view.getUint32(offset) & 0x7fffffff;
+        let value = dynamicTruncation(hmac);
         let value_str = '';
 
-        if (this.issuer.toUpperCase() == 'STEAM') {
-            // Steam OTP uses this reversed base-26 encoding.
-            const steam_digits = "23456789BCDFGHJKMNPQRTVWXY";
-            for (let i = 0; i < this.digits; ++i) {
-                value_str += steam_digits[value % 26];
-                value = Math.trunc(value / 26);
-            }
-        } else {
-            // regular OTP uses decimal
+        if (this.issuer.toUpperCase() == 'STEAM')
+            value_str = toSteam(value, this.digits);
+        else
+            // regular OTP uses decimal output
             value_str = value.toString();
-        }
 
         // take the last 'digits' characters of the string representation, pad with zeros
         let code = value_str.slice(-this.digits);
-        this.wipe_secret();
 
         return code.padStart(this.digits, '0');
     }
