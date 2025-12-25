@@ -72,19 +72,19 @@ class HOTP extends OTP.OTP {
             } = OTP.parseURI(uri);
             if (host.toLowerCase() != 'hotp')
                 throw new Error(_('URI host should be "hotp"'));
-            this.issuer  = issuer;
-            this.name    = name;
-            this.secret  = secret;
-            this.digits  = parseInt(digits);
-            this.counter = parseInt(counter);
-            this.set_algorithm(algorithm);
+            this.issuer    = issuer;
+            this.name      = name;
+            this.secret    = secret;
+            this.digits    = parseInt(digits);
+            this.counter   = parseInt(counter);
+            this.algorithm = OTP.normalized_algorithm(algorithm);
         } else {
-            this.issuer  = issuer;
-            this.name    = name;
-            this.secret  = secret;
-            this.digits  = parseInt(digits);
-            this.counter = parseInt(counter);
-            this.set_algorithm(algorithm);
+            this.issuer    = issuer;
+            this.name      = name;
+            this.secret    = secret;
+            this.digits    = parseInt(digits);
+            this.counter   = parseInt(counter);
+            this.algorithm = OTP.normalized_algorithm(algorithm);
         }
     }
 

@@ -54,7 +54,8 @@ class EntryRow extends Adw.ActionRow {
     }
 
 
-    constructor({text = "", ...args})
+    constructor({text = "",
+                 ...args})
     {
         args.title_lines = 1;
         args.subtitle_lines = 1;
@@ -67,7 +68,6 @@ class EntryRow extends Adw.ActionRow {
         }
 
         const entry = new Gtk.Entry({
-            text: text,
             halign: Gtk.Align.FILL,
             hexpand: true,
         });
@@ -77,8 +77,10 @@ class EntryRow extends Adw.ActionRow {
                            entry, 'text',
                            GObject.BindingFlags.BIDIRECTIONAL);
 
-        this.add_suffix(entry);
+        // Note: set property after bind.
+        entry.text = text;
 
+        this.add_suffix(entry);
     }
 
 };

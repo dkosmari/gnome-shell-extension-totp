@@ -52,19 +52,19 @@ class TOTP extends OTP.OTP {
             } = OTP.parseURI(uri);
             if (host.toLowerCase() != "totp")
                 throw new Error(_('URI host should be "totp"'));
-            this.issuer = issuer;
-            this.name   = name;
-            this.secret = secret;
-            this.digits = parseInt(digits);
-            this.period = parseInt(period);
-            this.set_algorithm(algorithm);
+            this.issuer    = issuer;
+            this.name      = name;
+            this.secret    = secret;
+            this.digits    = parseInt(digits);
+            this.period    = parseInt(period);
+            this.algorithm = OTP.normalized_algorithm(algorithm);
         } else {
-            this.issuer = issuer;
-            this.name   = name;
-            this.secret = secret;
-            this.digits = parseInt(digits);
-            this.period = parseInt(period);
-            this.set_algorithm(algorithm);
+            this.issuer    = issuer;
+            this.name      = name;
+            this.secret    = secret;
+            this.digits    = parseInt(digits);
+            this.period    = parseInt(period);
+            this.algorithm = OTP.normalized_algorithm(algorithm);
         }
     }
 

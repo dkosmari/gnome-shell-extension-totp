@@ -49,6 +49,9 @@ class SwitchRow extends Adw.ActionRow {
                            sw, 'active',
                            GObject.BindingFlags.BIDIRECTIONAL);
 
+        // Note: set property after bind.
+        sw.active = active;
+
         this.add_suffix(sw);
     }
 

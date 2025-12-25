@@ -17,54 +17,50 @@ const Base32 = Me.imports.base32;
 const _ = x => x;
 
 
-class Algorithm {
-
-    static parse(arg)
-    {
-        if (typeof arg != 'string')
-            return arg;
-
-        switch (arg.toUpperCase()) {
-        case 'SHA1':
+function get_algorithm(name)
+{
+    switch (name) {
         case 'SHA-1':
             return GLib.ChecksumType.SHA1;
-        case 'SHA256':
+
         case 'SHA-256':
             return GLib.ChecksumType.SHA256;
-        case 'SHA384':
+
         case 'SHA-384':
-            const version_error = GLib.check_version(2, 51, 0);
-            if (version_error)
-                throw new Error(version_error);
+            const v2_51_error = GLib.check_version(2, 51, 0);
+            if (v2_51_error)
+                throw new Error(v2_51_error);
             return GLib.ChecksumType.SHA384;
-        case 'SHA512':
+
         case 'SHA-512':
+            const v2_36_error = GLib.check_version(2, 36, 0);
+            if (v2_36_error)
+                throw new Error(v2_36_error);
             return GLib.ChecksumType.SHA512;
+
         default:
             throw new Error(_('Invalid algorithm.'));
-        }
     }
+}
 
 
-    static str(arg)
-    {
-        switch (arg) {
-        case GLib.ChecksumType.SHA1:
+// Make sure it's uppercase and has a dash.
+function normalized_algorithm(name)
+{
+    const up_name = name.toUpperCase();
+    switch (up_name) {
+        case 'SHA1':
             return 'SHA-1';
-        case GLib.ChecksumType.SHA256:
+        case 'SHA256':
             return 'SHA-256';
-        case GLib.ChecksumType.SHA384:
+        case 'SHA384':
             return 'SHA-384';
-        case GLib.ChecksumType.SHA512:
+        case 'SHA512':
             return 'SHA-512';
         default:
-            if (typeof arg == 'string')
-                return arg;
-            throw new Error(_('Invalid algorithm.'));
-        }
+            return up_name;
     }
-
-}; // class Algorithm
+}
 
 
 function hex_to_bytes(hex)
@@ -151,13 +147,6 @@ function parseURI(uri)
 var OTP =
 class OTP {
 
-    // Make sure algorithm is valid.
-    set_algorithm(algo)
-    {
-        this.algorithm = Algorithm.str(Algorithm.parse(algo));
-    }
-
-
     // destroy this.secret by filling it with zeros
     wipe_secret()
     {
@@ -171,7 +160,7 @@ class OTP {
         this.wipe_secret();
         const counter_hex = `${counter.toString(16)}`.padStart(16, '0');
         const counter_bytes = hex_to_bytes(counter_hex);
-        const algorithm = Algorithm.parse(this.algorithm);
+        const algorithm = get_algorithm(this.algorithm);
 
         const hmac_hex = GLib.compute_hmac_for_bytes(algorithm,
                                                      secret_bytes,
@@ -212,8 +201,8 @@ class OTP {
 
         if (this.algorithm != 'SHA-1') {
             // remove the '-' from the algorithm name
-            const algo_str = this.algorithm.replaceAll(/-/g, '');
-            query += `&algorithm=${algo_str}`;
+            const algorithm = this.algorithm.replaceAll(/-/g, '');
+            query += `&algorithm=${algorithm}`;
         }
 
         return GLib.Uri.join(GLib.UriFlags.NON_DNS,
