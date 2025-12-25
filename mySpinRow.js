@@ -68,8 +68,11 @@ class SpinRow extends Adw.ActionRow {
                            spin, 'value',
                            GObject.BindingFlags.BIDIRECTIONAL);
 
+        // Note: set property after bind.
+        spin.value = value;
+
         this.add_suffix(spin);
     }
 
 
-};
+}; // class SpinRow
