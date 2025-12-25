@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: TOTP\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "totp\n"
-"POT-Creation-Date: 2025-12-25 08:54-0300\n"
+"POT-Creation-Date: 2025-12-25 09:25-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,7 +43,7 @@ msgid "Type"
 msgstr ""
 
 #: prefs.js:348
-msgid "Select time-based or counter-based OTP"
+msgid "Select between time-based or counter-based OTP."
 msgstr ""
 
 #: prefs.js:355
