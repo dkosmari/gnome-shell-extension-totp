@@ -89,7 +89,7 @@ class HOTP extends OTP.OTP {
 
     code(counter = this.counter)
     {
-        return super.code(this.counter);
+        return super.code(counter);
     }
 
 
