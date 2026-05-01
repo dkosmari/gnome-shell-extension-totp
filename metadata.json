@@ -1,6 +1,6 @@
 {
     "name": "TOTP",
-    "description": "Generate One-Time Passwords (aka OTP, both TOTP and HOTP) for websites that use Two-Factor Authentication (2FA) like Google, Facebook, Discord, Amazon, Steam, etc.",
+    "description": "Generate One-Time Passwords (aka OTP, both TOTP and HOTP) for websites that use Two-Factor Authentication (2FA) like Google, Facebook, Discord, Amazon, Steam, etc.\n\nNOTE: This extension uses the clipboard:\n - clicking on an OTP entry in the indicator will copy the generated code to the clipboard;\n - the preferences window will copy a generated code to the clipboard when clicked on the corresponding button;\n - the preferences window will copy the OTP secret to the clipboard when selecting the \"Copy to clipboard\" menu option;\n - after copying an OTP secret into the clipboard the clipboard will be cleared after a configurablle amount of time (default is 30 seconds);\n - when creating or editing an OTP secret, the paste button (on the top right) will paste the OTP secret (as text or QR image) from the clipboard.",
     "uuid": "totp@dkosmari.github.com",
     "url": "https://github.com/dkosmari/gnome-shell-extension-totp",
     "gettext-domain": "totp@dkosmari.github.com",
