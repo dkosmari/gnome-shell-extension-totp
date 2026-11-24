@@ -84,7 +84,15 @@ See the [Steam Guard](steam.md) document for more details.
 
 Counter-based (HOTP) entries are skipped, because their counter would be wrong after a
 migration. Entries that need a PIN (the old Yandex scheme) ask for it during import and
-are skipped if the PIN is not provided.
+are skipped if the PIN is not provided. Entries that cannot be imported are listed with
+the reason instead of being dropped silently.
+
+**Avanpost Authenticator** needs a word of caution. Its QR code for the *Avanpost
+Authenticator* method is a binding request: the TOTP secret is issued by the server when
+that app completes the binding, so the QR carries an empty `secret` and cannot be used by
+any third-party authenticator. Avanpost has a separate **software TOTP** method whose
+binding QR is a standard `otpauth://` URI with a secret — that one imports normally. Ask
+your administrator for a software-TOTP binding if you want the codes in this extension.
 
 The file can be opened with the folder button in the import dialog, or pasted as text.
 

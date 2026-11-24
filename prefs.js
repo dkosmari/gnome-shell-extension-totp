@@ -1408,6 +1408,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
 
             let successes = 0;
             let skipped = 0;
+            const problems = [];
             for (let i = 0; i < uris.length; ++i) {
                 try {
                     const otp = uri2OTP(uris[i]);
@@ -1418,6 +1419,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
                         const pin = await ask_pin(this.root, otp);
                         if (pin === null) {
                             ++skipped;
+                            problems.push(_('No PIN given:') + ` ${otp.issuer}: ${otp.name}`);
                             continue;
                         }
                     }
@@ -1426,18 +1428,26 @@ class SecretsGroup extends Adw.PreferencesGroup {
                     ++successes;
                 }
                 catch (e) {
+                    // Report the reason: a silent skip leaves the user staring at
+                    // "imported 0" with no idea what went wrong.
                     logError(e);
+                    problems.push(e.message);
                 }
             }
             this.root?.add_toast(new Adw.Toast({
                 title: _('Imported secrets:') + ` ${successes}`
             }));
 
-            if (skipped)
+            if (problems.length)
                 this.root?.add_toast(new Adw.Toast({
-                    title: _('Skipped (no PIN):') + ` ${skipped}`,
+                    title: _('Not imported:') + ` ${problems.length}`,
                     timeout: 10
                 }));
+
+            if (problems.length || skipped)
+                reportError(this.root, new Error(
+                    _('Some entries were not imported:') + '\n\n'
+                    + problems.map(p => '• ' + p).join('\n')));
 
             await this.refreshRows();
 

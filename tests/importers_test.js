@@ -133,6 +133,21 @@ print('--- валидация URI при импорте');
 
     const ya = otp_from_uri('otpauth://yaotp/X?length=6&secret=OTPIGD4VRG7AVUDSII24FMESNSWZK');
     check('yaotp через otp_from_uri', ya.type, 'YAOTP');
+
+    // Привязка Avanpost Authenticator: секрет выдаёт сервер, его в QR нет.
+    const avanpost = 'otpauth://totp/https://fam.example.ru:user?algorithm=SHA1&digits=6'
+        + '&issuer=https%3A%2F%2Ffam.example.ru&period=30&secret='
+        + '&userId=3805166f&transactionId=efad7e8d&randomBind=abc&randomUnbind=def'
+        + '&idpId=e2b3d955&enc=SHA1';
+    let avanpost_error = '';
+    try { otp_from_uri(avanpost); } catch (e) { avanpost_error = e.message; }
+    check('Avanpost: отклонён с объяснением', avanpost_error.includes('Avanpost'), true);
+    check('Avanpost: сказано про программный TOTP', avanpost_error.includes('software TOTP'), true);
+
+    // Пустой secret без признаков Avanpost — отдельное сообщение.
+    let empty_error = '';
+    try { otp_from_uri('otpauth://totp/X?secret=&issuer=Y'); } catch (e) { empty_error = e.message; }
+    check('пустой secret: своё сообщение', empty_error.includes('empty'), true);
 }
 
 print(`\nИтого: ${failures == 0 ? 'все проверки пройдены' : failures + ' провалов'}`);

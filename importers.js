@@ -288,6 +288,33 @@ function extract_uris(text)
  * empty entry, so the result is validated here — one place, used by the import
  * flow and by the drag-and-drop/paste paths.
  */
+
+
+/*
+ * Explain why a URI cannot be imported. Used for diagnostics instead of a bare
+ * "no secret", because the reason is usually actionable.
+ */
+function explain_unsupported(text)
+{
+    // Avanpost Authenticator hands out a binding QR: the TOTP secret is issued by
+    // the server after the app completes the binding, so it is absent here and
+    // no third-party authenticator can use this URI. Avanpost's separate
+    // "software TOTP" method does emit a standard otpauth URI with a secret.
+    if (/[?&](idpId|transactionId|randomBind|randomUnbind)=/.test(text))
+        return _('This is an Avanpost Authenticator binding QR: the secret is issued by the server, '
+               + 'so it cannot be used outside that app. Ask your administrator for a "software TOTP" '
+               + 'binding, which produces a standard otpauth QR code.');
+
+    if (/[?&]secret=(&|$)/.test(text))
+        return _('The URI has an empty "secret" parameter.');
+
+    if (!/[?&]secret=/.test(text))
+        return _('The URI contains no secret.');
+
+    return null;
+}
+
+
 export
 function otp_from_uri(uri)
 {
@@ -313,7 +340,7 @@ function otp_from_uri(uri)
         throw new Error(_('Unsupported OTP URI:') + ' ' + errors.join(' | '));
 
     if (!otp.secret)
-        throw new Error(_('The URI contains no secret.'));
+        throw new Error(explain_unsupported(text) || _('The URI contains no secret.'));
 
     return otp;
 }
