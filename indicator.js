@@ -16,6 +16,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import HOTP from './hotp.js';
 import * as SecretUtils from './secretUtils.js';
 import TOTP from './totp.js';
+import YaOTP from './yaotp.js';
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -30,9 +31,23 @@ function copyToClipboard(text)
 }
 
 
+// The name from a Yandex export already carries the issuer as a prefix, and some
+// entries have no issuer at all: don't repeat it and don't leave a dangling colon.
+function joinLabel(issuer, name)
+{
+    if (!issuer)
+        return name;
+    if (!name)
+        return issuer;
+    if (name.toLowerCase().startsWith(issuer.toLowerCase() + ':'))
+        return name;
+    return `${issuer}: ${name}`;
+}
+
+
 function makeLabel({issuer, name})
 {
-    return `${issuer}: ${name}`;
+    return joinLabel(issuer, name);
 }
 
 
@@ -173,6 +188,8 @@ class Indicator extends PanelMenu.Button {
                     otp = new TOTP(args);
                 if (args.type == 'HOTP')
                     otp = new HOTP(args);
+                if (args.type == 'YAOTP')
+                    otp = new YaOTP(args);
                 if (otp == null)
                     throw Error(`BUG: args.type is ${args.type}`);
                 let label = makeLabel(otp);
@@ -199,7 +216,7 @@ class Indicator extends PanelMenu.Button {
     async copyCode(otp)
     {
         try {
-            otp.secret = await SecretUtils.getSecret(otp);
+            otp.set_secret_value(await SecretUtils.getSecret(otp));
             const code = otp.code();
             if (otp.type == 'HOTP')
                 await SecretUtils.incrementHOTP(otp);
