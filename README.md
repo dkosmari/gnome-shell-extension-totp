@@ -70,6 +70,32 @@ from your Android phone.
 See the [Steam Guard](steam.md) document for more details.
 
 
+## Yandex OTP (YAOTP)
+
+This fork also supports the proprietary Yandex OTP scheme used by [Yandex ID](https://id.yandex.ru)
+(formerly Yandex.Key), both for Yandex accounts and for third-party TOTP entries stored in
+that app.
+
+Yandex's scheme is not RFC 6238: the code consists of lowercase letters (`a`..`z`), the key
+is `SHA-256(pin || secret)`, and the HMAC-SHA-256 output is truncated to 64 bits. A PIN is
+mandatory — Yandex never exports it, so it must be typed in the preferences window. The
+extension keeps it as an additional keyring attribute of that entry.
+
+To import, use the `otpauth://yaotp/...` URIs from a Yandex ID export
+("Export to file" in the app's settings). The exported `pin_length` parameter is honoured,
+and a wrong-length or missing PIN is reported instead of producing a wrong code.
+
+Secret lengths accepted: 16 bytes (from a QR code, PIN length must be given), 18 bytes
+(the short form found in file exports) and 26 bytes and longer (key + user id + PIN length
+and a 13-bit checksum, which is verified).
+
+The algorithm follows the reference implementations in
+[KeeYaOtp](https://github.com/norblik/KeeYaOtp),
+[libcotp](https://github.com/paolostivanin/libcotp) and
+[Aegis](https://github.com/beemdevelopment/Aegis), and is checked against the published
+Aegis test vectors (`tests/yaotp_test.js`, run with `gjs -m tests/yaotp_test.js`).
+
+
 ## Related extensions
 
 When using this extension on a laptop, it's a good idea to also install [Keyring

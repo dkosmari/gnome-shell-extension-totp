@@ -16,6 +16,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import HOTP from './hotp.js';
 import * as SecretUtils from './secretUtils.js';
 import TOTP from './totp.js';
+import YaOTP from './yaotp.js';
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -173,6 +174,8 @@ class Indicator extends PanelMenu.Button {
                     otp = new TOTP(args);
                 if (args.type == 'HOTP')
                     otp = new HOTP(args);
+                if (args.type == 'YAOTP')
+                    otp = new YaOTP(args);
                 if (otp == null)
                     throw Error(`BUG: args.type is ${args.type}`);
                 let label = makeLabel(otp);

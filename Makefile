@@ -27,7 +27,8 @@ EXTRA_SOURCES := \
 	secretUtils.js \
 	hotp.js \
 	otp.js \
-	totp.js
+	totp.js \
+	yaotp.js
 
 
 GRESOURCE_XML := icons.gresource.xml

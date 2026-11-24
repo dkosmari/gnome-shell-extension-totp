@@ -25,6 +25,7 @@ import MyEntryRow       from './myEntryRow.js';
 import MySpinRow        from './mySpinRow.js';
 import * as SecretUtils from './secretUtils.js';
 import TOTP             from './totp.js';
+import YaOTP, {parse_secret as yaotp_parse_secret} from './yaotp.js';
 
 
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
@@ -109,7 +110,16 @@ function dict2OTP(dict)
         return new TOTP(dict);
     if (dict.type == 'HOTP')
         return new HOTP(dict);
+    if (dict.type == 'YAOTP')
+        return new YaOTP(dict);
     throw new Error(`dict is ${dict}`);
+}
+
+
+// YAOTP is time-based, like TOTP
+function is_time_based(type)
+{
+    return type == 'TOTP' || type == 'YAOTP';
 }
 
 
@@ -133,6 +143,16 @@ function OTP2variant(otp)
             counter   : GLib.Variant.new_uint32(otp.counter),
             algorithm : GLib.Variant.new_string(otp.algorithm),
         });
+    if (otp.type == 'YAOTP')
+        return new GLib.Variant('a{sv}', {
+            type      : GLib.Variant.new_string(otp.type),
+            issuer    : GLib.Variant.new_string(otp.issuer),
+            name      : GLib.Variant.new_string(otp.name),
+            digits    : GLib.Variant.new_uint32(otp.digits),
+            period    : GLib.Variant.new_uint32(otp.period),
+            pin       : GLib.Variant.new_string(otp.pin || ''),
+            algorithm : GLib.Variant.new_string(otp.algorithm),
+        });
     throw new Error(`BUG: otp.type is ${otp.type}`);
 }
 
@@ -153,7 +173,12 @@ function uri2OTP(uri)
             return new HOTP({ uri: uri });
         }
         catch (e2) {
-            throw Error(`1: ${e1}\n2:${e2}`);
+            try {
+                return new YaOTP({ uri: uri });
+            }
+            catch (e3) {
+                throw Error(`1: ${e1}\n2: ${e2}\n3: ${e3}`);
+            }
         }
     }
 }
@@ -295,7 +320,7 @@ class SecretDialog extends Gtk.Dialog {
                             (obj, name, arg) => obj.importURI(arg.unpack()));
     }
 
-    static type_list = ['TOTP', 'HOTP'];
+    static type_list = ['TOTP', 'HOTP', 'YAOTP'];
     static secret_type_list = ['Base32', 'Base64'];
     static digits_list = ['5', '6', '7', '8'];
     static period_list = ['15', '30', '45', '60'];
@@ -378,6 +403,15 @@ class SecretDialog extends Gtk.Dialog {
         });
         this.#ui.secret.add_suffix(this.#ui.secret_type);
         group.add(this.#ui.secret);
+
+        // UI: PIN (Yandex OTP only)
+        this.#ui.pin = new EntryRow({
+            title: _('PIN'),
+            text: fields.pin || '',
+            tooltip_text: _('The PIN you use in the Yandex app. The Yandex code is computed from the PIN and the secret, so it cannot be generated without it.')
+        });
+        this.#ui.pin.visible = false;
+        group.add(this.#ui.pin);
 
         // UI: digits
         this.#ui.digits = new Adw.ComboRow({
@@ -487,6 +521,23 @@ class SecretDialog extends Gtk.Dialog {
                 counter: this.#ui.counter.value,
                 algorithm: this.#ui.algorithm.selected_item.string
             });
+        if (type == 'YAOTP') {
+            const info = yaotp_parse_secret(secret);
+            const otp = new YaOTP({
+                issuer: this.#ui.issuer.text,
+                name: this.#ui.name.text,
+                secret: secret,
+                pin: this.#ui.pin.text,
+                digits: parseInt(this.#ui.digits.selected_item.string),
+                period: parseInt(this.#ui.period.selected_item.string),
+                pin_length: info.pin_length
+            });
+            // Fail loudly here rather than when a code is needed later.
+            otp.check_pin();
+            if (!otp.pin_length)
+                otp.pin_length = otp.pin.length;
+            return otp;
+        }
         throw new Error(`BUG: type is ${type}`);
     }
 
@@ -499,6 +550,7 @@ class SecretDialog extends Gtk.Dialog {
         this.#ui.name.text = fields.name;
         this.#ui.secret.text = fields.secret;
         this.#ui.secret_type.selected = 0;
+        this.#ui.pin.text = fields.pin || '';
         this.#ui.digits.selected = SecretDialog.digits_list.indexOf(fields.digits.toString());
         if ('period' in fields)
             this.#ui.period.selected = SecretDialog.period_list.indexOf(fields.period.toString());
@@ -513,15 +565,14 @@ class SecretDialog extends Gtk.Dialog {
         if (!this.#ui.type_drop.selected_item)
             return;
         const type = this.#ui.type_drop.selected_item.string;
-        if (type == 'TOTP') {
-            this.#ui.counter.visible = false;
-            this.#ui.period.visible = true;
-        } else if (type == 'HOTP') {
-            this.#ui.period.visible = false;
-            this.#ui.counter.visible = true;
-        } else {
-            throw new Error(`BUG: type is ${type}`);
-        }
+        this.#ui.counter.visible = (type == 'HOTP');
+        this.#ui.period.visible = is_time_based(type);
+        // Yandex OTP needs a PIN, and its algorithm is fixed (SHA-256).
+        this.#ui.pin.visible = (type == 'YAOTP');
+        this.#ui.algorithm.visible = (type != 'YAOTP');
+        if (type == 'TOTP' || type == 'HOTP' || type == 'YAOTP')
+            return;
+        throw new Error(`BUG: type is ${type}`);
     }
 
 
@@ -593,7 +644,7 @@ class CopyCodeButton extends Gtk.Button {
         });
         box.append(this.#label);
 
-        if (this.#otp.type == 'TOTP') {
+        if (is_time_based(this.#otp.type)) {
             this.#level = new Gtk.LevelBar({
                 inverted: true,
                 max_value: this.#otp.period,
@@ -637,7 +688,7 @@ class CopyCodeButton extends Gtk.Button {
             if (this.expired()) {
                 const item = await SecretUtils.getOTPItem(this.#otp);
                 if (item.locked) {
-                    if (type == 'TOTP')
+                    if (is_time_based(type))
                         this.#level.value = 0;
                     this.#label.label = _('Unlock');
                     this.#label.use_markup = false;
@@ -646,17 +697,27 @@ class CopyCodeButton extends Gtk.Button {
 
                 this.#otp.secret = await SecretUtils.getSecret(this.#otp);
 
-                if (type == 'TOTP') {
-                    const [code, expiry] = this.#otp.code_and_expiry();
-                    this.#expiry = expiry;
-                    this.#code = code;
+                if (is_time_based(type)) {
+                    try {
+                        const [code, expiry] = this.#otp.code_and_expiry();
+                        this.#expiry = expiry;
+                        this.#code = code;
+                    }
+                    catch (e) {
+                        // e.g. a Yandex entry whose PIN is not set yet: show why
+                        // instead of silently disabling the row.
+                        this.#code = null;
+                        this.#label.label = _(e.message);
+                        this.#label.use_markup = false;
+                        return;
+                    }
                 } else if (type == 'HOTP') {
                     this.#otp.counter = parseInt(item.get_attributes().counter);
                     this.#code = this.#otp.code();
                 }
             }
 
-            if (type == 'TOTP')
+            if (is_time_based(type))
                 this.#level.value = Math.max(this.#expiry - now(), 0);
             this.#label.label = `<tt>${this.#code}</tt>`;
             this.#label.use_markup = true;
@@ -1250,11 +1311,14 @@ class SecretsGroup extends Adw.PreferencesGroup {
             const uris = GLib.Uri.list_extract_uris(text);
 
             let successes = 0;
+            let need_pin = 0;
             for (let i = 0; i < uris.length; ++i) {
                 try {
                     const otp = uri2OTP(uris[i]);
                     await SecretUtils.createOTPItem(otp, n + i);
                     ++successes;
+                    if (otp.type == 'YAOTP' && !otp.pin)
+                        ++need_pin;
                 }
                 catch (e) {
                     logError(e);
@@ -1263,6 +1327,13 @@ class SecretsGroup extends Adw.PreferencesGroup {
             this.root?.add_toast(new Adw.Toast({
                 title: _('Imported secrets:') + ` ${successes}`
             }));
+
+            if (need_pin)
+                // Yandex never exports the PIN, so it has to be entered by hand.
+                this.root?.add_toast(new Adw.Toast({
+                    title: _('Yandex entries need their PIN: edit them to set it.'),
+                    timeout: 10
+                }));
 
             await this.refreshRows();
 

@@ -1,0 +1,6 @@
+# build artifacts
+*.gresource
+*.mo
+*.zip
+*~
+po/*.po~

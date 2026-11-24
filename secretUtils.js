@@ -60,12 +60,30 @@ function makeSchemaHOTP()
 }
 
 
+function makeSchemaYAOTP()
+{
+    return new Secret.Schema('org.gnome.shell.extensions.totp',
+                             Secret.SchemaFlags.NONE,
+                             {
+                                 type      : Secret.SchemaAttributeType.STRING,
+                                 issuer    : Secret.SchemaAttributeType.STRING,
+                                 name      : Secret.SchemaAttributeType.STRING,
+                                 digits    : Secret.SchemaAttributeType.INTEGER,
+                                 period    : Secret.SchemaAttributeType.INTEGER,
+                                 pin       : Secret.SchemaAttributeType.STRING,
+                                 algorithm : Secret.SchemaAttributeType.STRING
+                             });
+}
+
+
 function makeSchema(otp)
 {
     if (otp.type == 'TOTP')
         return makeSchemaTOTP();
     if (otp.type == 'HOTP')
         return makeSchemaHOTP();
+    if (otp.type == 'YAOTP')
+        return makeSchemaYAOTP();
     throw new Error(`BUG: otp.type is ${otp.type}`);
 }
 
@@ -165,8 +183,12 @@ async function getOTPItems(unlock = false)
                                                         { type: 'HOTP' },
                                                         flags,
                                                         null);
+        const yaotp_items = await Secret.password_search(makeSchemaYAOTP(),
+                                                         { type: 'YAOTP' },
+                                                         flags,
+                                                         null);
         // return them sorted, using the label
-        const items = totp_items.concat(hotp_items);
+        const items = totp_items.concat(hotp_items, yaotp_items);
         items.sort((a, b) => getOrder(a.get_label()) - getOrder(b.get_label()));
         return items;
     }
@@ -211,6 +233,16 @@ function makeAttributesFor(otp)
             name: otp.name,
             digits: otp.digits.toString(),
             counter: otp.counter.toString(),
+            algorithm: otp.algorithm
+        };
+    if (otp.type == 'YAOTP')
+        return {
+            type: 'YAOTP',
+            issuer: otp.issuer,
+            name: otp.name,
+            digits: otp.digits.toString(),
+            period: otp.period.toString(),
+            pin: otp.pin || '',
             algorithm: otp.algorithm
         };
     throw new Error(`BUG: otp.type is "${otp.type}"`);
