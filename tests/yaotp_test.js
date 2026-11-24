@@ -1,9 +1,10 @@
-/* Проверка yaotp.js на векторах из Aegis YAOTPTest и на реальном экспорте. */
+/* Проверка yaotp.js: обе схемы, переключатель old(alpha)/new(digit),
+ * автоопределение по форме секрета и реальный экспорт Яндекса. */
 
 import system from 'system';
 
-import YaOTP from '../yaotp.js';
-import * as YaOtpMod from '../yaotp.js';
+import YaOTP, {detect_scheme, parse_secret,
+               SCHEME_OLD, SCHEME_NEW} from '../yaotp.js';
 
 const VECTORS = [
     { pin: '5239', secret: '6SB2IKNM6OBZPAVBVTOHDKS4FAAAAAAADFUTQMBTRY',
@@ -18,6 +19,15 @@ const VECTORS = [
       time: 1581093059, digits: 8, expected: 'vunyprpd' },
 ];
 
+// Секрет из файлового экспорта Яндекс ID (18 байт, CRC не сходится): это
+// обычный RFC 6238 по всему секрету, цифровой код.
+const NEW_SECRET = 'OTPIGD4VRG7AVUDSII24FMESNSWZK';
+const NEW_TIME = 1764000000;
+// Значение посчитано независимой реализацией (Python hmac/hashlib).
+const NEW_EXPECTED = '191379';
+
+const OLD_SECRET = 'LA2V6KMCGYMWWVEW64RNP3JA3IAAAAAAHTSG4HRZPI';
+
 let failures = 0;
 function check(name, got, expected) {
     const ok = got === expected;
@@ -26,65 +36,95 @@ function check(name, got, expected) {
     print(`${ok ? 'PASS' : 'FAIL'}  ${name}${ok ? '' : `: получено ${JSON.stringify(got)}, ожидалось ${JSON.stringify(expected)}`}`);
 }
 
-print('--- векторы Aegis (эталон алгоритма)');
+print('--- старая схема (буквы + PIN): векторы Aegis');
 for (const v of VECTORS) {
-    const otp = new YaOTP({ secret: v.secret, pin: v.pin, digits: v.digits });
+    const otp = new YaOTP({ secret: v.secret, pin: v.pin, digits: v.digits,
+                            scheme: SCHEME_OLD });
     check(`pin=${v.pin} t=${v.time}`, otp.code(v.time), v.expected);
 }
 
-print('--- валидация секретов');
-const good = 'LA2V6KMCGYMWWVEW64RNP3JA3IAAAAAAHTSG4HRZPI';
-const info = YaOtpMod.parse_secret(good);
-check('pin_length из 26-байтного секрета', info.pin_length, 4);
-check('длина ключа', info.key.length, 16);
+print('--- автоопределение по форме секрета');
+check('26 байт с валидным CRC -> alpha', detect_scheme(OLD_SECRET), SCHEME_OLD);
+check('18 байт с битым CRC -> digit', detect_scheme(NEW_SECRET), SCHEME_NEW);
+check('16 байт из QR (26 симв.) -> alpha',
+      detect_scheme('GEZDGNBVGY3TQOJQGEZDGNBVGY'), SCHEME_OLD);
 
-const bad = 'AA2V6KMCGYMWWVEW64RNP3JA3IAAAAAAHTSG4HRZPI';
 let threw = false;
-try { YaOtpMod.parse_secret(bad); } catch (e) { threw = true; }
-check('битый CRC отвергнут', threw, true);
+try { detect_scheme('GEZDGNBV'); } catch (e) { threw = true; }
+check('слишком короткий секрет отвергнут', threw, true);
 
-let threw2 = false;
-try { YaOtpMod.parse_secret('AA2V6KMCGJA3IAA'); } catch (e) { threw2 = true; }
-check('слишком короткий секрет отвергнут', threw2, true);
+let threw_crc = false;
+try { parse_secret('AA2V6KMCGYMWWVEW64RNP3JA3IAAAAAAHTSG4HRZPI', SCHEME_OLD); }
+catch (e) { threw_crc = true; }
+check('битый CRC в 26-байтном секрете (явно alpha) отвергнут', threw_crc, true);
 
-// Короткий вариант экспорта (18 байт) приложения Яндекса: контрольная сумма в
-// нём может не сходиться, такой секрет принимается, а длина PIN берётся из URI.
-const short_secret = 'OTPIGD4VRG7AVUDSII24FMESNSWZK';
-const short_info = YaOtpMod.parse_secret(short_secret);
-check('18-байтный секрет принят', short_info.key.length, 16);
+print('--- новая схема (цифры): код по всему секрету');
+const new_otp = new YaOTP({ secret: NEW_SECRET, digits: 6, scheme: SCHEME_NEW });
+check('код совпадает с независимым расчётом', new_otp.code(NEW_TIME), NEW_EXPECTED);
+check('код только из цифр', /^[0-9]{6}$/.test(new_otp.code(NEW_TIME)), true);
+check('алгоритм по умолчанию SHA-1',
+      new YaOTP({ secret: NEW_SECRET, scheme: SCHEME_NEW }).algorithm, 'SHA-1');
 
-print('--- PIN обязателен и проверяется');
-const noPin = new YaOTP({ secret: good, digits: 8 });
-let pinError = '';
-try { noPin.code(1581064020); } catch (e) { pinError = e.message; }
-check('без PIN — ошибка', pinError.includes('PIN'), true);
+print('--- PIN: не нужен в новой схеме, обязателен в старой');
+const auto_new = new YaOTP({ secret: NEW_SECRET, digits: 6 });
+check('новая схема определена автоматически', auto_new.resolved_scheme, SCHEME_NEW);
+check('новая схема без PIN работает', auto_new.code(NEW_TIME), NEW_EXPECTED);
 
-const wrongLen = new YaOTP({ secret: good, pin: '12345', digits: 8 });
-let lenError = '';
-try { wrongLen.code(1581064020); } catch (e) { lenError = e.message; }
-check('неверная длина PIN — ошибка', lenError.includes('PIN'), true);
+const old_without_pin = new YaOTP({ secret: OLD_SECRET, digits: 8, scheme: SCHEME_OLD });
+let pin_error = '';
+try { old_without_pin.code(1581064020); } catch (e) { pin_error = e.message; }
+check('старая схема без PIN — ошибка про PIN', pin_error.includes('PIN'), true);
 
-print('--- разбор URI из файла экспорта Яндекса');
+print('--- переключатель old(alpha)/new(digit) на одном секрете');
+const as_old = new YaOTP({ secret: NEW_SECRET, pin: '1234', digits: 8, scheme: SCHEME_OLD });
+const as_new = new YaOTP({ secret: NEW_SECRET, digits: 6, scheme: SCHEME_NEW });
+const old_code = as_old.code(NEW_TIME);
+const new_code = as_new.code(NEW_TIME);
+print(`  old(alpha) = ${old_code}, new(digit) = ${new_code}`);
+check('коды различаются', old_code !== new_code, true);
+check('new — 6 цифр', /^[0-9]{6}$/.test(new_code), true);
+check('old — 8 букв', /^[a-z]{8}$/.test(old_code), true);
+check('переключение схемы меняет результат',
+      new YaOTP({ secret: NEW_SECRET, pin: '1234', digits: 8,
+                  scheme: SCHEME_OLD }).code(NEW_TIME) !== new_code, true);
+
+print('--- разбор URI из файла экспорта');
 const yandex_uri = 'otpauth://yaotp/Alexey-Vostrikov?chars=alpha' +
     '&is_2fa=true&is_pin_saved_by_user=false&length=6' +
-    '&machine_readable_login=alexey-vostrikov' +
     '&name=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9+%D0%92%D0%BE%D1%81%D1%82%D1%80%D0%B8%D0%BA%D0%BE%D0%B2' +
-    '&pin_length=4&secret=OTPIGD4VRG7AVUDSII24FMESNSWZK&uid=32197447' +
+    '&pin_length=4&secret=' + NEW_SECRET + '&uid=32197447' +
     '&created_at=1707840280&creation_type=with_qr';
 const imported = new YaOTP({ uri: yandex_uri });
+check('схема: digit (CRC не сходится)', imported.resolved_scheme, SCHEME_NEW);
 check('issuer по умолчанию', imported.issuer, 'Yandex');
 check('имя из параметра name', imported.name, 'Алексей Востриков');
 check('длина кода из length', imported.digits, 6);
-check('длина PIN из pin_length', imported.pin_length, 4);
-check('секрет на месте', imported.secret, 'OTPIGD4VRG7AVUDSII24FMESNSWZK');
+check('секрет на месте', imported.secret, NEW_SECRET);
+check('код как в приложении', imported.code(NEW_TIME), NEW_EXPECTED);
 
-print('--- обратный экспорт в URI и повторный импорт');
-const withPin = new YaOTP({ secret: good, pin: '7586', digits: 8, name: 'Alex', issuer: 'Yandex' });
-const uri2 = withPin.uri();
-print(`  ${uri2}`);
-const reimported = new YaOTP({ uri: uri2 });
-check('round-trip: код совпадает', reimported.code(1581064020), 'oactmacq');
-check('round-trip: PIN', reimported.pin, '7586');
+print('--- явный переключатель перекрывает автоопределение');
+check('scheme=alpha в URI',
+      new YaOTP({ uri: yandex_uri.replace('secret=', 'scheme=alpha&secret=') })
+          .resolved_scheme, SCHEME_OLD);
+check('scheme=digit в URI',
+      new YaOTP({ uri: yandex_uri.replace('secret=', 'scheme=digit&secret=') })
+          .resolved_scheme, SCHEME_NEW);
+
+print('--- round-trip через URI и поля');
+const rt = new YaOTP({ secret: OLD_SECRET, pin: '7586', digits: 8,
+                       scheme: SCHEME_OLD, name: 'Alex', issuer: 'Yandex' });
+const rt_uri = rt.uri();
+print(`  ${rt_uri}`);
+const rt_back = new YaOTP({ uri: rt_uri });
+check('round-trip: код', rt_back.code(1581064020), 'oactmacq');
+check('round-trip: PIN', rt_back.pin, '7586');
+check('round-trip: схема', rt_back.scheme, SCHEME_OLD);
+
+const fields = new YaOTP({ secret: NEW_SECRET, digits: 6,
+                           scheme: SCHEME_NEW }).fields_non_destructive();
+check('поля: scheme', fields.scheme, SCHEME_NEW);
+check('поля: pin пуст', fields.pin, '');
+check('из полей: код', new YaOTP(fields).code(NEW_TIME), NEW_EXPECTED);
 
 print(`\nИтого: ${failures == 0 ? 'все проверки пройдены' : failures + ' провалов'}`);
 if (failures)

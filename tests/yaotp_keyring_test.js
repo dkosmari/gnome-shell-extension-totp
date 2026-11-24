@@ -23,6 +23,7 @@ const SCHEMA = new Secret.Schema('org.gnome.shell.extensions.totp',
                                      digits    : Secret.SchemaAttributeType.INTEGER,
                                      period    : Secret.SchemaAttributeType.INTEGER,
                                      pin       : Secret.SchemaAttributeType.STRING,
+                                     scheme    : Secret.SchemaAttributeType.STRING,
                                      algorithm : Secret.SchemaAttributeType.STRING
                                  });
 
@@ -34,6 +35,7 @@ const ATTRS = {
     digits: '8',
     period: '30',
     pin: '7586',
+    scheme: 'alpha',
     algorithm: 'SHA-256'
 };
 

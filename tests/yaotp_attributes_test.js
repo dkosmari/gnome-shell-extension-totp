@@ -21,9 +21,15 @@ const attributes = {
     digits: '8',
     period: '30',
     pin: '7586',
+    scheme: 'alpha',
     algorithm: 'SHA-256',
     secret: 'LA2V6KMCGYMWWVEW64RNP3JA3IAAAAAAHTSG4HRZPI',
 };
+
+// Запись без атрибута scheme (создана прошлой версией расширения) должна
+// работать за счёт автоопределения.
+const legacy_attributes = { ...attributes };
+delete legacy_attributes.scheme;
 
 const otp = new YaOTP(attributes);
 
@@ -37,9 +43,12 @@ check('время-зависимый (есть period)', otp.period, 30);
 check('секрет затёрт после выдачи кода', /^A+$/.test(otp.secret), true);
 check('round-trip: secret', fields.secret, attributes.secret);
 check('round-trip: pin', fields.pin, '7586');
-check('round-trip: pin_length из секрета', fields.pin_length, '4');
+check('round-trip: scheme', fields.scheme, 'alpha');
 check('round-trip: digits', fields.digits, '8');
 check('round-trip: algorithm', fields.algorithm, 'SHA-256');
+
+check('старая запись без scheme читается',
+      new YaOTP(legacy_attributes).code(1581064020), 'oactmacq');
 
 // Повторная сборка из полей (как при редактировании записи).
 const again = new YaOTP(fields);

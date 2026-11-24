@@ -25,7 +25,7 @@ import MyEntryRow       from './myEntryRow.js';
 import MySpinRow        from './mySpinRow.js';
 import * as SecretUtils from './secretUtils.js';
 import TOTP             from './totp.js';
-import YaOTP, {parse_secret as yaotp_parse_secret} from './yaotp.js';
+import YaOTP            from './yaotp.js';
 
 
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
@@ -151,6 +151,7 @@ function OTP2variant(otp)
             digits    : GLib.Variant.new_uint32(otp.digits),
             period    : GLib.Variant.new_uint32(otp.period),
             pin       : GLib.Variant.new_string(otp.pin || ''),
+            scheme    : GLib.Variant.new_string(otp.scheme || 'auto'),
             algorithm : GLib.Variant.new_string(otp.algorithm),
         });
     throw new Error(`BUG: otp.type is ${otp.type}`);
@@ -321,6 +322,7 @@ class SecretDialog extends Gtk.Dialog {
     }
 
     static type_list = ['TOTP', 'HOTP', 'YAOTP'];
+    static scheme_list = ['auto', 'alpha', 'digit'];
     static secret_type_list = ['Base32', 'Base64'];
     static digits_list = ['5', '6', '7', '8'];
     static period_list = ['15', '30', '45', '60'];
@@ -404,14 +406,27 @@ class SecretDialog extends Gtk.Dialog {
         this.#ui.secret.add_suffix(this.#ui.secret_type);
         group.add(this.#ui.secret);
 
-        // UI: PIN (Yandex OTP only)
+        // UI: PIN (Yandex OTP, old scheme only)
         this.#ui.pin = new EntryRow({
             title: _('PIN'),
             text: fields.pin || '',
-            tooltip_text: _('The PIN you use in the Yandex app. The Yandex code is computed from the PIN and the secret, so it cannot be generated without it.')
+            tooltip_text: _('The PIN you use in the Yandex app. The old Yandex code is computed from the PIN and the secret, so it cannot be generated without it.')
         });
         this.#ui.pin.visible = false;
         group.add(this.#ui.pin);
+
+        // UI: Yandex scheme: letters (old, with PIN) or digits (new)
+        this.#ui.scheme = new Adw.ComboRow({
+            title: _('Yandex scheme'),
+            subtitle: _('Choose what the Yandex app shows: letters (with a PIN) or digits.')
+        });
+        this.#ui.scheme.model = makeStringList(
+            _('Auto'),
+            _('Letters (old, with PIN)'),
+            _('Digits (new)'));
+        this.#ui.scheme.visible = false;
+        this.#ui.scheme.connect('notify::selected-item', () => this.changedOTPtype());
+        group.add(this.#ui.scheme);
 
         // UI: digits
         this.#ui.digits = new Adw.ComboRow({
@@ -522,7 +537,7 @@ class SecretDialog extends Gtk.Dialog {
                 algorithm: this.#ui.algorithm.selected_item.string
             });
         if (type == 'YAOTP') {
-            const info = yaotp_parse_secret(secret);
+            const scheme = SecretDialog.scheme_list[this.#ui.scheme.selected] || 'auto';
             const otp = new YaOTP({
                 issuer: this.#ui.issuer.text,
                 name: this.#ui.name.text,
@@ -530,12 +545,11 @@ class SecretDialog extends Gtk.Dialog {
                 pin: this.#ui.pin.text,
                 digits: parseInt(this.#ui.digits.selected_item.string),
                 period: parseInt(this.#ui.period.selected_item.string),
-                pin_length: info.pin_length
+                scheme: scheme,
+                algorithm: this.#ui.algorithm.selected_item.string
             });
             // Fail loudly here rather than when a code is needed later.
             otp.check_pin();
-            if (!otp.pin_length)
-                otp.pin_length = otp.pin.length;
             return otp;
         }
         throw new Error(`BUG: type is ${type}`);
@@ -551,6 +565,8 @@ class SecretDialog extends Gtk.Dialog {
         this.#ui.secret.text = fields.secret;
         this.#ui.secret_type.selected = 0;
         this.#ui.pin.text = fields.pin || '';
+        this.#ui.scheme.selected =
+            Math.max(SecretDialog.scheme_list.indexOf(fields.scheme || 'auto'), 0);
         this.#ui.digits.selected = SecretDialog.digits_list.indexOf(fields.digits.toString());
         if ('period' in fields)
             this.#ui.period.selected = SecretDialog.period_list.indexOf(fields.period.toString());
@@ -565,14 +581,24 @@ class SecretDialog extends Gtk.Dialog {
         if (!this.#ui.type_drop.selected_item)
             return;
         const type = this.#ui.type_drop.selected_item.string;
+        const is_yandex = (type == 'YAOTP');
         this.#ui.counter.visible = (type == 'HOTP');
         this.#ui.period.visible = is_time_based(type);
-        // Yandex OTP needs a PIN, and its algorithm is fixed (SHA-256).
-        this.#ui.pin.visible = (type == 'YAOTP');
+        this.#ui.scheme.visible = is_yandex;
+        // The old Yandex scheme needs a PIN; the algorithm is fixed (SHA-256 for
+        // the old scheme, SHA-1 for the new one), so that row stays hidden.
+        this.#ui.pin.visible = is_yandex && !this.#scheme_is_digits();
         this.#ui.algorithm.visible = (type != 'YAOTP');
         if (type == 'TOTP' || type == 'HOTP' || type == 'YAOTP')
             return;
         throw new Error(`BUG: type is ${type}`);
+    }
+
+
+    #scheme_is_digits()
+    {
+        const item = this.#ui.scheme.selected_item;
+        return !!item && item.string == SecretDialog.scheme_list[2];
     }
 
 

@@ -72,28 +72,32 @@ See the [Steam Guard](steam.md) document for more details.
 
 ## Yandex OTP (YAOTP)
 
-This fork also supports the proprietary Yandex OTP scheme used by [Yandex ID](https://id.yandex.ru)
-(formerly Yandex.Key), both for Yandex accounts and for third-party TOTP entries stored in
-that app.
+This fork also supports the `otpauth://yaotp/...` entries that [Yandex
+ID](https://id.yandex.ru) (formerly Yandex.Key) exports, in both of its flavours:
 
-Yandex's scheme is not RFC 6238: the code consists of lowercase letters (`a`..`z`), the key
-is `SHA-256(pin || secret)`, and the HMAC-SHA-256 output is truncated to 64 bits. A PIN is
-mandatory — Yandex never exports it, so it must be typed in the preferences window. The
-extension keeps it as an additional keyring attribute of that entry.
+  - **new (digits)** — plain RFC 6238 over the whole exported secret: SHA-1, 6-digit
+    code, 30 s period, no PIN. This is what the Yandex ID app shows for the account
+    itself.
+  - **old (letters)** — Yandex's proprietary scheme: the key is `SHA-256(pin || secret)`,
+    the HMAC-SHA-256 output is truncated to 64 bits, and the code consists of 8 lowercase
+    letters. A PIN is mandatory and Yandex never exports it, so it must be typed into the
+    entry; it is kept as an additional keyring attribute.
 
-To import, use the `otpauth://yaotp/...` URIs from a Yandex ID export
-("Export to file" in the app's settings). The exported `pin_length` parameter is honoured,
-and a wrong-length or missing PIN is reported instead of producing a wrong code.
+The export's own parameters are not reliable (`chars=alpha` was seen on an entry that
+shows digits), so the scheme is a setting: *Yandex scheme* → `Auto`, `Letters (old, with
+PIN)` or `Digits (new)`. `Auto` guesses from the shape of the secret — the 18-byte form
+whose checksum does not verify, which is what the file export produces, is treated as
+digits; 16-byte QR secrets and 26-byte secrets with a valid checksum as letters.
 
-Secret lengths accepted: 16 bytes (from a QR code, PIN length must be given), 18 bytes
-(the short form found in file exports) and 26 bytes and longer (key + user id + PIN length
-and a 13-bit checksum, which is verified).
+Secret lengths accepted: 16 bytes (QR, letters scheme), 18 bytes (file export) and 26
+bytes and longer (key + user id + PIN length + a 13-bit checksum, which is verified).
 
-The algorithm follows the reference implementations in
+The letters scheme follows the reference implementations in
 [KeeYaOtp](https://github.com/norblik/KeeYaOtp),
 [libcotp](https://github.com/paolostivanin/libcotp) and
 [Aegis](https://github.com/beemdevelopment/Aegis), and is checked against the published
-Aegis test vectors (`tests/yaotp_test.js`, run with `gjs -m tests/yaotp_test.js`).
+Aegis test vectors. Tests live in `tests/` and run with, for example,
+`gjs -m tests/yaotp_test.js`.
 
 
 ## Related extensions

@@ -5,21 +5,30 @@
  */
 
 /*
- * Yandex OTP ("YAOTP"), used by Yandex ID (formerly Yandex.Key).
+ * Yandex OTP ("YAOTP"), as exported by Yandex ID (formerly Yandex.Key) under
+ * the `otpauth://yaotp/...` scheme.
  *
- * This is NOT RFC 6238: the code is 8 lowercase letters (base-26), the key is
- * `SHA-256(pin || secret)` and the HMAC-SHA-256 output is truncated to 64 bits
- * instead of the 31 bits of RFC 4226. The algorithm matches the reference
- * implementations in KeeYaOtp (C#), libcotp (C) and Aegis (Java).
+ * Entries come in two flavours, and the export parameters don't tell them
+ * apart reliably (`chars=alpha` was seen on an entry that shows digits), so
+ * the scheme is an explicit setting with an automatic guess as the default:
  *
- * Secret formats (decoded from base32):
+ *   new / "digit": RFC 6238. The whole decoded secret is the HMAC key, SHA-1,
+ *                  31-bit truncation, decimal code. Used for the Yandex ID
+ *                  account codes; no PIN involved.
  *
- *   16 bytes          key only (from a QR code); the PIN length must be given.
- *   26 bytes          key(16) + user id(8) + pin length nibble and CRC-13(2).
- *   18 bytes          key(16) + pin length nibble and CRC-13(2) -- seen in the
- *                     file export of the Yandex ID app.
+ *   old / "alpha": the proprietary scheme. The key is `SHA-256(pin || key)`,
+ *                  the HMAC-SHA-256 output is truncated to 64 bits, and the
+ *                  code is base-26 ("a".."z"). Matches the reference
+ *                  implementations in KeeYaOtp (C#), libcotp (C) and Aegis.
  *
- * Test vector (from Aegis' YAOTPTest):
+ * Automatic detection uses the secret shape, which is what the app does too:
+ *
+ *   16 bytes           key only (from a QR code)        -> old (PIN)
+ *   18 bytes, CRC ok   key + PIN length + checksum      -> old (PIN)
+ *   18 bytes, CRC bad  the form seen in ID file exports -> new
+ *   26+ bytes          key, uid, PIN length, CRC-13     -> old (PIN)
+ *
+ * Old-scheme test vector (Aegis YAOTPTest):
  *   pin = "7586", secret = "LA2V6KMCGYMWWVEW64RNP3JA3IAAAAAAHTSG4HRZPI",
  *   time = 1581064020, digits = 8  =>  code = "oactmacq"
  */
@@ -36,12 +45,20 @@ const _ = x => x;
 
 const KEY_BYTES       = 16;
 const FULL_SECRET     = 26;    // key + user id + pin length + checksum
-const CHECKSUM_BYTES  = 2;
-const DEFAULT_DIGITS  = 8;
+const SHORT_SECRET    = 18;    // key + pin length + checksum (file export)
+const DEFAULT_DIGITS_OLD = 8;
+const DEFAULT_DIGITS_NEW = 6;
 const DEFAULT_PERIOD  = 30;
 const DEFAULT_ISSUER  = 'Yandex';
 const DEFAULT_PIN_MIN = 4;
 const DEFAULT_PIN_MAX = 16;
+
+// Values of the "scheme" attribute; AUTO is what a fresh import gets.
+const SCHEME_AUTO  = 'auto';
+const SCHEME_OLD   = 'alpha';   // letters, PIN, Yandex.Key
+const SCHEME_NEW   = 'digit';   // digits, RFC 6238, Yandex ID
+
+const SCHEMES = [SCHEME_AUTO, SCHEME_OLD, SCHEME_NEW];
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
 
@@ -121,23 +138,63 @@ function checksum_is_valid(bytes)
 }
 
 
-/*
- * Decode and validate the secret.
- * Returns { key: Uint8Array(16), pin_length: number or 0 if unknown }.
- */
-export
-function parse_secret(base32_secret)
+function decode_base32(base32_secret)
 {
-    let bytes;
     try {
-        bytes = Base32.decode(base32_secret.replaceAll(/\s/g, ''), false);
+        return Base32.decode(base32_secret.replaceAll(/\s/g, ''), false);
     }
     catch (e) {
         throw new Error(_('Invalid Yandex secret.') + ' ' + e.message);
     }
+}
+
+
+/*
+ * Guess the scheme from the shape of the secret. Only used when the entry's
+ * scheme is "auto".
+ */
+export
+function detect_scheme(base32_secret)
+{
+    const bytes = decode_base32(base32_secret);
 
     if (bytes.length < KEY_BYTES)
         throw new Error(_('Invalid Yandex secret: too short.'));
+
+    if (bytes.length >= FULL_SECRET)
+        return checksum_is_valid(bytes.subarray(bytes.length - FULL_SECRET))
+            ? SCHEME_OLD : SCHEME_NEW;
+
+    if (bytes.length == SHORT_SECRET)
+        return checksum_is_valid(bytes) ? SCHEME_OLD : SCHEME_NEW;
+
+    if (bytes.length == KEY_BYTES)
+        return SCHEME_OLD;      // bare key from a QR code: older entry
+
+    return SCHEME_NEW;
+}
+
+
+/*
+ * Decode the secret for the given scheme.
+ * Returns { key, pin_length }.
+ *
+ * For the old scheme key is the 16-byte key and pin_length comes from the
+ * checksum block (0 if there is none). For the new scheme the whole decoded
+ * secret is the key, exactly as in a regular TOTP entry.
+ */
+export
+function parse_secret(base32_secret, scheme = SCHEME_AUTO)
+{
+    const bytes = decode_base32(base32_secret);
+
+    if (bytes.length < KEY_BYTES)
+        throw new Error(_('Invalid Yandex secret: too short.'));
+
+    const resolved = scheme == SCHEME_AUTO ? detect_scheme(base32_secret) : scheme;
+
+    if (resolved == SCHEME_NEW)
+        return { key: bytes, pin_length: 0, scheme: SCHEME_NEW };
 
     let key;
     let pin_length = 0;
@@ -150,19 +207,15 @@ function parse_secret(base32_secret)
         key = bytes.subarray(start, start + KEY_BYTES);
         pin_length = (bytes[bytes.length - 2] >> 4) + 1;
     }
-    else if (bytes.length == KEY_BYTES + CHECKSUM_BYTES) {
-        // short export variant: key, pin length + checksum
+    else if (bytes.length == SHORT_SECRET && checksum_is_valid(bytes)) {
         key = bytes.subarray(0, KEY_BYTES);
-        if (checksum_is_valid(bytes))
-            pin_length = (bytes[bytes.length - 2] >> 4) + 1;
-        // otherwise the trailing bytes are not a checksum block; leave the PIN
-        // length to the caller, which may get it from the URI.
+        pin_length = (bytes[bytes.length - 2] >> 4) + 1;
     }
     else
         // bare key (from a QR code), no checksum, no PIN length
         key = bytes.subarray(0, KEY_BYTES);
 
-    return { key: key, pin_length: pin_length };
+    return { key: key, pin_length: pin_length, scheme: SCHEME_OLD };
 }
 
 
@@ -216,25 +269,27 @@ class YaOTP extends OTP.OTP {
         name = '',
         secret = '',
         pin = '',
-        digits = DEFAULT_DIGITS,
+        digits = 0,
         period = DEFAULT_PERIOD,
-        pin_length = 0,
+        scheme = SCHEME_AUTO,
+        algorithm = '',
         uri = null
     } = {})
     {
         super();
 
         this.type = 'YAOTP';
-        this.algorithm = 'SHA-256'; // fixed by the scheme
+        this.scheme = normalize_scheme(scheme);
+        this.algorithm = algorithm || '';
+        this.digits = parseInt(digits) || 0;
+        this.period = parseInt(period) || DEFAULT_PERIOD;
+        this.pin = pin || '';
+        this.issuer = issuer;
+        this.name = name;
+        this.secret = secret;
 
         if (!uri) {
-            this.issuer     = issuer;
-            this.name       = name;
-            this.secret     = secret;
-            this.pin        = pin;
-            this.digits     = parseInt(digits) || DEFAULT_DIGITS;
-            this.period     = parseInt(period) || DEFAULT_PERIOD;
-            this.pin_length = parseInt(pin_length) || 0;
+            this.#resolve();
             return;
         }
 
@@ -254,19 +309,47 @@ class YaOTP extends OTP.OTP {
 
         this.pin        = params.pin ? decode_component(params.pin) : '';
         this.period     = parseInt(params.period) || DEFAULT_PERIOD;
-        this.pin_length = parseInt(params.pin_length) || 0;
+        this.algorithm  = params.algorithm || '';
+        this.scheme     = normalize_scheme(params.scheme);
 
         // Yandex calls the code length "length"; accept "digits" too.
-        this.digits = parseInt(params.length || params.digits) || DEFAULT_DIGITS;
+        this.digits = parseInt(params.length || params.digits) || 0;
 
         if (!this.secret)
             throw new Error(_('URI is missing the secret.'));
 
         // Fail early (and loudly) on a corrupt secret, so the user notices at
         // import time rather than when a code is needed.
-        const info = parse_secret(this.secret);
-        if (this.pin_length == 0)
-            this.pin_length = info.pin_length;
+        this.#resolve();
+    }
+
+
+    // Fill in the defaults that depend on the resolved scheme. An entry read
+    // from the keyring has no secret attribute (it is stored separately and
+    // fetched on demand), so a missing secret only defers the scheme detection.
+    #resolve()
+    {
+        const info = this.secret ? parse_secret(this.secret, this.scheme) : null;
+
+        this.resolved_scheme = info
+            ? info.scheme
+            : (this.scheme == SCHEME_AUTO ? null : this.scheme);
+
+        if ((this.resolved_scheme || SCHEME_OLD) == SCHEME_OLD) {
+            if (!this.digits)
+                this.digits = DEFAULT_DIGITS_OLD;
+            this.algorithm = 'SHA-256'; // fixed by the scheme
+            this.pin_length = info ? info.pin_length : (this.pin_length || 0);
+        }
+        else {
+            if (!this.digits)
+                this.digits = DEFAULT_DIGITS_NEW;
+            // Yandex's own codes are plain RFC 6238 with SHA-1; the entry may
+            // carry a stale algorithm from an older version of this fork, so it
+            // is not used here.
+            this.algorithm = 'SHA-1';
+            this.pin_length = 0;
+        }
     }
 
 
@@ -274,8 +357,12 @@ class YaOTP extends OTP.OTP {
     // typed its PIN, and only code generation actually needs it.
     check_pin()
     {
+        if (this.resolved_scheme != SCHEME_OLD)
+            return;
+
         if (!this.pin)
-            throw new Error(_('Yandex OTP requires a PIN.'));
+            throw new Error(_('Yandex OTP requires a PIN.') + ' '
+                            + _('Pick digits in the scheme setting if the app shows a numeric code.'));
 
         if (!/^\d+$/.test(this.pin))
             throw new Error(_('The PIN must consist of digits.'));
@@ -292,9 +379,46 @@ class YaOTP extends OTP.OTP {
 
     code(time = new Date().getTime() / 1000)
     {
+        // The indicator assigns the secret after construction, so the scheme may
+        // still be undecided here.
+        if (!this.resolved_scheme)
+            this.#resolve();
+
+        if (this.resolved_scheme == SCHEME_NEW)
+            return this.#totp_code(time);
+        return this.#pin_code(time);
+    }
+
+
+    // Plain RFC 6238: the whole secret is the key.
+    #totp_code(time)
+    {
+        const secret_bytes = decode_base32(this.secret);
+        this.wipe_secret();
+
+        const counter = Math.trunc(time / this.period);
+        const counter_hex = `${counter.toString(16)}`.padStart(16, '0');
+        const counter_bytes = hex_to_bytes(counter_hex);
+
+        const mac_hex = GLib.compute_hmac_for_bytes(GLib.ChecksumType.SHA1,
+                                                     secret_bytes,
+                                                     counter_bytes);
+        const mac = hex_to_bytes(mac_hex);
+
+        // RFC 4226, section 5.3: 31-bit dynamic truncation
+        const offset = mac[mac.length - 1] & 0x0f;
+        const view = new DataView(mac.buffer, mac.byteOffset, mac.byteLength);
+        const value = view.getUint32(offset) & 0x7fffffff;
+
+        return value.toString().slice(-this.digits).padStart(this.digits, '0');
+    }
+
+
+    #pin_code(time)
+    {
         this.check_pin();
 
-        const info = parse_secret(this.secret);
+        const info = parse_secret(this.secret, SCHEME_OLD);
         this.wipe_secret();
 
         if (info.pin_length && info.pin_length != this.pin.length)
@@ -369,16 +493,21 @@ class YaOTP extends OTP.OTP {
         this.wipe_secret();
 
         query += `&issuer=${encodeURIComponent(this.issuer)}`;
+        query += `&scheme=${this.scheme}`;
 
-        if (this.digits != DEFAULT_DIGITS)
+        if (this.digits)
             query += `&length=${this.digits}`;
 
-        const pin_length = this.pin_length || this.pin.length;
-        if (pin_length)
-            query += `&pin_length=${pin_length}`;
-
-        if (this.pin)
-            query += `&pin=${encodeURIComponent(this.pin)}`;
+        if (this.resolved_scheme == SCHEME_OLD) {
+            const pin_length = this.pin_length || this.pin.length;
+            if (pin_length)
+                query += `&pin_length=${pin_length}`;
+            if (this.pin)
+                query += `&pin=${encodeURIComponent(this.pin)}`;
+        }
+        else if (this.algorithm != 'SHA-1') {
+            query += `&algorithm=${this.algorithm.replaceAll(/-/g, '')}`;
+        }
 
         if (this.period != DEFAULT_PERIOD)
             query += `&period=${this.period}`;
@@ -398,16 +527,40 @@ class YaOTP extends OTP.OTP {
     fields_non_destructive()
     {
         return {
-            type       : this.type,
-            issuer     : this.issuer,
-            name       : this.name,
-            secret     : this.secret,
-            pin        : this.pin || '',
-            pin_length : (this.pin_length || this.pin.length || 0).toString(),
-            digits     : this.digits.toString(),
-            period     : this.period.toString(),
-            algorithm  : this.algorithm
+            type      : this.type,
+            issuer    : this.issuer,
+            name      : this.name,
+            secret    : this.secret,
+            pin       : this.pin || '',
+            scheme    : this.scheme,
+            digits    : this.digits.toString(),
+            period    : this.period.toString(),
+            algorithm : this.algorithm
         };
     }
 
 }; // class YaOTP
+
+
+// Accept the historical names too, so old keyring entries keep working.
+function normalize_scheme(value)
+{
+    switch ((value || '').toLowerCase()) {
+        case SCHEME_OLD:
+        case 'yandex':
+        case 'pin':
+            return SCHEME_OLD;
+        case SCHEME_NEW:
+        case 'totp':
+        case 'digits':
+            return SCHEME_NEW;
+        case SCHEME_AUTO:
+        case '':
+            return SCHEME_AUTO;
+        default:
+            throw new Error(_('Unknown scheme:') + ` ${value}`);
+    }
+}
+
+
+export {SCHEME_AUTO, SCHEME_OLD, SCHEME_NEW, SCHEMES};

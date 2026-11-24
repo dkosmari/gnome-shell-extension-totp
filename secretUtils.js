@@ -71,6 +71,7 @@ function makeSchemaYAOTP()
                                  digits    : Secret.SchemaAttributeType.INTEGER,
                                  period    : Secret.SchemaAttributeType.INTEGER,
                                  pin       : Secret.SchemaAttributeType.STRING,
+                                 scheme    : Secret.SchemaAttributeType.STRING,
                                  algorithm : Secret.SchemaAttributeType.STRING
                              });
 }
@@ -204,10 +205,14 @@ async function getOTPItem(otp)
     let match = makeAttributesFor(otp);
     if (otp.type == 'HOTP')
         delete match.counter; // don't match the counter
-    const [item] = await Secret.password_search(makeSchema(otp),
-                                                match,
-                                                Secret.SearchFlags.LOAD_SECRETS, // don't unlock
-                                                null);
+    const schema = makeSchema(otp);
+    const flags = Secret.SearchFlags.LOAD_SECRETS; // don't unlock
+    let [item] = await Secret.password_search(schema, match, flags, null);
+    if (!item && 'scheme' in match) {
+        // legacy entry without the "scheme" attribute
+        delete match.scheme;
+        [item] = await Secret.password_search(schema, match, flags, null);
+    }
     if (!item)
         throw new Error(_('Failed to lookup secret.'));
     return item;
@@ -243,6 +248,7 @@ function makeAttributesFor(otp)
             digits: otp.digits.toString(),
             period: otp.period.toString(),
             pin: otp.pin || '',
+            scheme: otp.scheme || 'auto',
             algorithm: otp.algorithm
         };
     throw new Error(`BUG: otp.type is "${otp.type}"`);
@@ -255,9 +261,14 @@ async function getSecret(otp)
     const match = makeAttributesFor(otp);
     if (otp.type == 'HOTP')
         delete match.counter; // don't match the counter
-    const secret = await Secret.password_lookup(makeSchema(otp),
-                                                match,
-                                                null);
+    const schema = makeSchema(otp);
+    let secret = await Secret.password_lookup(schema, match, null);
+    if (secret == null && 'scheme' in match) {
+        // Entries stored before the "scheme" attribute existed have no such
+        // attribute, so an exact match misses them; retry without it.
+        delete match.scheme;
+        secret = await Secret.password_lookup(schema, match, null);
+    }
     if (secret == null) {
         throw new Error(_('Failed to retrieve secret.'));
     }
@@ -290,11 +301,14 @@ async function updateOTPItem(old_otp, new_otp)
     const match = {...old_attr};
     if (old_otp.type == 'HOTP')
         delete match.counter; // don't match the counter
-    const [item] = await service.search(makeSchema(old_otp),
-                                        match,
-                                        Secret.SearchFlags.UNLOCK
-                                        | Secret.SearchFlags.LOAD_SECRETS,
-                                        null);
+    const schema = makeSchema(old_otp);
+    const flags = Secret.SearchFlags.UNLOCK | Secret.SearchFlags.LOAD_SECRETS;
+    let [item] = await service.search(schema, match, flags, null);
+    if (!item && 'scheme' in match) {
+        // legacy entry without the "scheme" attribute
+        delete match.scheme;
+        [item] = await service.search(schema, match, flags, null);
+    }
     if (!item)
         throw new Error(_('Failed to lookup item.'));
 
