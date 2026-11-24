@@ -1623,8 +1623,14 @@ class SecretsGroup extends Adw.PreferencesGroup {
             const response = await dialog.choose(this.root, null);
             if (response == delete_response) {
                 const success = await SecretUtils.removeOTPItem(otp);
-                if (!success)
-                    throw new Error(_('Failed to remove secret. Is it locked?'));
+                if (!success) {
+                    // Say what actually happened: the item may be missing or the
+                    // collection may be locked.
+                    const locked = await SecretUtils.isOTPCollectionLocked();
+                    throw new Error(locked
+                        ? _('Failed to remove secret: the OTP collection is locked.')
+                        : _('Failed to remove secret: it was not found in the keyring.'));
+                }
                 this.root?.add_toast(
                     new Adw.Toast({ title: _('Deleted secret:') + ` "${label}"` })
                 );

@@ -18,6 +18,7 @@ Gio._promisify(Secret, 'password_lookup', 'password_lookup_finish');
 Gio._promisify(Secret, 'password_search', 'password_search_finish');
 Gio._promisify(Secret, 'password_store', 'password_store_finish');
 Gio._promisify(Secret.Collection, 'create', 'create_finish');
+Gio._promisify(Secret.Item.prototype, 'delete', 'delete_finish');
 Gio._promisify(Secret.Item.prototype, 'set_attributes', 'set_attributes_finish');
 Gio._promisify(Secret.Item.prototype, 'set_label', 'set_label_finish');
 Gio._promisify(Secret.Item.prototype, 'set_secret', 'set_secret_finish');
@@ -401,7 +402,26 @@ async function createOTPItem(otp, order)
 export
 async function removeOTPItem(otp)
 {
-    return await Secret.password_clear(makeSchema(otp),
-                                       makeMatchFor(otp),
-                                       null);
+    // Delete through the items themselves rather than secret_password_clear():
+    // the latter reports success only when its attribute search matched, and
+    // silently "fails" on an item whose stored attributes drifted from the
+    // values the caller holds.
+    const items = await Secret.password_search(makeSchema(otp),
+                                               makeMatchFor(otp),
+                                               Secret.SearchFlags.NONE,
+                                               null);
+    if (!items.length)
+        return false;
+
+    let removed = 0;
+    for (const item of items) {
+        try {
+            if (await item.delete(null))
+                ++removed;
+        }
+        catch (e) {
+            logError(e);
+        }
+    }
+    return removed > 0;
 }
