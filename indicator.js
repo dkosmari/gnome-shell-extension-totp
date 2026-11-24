@@ -216,7 +216,7 @@ class Indicator extends PanelMenu.Button {
     async copyCode(otp)
     {
         try {
-            otp.secret = await SecretUtils.getSecret(otp);
+            otp.set_secret_value(await SecretUtils.getSecret(otp));
             const code = otp.code();
             if (otp.type == 'HOTP')
                 await SecretUtils.incrementHOTP(otp);

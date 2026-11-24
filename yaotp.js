@@ -362,6 +362,37 @@ class YaOTP extends OTP.OTP {
     }
 
 
+    /*
+     * The PIN travels inside the encrypted secret value, never in item
+     * attributes: attributes can be listed without unlocking the collection, and
+     * the PIN is part of the key material.
+     */
+    secret_value()
+    {
+        const value = this.secret;
+        this.wipe_secret();
+        if (this.pin)
+            return `pin=${this.pin}\n${value}`;
+        return value;
+    }
+
+
+    set_secret_value(value)
+    {
+        const text = `${value || ''}`;
+        const newline = text.indexOf('\n');
+        if (newline > 0 && text.startsWith('pin=')) {
+            this.pin = text.substring(4, newline);
+            this.secret = text.substring(newline + 1);
+        }
+        else {
+            // Entries written by an older version kept the PIN in an attribute,
+            // which the constructor has already picked up.
+            this.secret = text;
+        }
+    }
+
+
     // The PIN is checked lazily: an imported entry may exist before the user
     // typed its PIN, and only code generation actually needs it.
     check_pin()

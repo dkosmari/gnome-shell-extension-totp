@@ -71,7 +71,6 @@ function makeSchemaYAOTP()
                                  name      : Secret.SchemaAttributeType.STRING,
                                  digits    : Secret.SchemaAttributeType.INTEGER,
                                  period    : Secret.SchemaAttributeType.INTEGER,
-                                 pin       : Secret.SchemaAttributeType.STRING,
                                  scheme    : Secret.SchemaAttributeType.STRING,
                                  algorithm : Secret.SchemaAttributeType.STRING
                              });
@@ -226,7 +225,6 @@ function makeMatchFor(otp)
         delete match.digits;
         delete match.period;
         delete match.algorithm;
-        delete match.pin;
     }
     return match;
 }
@@ -273,7 +271,6 @@ function makeAttributesFor(otp)
             name: otp.name,
             digits: otp.digits.toString(),
             period: otp.period.toString(),
-            pin: otp.pin || '',
             scheme: otp.scheme || 'auto',
             algorithm: otp.algorithm
         };
@@ -315,7 +312,6 @@ async function updateOTPItem(old_otp, new_otp)
     const service = await Secret.Service.get(
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
-    const old_attr = makeAttributesFor(old_otp);
     const match = makeMatchFor(old_otp);
     const schema = makeSchema(old_otp);
     const flags = Secret.SearchFlags.UNLOCK | Secret.SearchFlags.LOAD_SECRETS;
@@ -330,16 +326,22 @@ async function updateOTPItem(old_otp, new_otp)
         if (!await item.set_label(new_label, null))
             throw new Error(_('Failed to set label.'));
 
-    // check if attributes changed
+    // Check if the attributes changed. Compare against what is really stored, not
+    // against values recomputed from the old object: a stale attribute (e.g. a
+    // "pin" written by an older version) must be dropped, and comparing two
+    // freshly computed dictionaries would miss it.
     const new_attr = makeAttributesFor(new_otp);
+    const stored_attr = item.get_attributes();
+    delete stored_attr['xdg:schema'];
 
-    if (!equalDictionaries(old_attr, new_attr))
+    if (!equalDictionaries(stored_attr, new_attr))
         if (!await item.set_attributes(makeSchema(new_otp), new_attr, null))
             throw new Error(_('Failed to set attributes.'));
 
     // check if secret changed
-    if (old_otp.secret != new_otp.secret) {
-        const secret_value = new Secret.Value(new_otp.secret, -1, "text/plain");
+    const new_value = new_otp.secret_value();
+    if (old_otp.secret_value() != new_value) {
+        const secret_value = new Secret.Value(new_value, -1, "text/plain");
         if (!await item.set_secret(secret_value, null))
             throw new Error(_('Failed to set secret.'));
     }
@@ -406,7 +408,7 @@ async function createOTPItem(otp, order)
                                        makeAttributesFor(otp),
                                        OTP_COLLECTION_DBUS_PATH,
                                        makeLabel(otp, order),
-                                       otp.secret,
+                                       otp.secret_value(),
                                        null);
 }
 

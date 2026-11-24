@@ -721,7 +721,7 @@ class CopyCodeButton extends Gtk.Button {
                     return;
                 }
 
-                this.#otp.secret = await SecretUtils.getSecret(this.#otp);
+                this.#otp.set_secret_value(await SecretUtils.getSecret(this.#otp));
 
                 if (is_time_based(type)) {
                     try {
@@ -784,7 +784,7 @@ class CopyCodeButton extends Gtk.Button {
     async on_clicked()
     {
         try {
-            this.#otp.secret = await SecretUtils.getSecret(this.#otp);
+            this.#otp.set_secret_value(await SecretUtils.getSecret(this.#otp));
             const code = this.#otp.code();
             if (this.#otp.type == 'HOTP')
                 this.#otp.counter = await SecretUtils.incrementHOTP(this.#otp);
@@ -1603,7 +1603,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async editSecret(otp)
     {
         try {
-            otp.secret = await SecretUtils.getSecret(otp);
+            otp.set_secret_value(await SecretUtils.getSecret(otp));
             if (otp.type == 'HOTP') {
                 const item = await SecretUtils.getOTPItem(otp);
                 const attr = item.get_attributes();
@@ -1632,7 +1632,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async exportSecretClipboard(otp)
     {
         try {
-            otp.secret = await SecretUtils.getSecret(otp);
+            otp.set_secret_value(await SecretUtils.getSecret(otp));
             const uri = otp.uri();
             this.copyToClipboard(uri,
                                  _('Copied secret URI to clipboard.'),
@@ -1647,7 +1647,7 @@ class SecretsGroup extends Adw.PreferencesGroup {
     async exportSecretQR(otp)
     {
         try {
-            otp.secret = await SecretUtils.getSecret(otp);
+            otp.set_secret_value(await SecretUtils.getSecret(otp));
             const uri = otp.uri();
 
             const te = new TextEncoder();

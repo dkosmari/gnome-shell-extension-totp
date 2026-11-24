@@ -99,16 +99,18 @@ The file can be opened with the folder button in the import dialog, or pasted as
 
 ## Yandex OTP (YAOTP)
 
-This fork also supports the `otpauth://yaotp/...` entries that [Yandex
+This version also supports the `otpauth://yaotp/...` entries that [Yandex
 ID](https://id.yandex.ru) (formerly Yandex.Key) exports, in both of its flavours:
 
   - **new (digits)** — plain RFC 6238 over the whole exported secret: SHA-1, 6-digit
     code, 30 s period, no PIN. This is what the Yandex ID app shows for the account
     itself.
-  - **old (letters)** — Yandex's proprietary scheme: the key is `SHA-256(pin || secret)`,
-    the HMAC-SHA-256 output is truncated to 64 bits, and the code consists of 8 lowercase
-    letters. A PIN is mandatory and Yandex never exports it, so it must be typed into the
-    entry; it is kept as an additional keyring attribute.
+  - **old (letters)** — Yandex's proprietary scheme, which is *not* RFC 6238: the key is
+    `SHA-256(pin || secret)`, the HMAC-SHA-256 output is truncated to 64 bits, and the
+    code consists of lowercase letters (`a`..`z`). The PIN is mandatory and Yandex never
+    exports it, so it is asked for during import (and re-asked when its length is wrong)
+    and stored inside the encrypted secret value — not in the item attributes, which can
+    be listed without unlocking the collection.
 
 The export's own parameters are not reliable (`chars=alpha` was seen on an entry that
 shows digits), so the scheme is a setting: *Yandex scheme* → `Auto`, `Letters (old, with

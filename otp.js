@@ -154,6 +154,29 @@ class OTP {
     }
 
 
+    /*
+     * The value stored in the keyring for this entry.
+     *
+     * Plain entries store their base32 secret. Schemes that need extra private
+     * state override this, so that state stays inside the encrypted value
+     * instead of leaking into plain item attributes, which can be listed without
+     * unlocking the collection.
+     */
+    secret_value()
+    {
+        const value = this.secret;
+        this.wipe_secret();
+        return value;
+    }
+
+
+    // Load the value produced by secret_value().
+    set_secret_value(value)
+    {
+        this.secret = value;
+    }
+
+
     code(counter)
     {
         const secret_bytes = Base32.decode(this.secret, false);
