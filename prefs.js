@@ -26,7 +26,7 @@ import MySpinRow        from './mySpinRow.js';
 import * as SecretUtils from './secretUtils.js';
 import TOTP             from './totp.js';
 import YaOTP            from './yaotp.js';
-import {extract_uris}  from './importers.js';
+import {extract_uris, otp_from_uri} from './importers.js';
 import {ask_pin}        from './pins.js';
 
 
@@ -181,22 +181,7 @@ function variant2OTP(args)
 
 function uri2OTP(uri)
 {
-    try {
-        return new TOTP({ uri: uri });
-    }
-    catch (e1) {
-        try {
-            return new HOTP({ uri: uri });
-        }
-        catch (e2) {
-            try {
-                return new YaOTP({ uri: uri });
-            }
-            catch (e3) {
-                throw Error(`1: ${e1}\n2: ${e2}\n3: ${e3}`);
-            }
-        }
-    }
+    return otp_from_uri(uri);
 }
 
 

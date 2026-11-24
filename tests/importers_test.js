@@ -2,7 +2,7 @@
 
 import system from 'system';
 
-import {extract_uris, dedupe} from '../importers.js';
+import {extract_uris, dedupe, otp_from_uri} from '../importers.js';
 import TOTP from '../totp.js';
 import HOTP from '../hotp.js';
 import YaOTP from '../yaotp.js';
@@ -110,6 +110,30 @@ print('--- мусор не ломает импорт');
 check('пустая строка', extract_uris('').length, 0);
 check('произвольный текст', extract_uris('hello world').length, 0);
 check('битый JSON', extract_uris('[{"name":').length, 0);
+
+// ---------- 9. otp_from_uri: пустой URI не создаёт запись ----------
+print('--- валидация URI при импорте');
+{
+    const ott = otp_from_uri('otpauth://totp/Mozilla:a%40b.c?secret=NBCVO6BSHBVWG42JMVZDO4KJMRHEQQLU&issuer=Mozilla');
+    check('годный URI разобран', [ott.type, ott.issuer], ['TOTP', 'Mozilla']);
+    check('код считается', /^[0-9]{6}$/.test(ott.code(T)), true);
+
+    const bad = [
+        ['пустая строка', ''],
+        ['undefined', undefined],
+        ['не URI', 'hello'],
+        ['URI без секрета', 'otpauth://totp/Name?issuer=X'],
+        ['неизвестный тип', 'otpauth://motp/Name?secret=NBCVO6BSHBVWG42JMVZDO4KJMRHEQQLU'],
+    ];
+    for (const [label, value] of bad) {
+        let threw = false;
+        try { otp_from_uri(value); } catch (e) { threw = true; }
+        check(`${label} отвергнут`, threw, true);
+    }
+
+    const ya = otp_from_uri('otpauth://yaotp/X?length=6&secret=OTPIGD4VRG7AVUDSII24FMESNSWZK');
+    check('yaotp через otp_from_uri', ya.type, 'YAOTP');
+}
 
 print(`\nИтого: ${failures == 0 ? 'все проверки пройдены' : failures + ' провалов'}`);
 if (failures)

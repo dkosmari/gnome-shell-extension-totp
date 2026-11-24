@@ -26,6 +26,13 @@
 import GLib from 'gi://GLib';
 
 import * as Base32 from './base32.js';
+import HOTP from './hotp.js';
+import TOTP from './totp.js';
+import YaOTP from './yaotp.js';
+
+
+// strings will be translated by gettext in the frontend
+const _ = x => x;
 
 
 // Field names that hold the shared secret, in order of preference.
@@ -271,6 +278,44 @@ function extract_uris(text)
         return dedupe(from_csv);
 
     return [];
+}
+
+
+/*
+ * OTP object from a URI, or an exception.
+ *
+ * A URI that parses but carries no secret would otherwise become a silently
+ * empty entry, so the result is validated here — one place, used by the import
+ * flow and by the drag-and-drop/paste paths.
+ */
+export
+function otp_from_uri(uri)
+{
+    const text = typeof uri == 'string' ? uri.trim() : '';
+    if (!text.startsWith('otpauth://'))
+        throw new Error(_('Not an "otpauth://" URI.'));
+
+    let otp = null;
+    const errors = [];
+    for (const make of [u => new TOTP({uri: u}),
+                        u => new HOTP({uri: u}),
+                        u => new YaOTP({uri: u})]) {
+        try {
+            otp = make(text);
+            break;
+        }
+        catch (e) {
+            errors.push(e.message);
+        }
+    }
+
+    if (!otp)
+        throw new Error(_('Unsupported OTP URI:') + ' ' + errors.join(' | '));
+
+    if (!otp.secret)
+        throw new Error(_('The URI contains no secret.'));
+
+    return otp;
 }
 
 
