@@ -199,20 +199,33 @@ async function getOTPItems(unlock = false)
 }
 
 
+// Attributes used to find an existing item. Everything that is derived from the
+// secret (scheme, digits, period, algorithm) must stay out of the match: the
+// entry on disk may have been written by an older version, and a stale value
+// would make the item impossible to find.
+function makeMatchFor(otp)
+{
+    const match = makeAttributesFor(otp);
+    if (otp.type == 'HOTP')
+        delete match.counter; // don't match the counter
+    if (otp.type == 'YAOTP') {
+        delete match.scheme;
+        delete match.digits;
+        delete match.period;
+        delete match.algorithm;
+        delete match.pin;
+    }
+    return match;
+}
+
+
 export
 async function getOTPItem(otp)
 {
-    let match = makeAttributesFor(otp);
-    if (otp.type == 'HOTP')
-        delete match.counter; // don't match the counter
-    const schema = makeSchema(otp);
-    const flags = Secret.SearchFlags.LOAD_SECRETS; // don't unlock
-    let [item] = await Secret.password_search(schema, match, flags, null);
-    if (!item && 'scheme' in match) {
-        // legacy entry without the "scheme" attribute
-        delete match.scheme;
-        [item] = await Secret.password_search(schema, match, flags, null);
-    }
+    const [item] = await Secret.password_search(makeSchema(otp),
+                                                makeMatchFor(otp),
+                                                Secret.SearchFlags.LOAD_SECRETS, // don't unlock
+                                                null);
     if (!item)
         throw new Error(_('Failed to lookup secret.'));
     return item;
@@ -258,17 +271,9 @@ function makeAttributesFor(otp)
 export
 async function getSecret(otp)
 {
-    const match = makeAttributesFor(otp);
-    if (otp.type == 'HOTP')
-        delete match.counter; // don't match the counter
-    const schema = makeSchema(otp);
-    let secret = await Secret.password_lookup(schema, match, null);
-    if (secret == null && 'scheme' in match) {
-        // Entries stored before the "scheme" attribute existed have no such
-        // attribute, so an exact match misses them; retry without it.
-        delete match.scheme;
-        secret = await Secret.password_lookup(schema, match, null);
-    }
+    const secret = await Secret.password_lookup(makeSchema(otp),
+                                                makeMatchFor(otp),
+                                                null);
     if (secret == null) {
         throw new Error(_('Failed to retrieve secret.'));
     }
@@ -298,17 +303,10 @@ async function updateOTPItem(old_otp, new_otp)
         Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS,
         null);
     const old_attr = makeAttributesFor(old_otp);
-    const match = {...old_attr};
-    if (old_otp.type == 'HOTP')
-        delete match.counter; // don't match the counter
+    const match = makeMatchFor(old_otp);
     const schema = makeSchema(old_otp);
     const flags = Secret.SearchFlags.UNLOCK | Secret.SearchFlags.LOAD_SECRETS;
-    let [item] = await service.search(schema, match, flags, null);
-    if (!item && 'scheme' in match) {
-        // legacy entry without the "scheme" attribute
-        delete match.scheme;
-        [item] = await service.search(schema, match, flags, null);
-    }
+    const [item] = await service.search(schema, match, flags, null);
     if (!item)
         throw new Error(_('Failed to lookup item.'));
 
@@ -403,10 +401,7 @@ async function createOTPItem(otp, order)
 export
 async function removeOTPItem(otp)
 {
-    const match = makeAttributesFor(otp);
-    if (otp.type == 'HOTP')
-        delete match.counter; // don't match the counter
     return await Secret.password_clear(makeSchema(otp),
-                                       match,
+                                       makeMatchFor(otp),
                                        null);
 }
