@@ -153,7 +153,19 @@ async function unlockOTPCollection()
 function makeLabel({issuer, name}, order = -1)
 {
     const prefix = order > -1 ? order : "-";
-    return `${prefix}:${issuer}:${name}`;
+    return `${prefix}:${joinLabel(issuer, name)}`;
+}
+
+
+function joinLabel(issuer, name)
+{
+    if (!issuer)
+        return name || '';
+    if (!name)
+        return issuer;
+    if (name.toLowerCase().startsWith(issuer.toLowerCase() + ':'))
+        return name;
+    return `${issuer}: ${name}`;
 }
 
 

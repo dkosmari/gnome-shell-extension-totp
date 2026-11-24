@@ -70,6 +70,25 @@ from your Android phone.
 See the [Steam Guard](steam.md) document for more details.
 
 
+## Importing from other authenticator apps
+
+*Import secrets…* accepts:
+
+  - a **Yandex ID export file** — the JSON array written by the app's "Export to file";
+  - the JSON export of **other apps** (Avast Passwords, Authenticator Pro, andOTP-like
+    files): the tree is searched for objects carrying a base32 secret, so tokens stored
+    next to other data (as Avast Passwords does) are picked up while plain passwords are
+    ignored;
+  - **CSV** files with a header row (`name`, `secret`, `issuer`, `digits`, `period`);
+  - a plain list of `otpauth://` URIs.
+
+Counter-based (HOTP) entries are skipped, because their counter would be wrong after a
+migration. Entries that need a PIN (the old Yandex scheme) ask for it during import and
+are skipped if the PIN is not provided.
+
+The file can be opened with the folder button in the import dialog, or pasted as text.
+
+
 ## Yandex OTP (YAOTP)
 
 This fork also supports the `otpauth://yaotp/...` entries that [Yandex

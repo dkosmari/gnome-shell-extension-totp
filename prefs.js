@@ -26,12 +26,15 @@ import MySpinRow        from './mySpinRow.js';
 import * as SecretUtils from './secretUtils.js';
 import TOTP             from './totp.js';
 import YaOTP            from './yaotp.js';
+import {extract_uris}  from './importers.js';
+import {ask_pin}        from './pins.js';
 
 
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_async', 'communicate_finish');
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async', 'communicate_utf8_finish');
 Gio._promisify(Gdk.Clipboard.prototype, 'read_text_async', 'read_text_finish');
 Gio._promisify(Gdk.Clipboard.prototype, 'read_texture_async', 'read_texture_finish');
+Gio._promisify(Gtk.FileDialog.prototype, 'open', 'open_finish');
 
 const AlertDialog = Gtk.AlertDialog ?? MyAlertDialog;
 Gio._promisify(AlertDialog.prototype, 'choose', 'choose_finish');
@@ -41,11 +44,23 @@ const EntryRow = Adw.EntryRow ?? MyEntryRow;
 const SpinRow = Adw.SpinRow ?? MySpinRow;
 
 
+function joinLabel(issuer, name)
+{
+    if (!issuer)
+        return name;
+    if (!name)
+        return issuer;
+    if (name.toLowerCase().startsWith(issuer.toLowerCase() + ':'))
+        return name;
+    return `${issuer}: ${name}`;
+}
+
+
 function makeLabel({issuer, name})
 {
-    const safe_issuer = GLib.markup_escape_text(issuer, -1);
-    const safe_name = GLib.markup_escape_text(name, -1);
-    return `${safe_issuer}: ${safe_name}`;
+    const safe_issuer = GLib.markup_escape_text(issuer || '', -1);
+    const safe_name = GLib.markup_escape_text(name || '', -1);
+    return joinLabel(safe_issuer, safe_name);
 }
 
 
@@ -987,6 +1002,67 @@ class SecretRow extends Adw.ActionRow {
 };
 
 
+class ImportFileButton extends Gtk.Button {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #insert;
+
+
+    constructor(insert_uris)
+    {
+        super({
+            icon_name: 'document-open-symbolic',
+            tooltip_text: _('Open a Yandex ID export file ("Export to file" in the app).'),
+            valign: Gtk.Align.CENTER
+        });
+
+        this.#insert = insert_uris;
+    }
+
+
+    async on_clicked()
+    {
+        try {
+            const dialog = new Gtk.FileDialog({
+                title: _('Open a Yandex ID export file')
+            });
+
+            const filter = new Gtk.FileFilter({ name: _('JSON or text') });
+            filter.add_suffix('json');
+            filter.add_suffix('txt');
+            const filters = new Gio.ListStore({ item_type: Gtk.FileFilter.$gtype });
+            filters.append(filter);
+            dialog.filters = filters;
+
+            const file = await dialog.open(this.get_root(), null);
+            if (!file)
+                return;
+
+            const [ok, contents] = file.load_contents(null);
+            if (!ok)
+                throw new Error(_('Failed to read the file.'));
+
+            const text = new TextDecoder().decode(contents);
+            const uris = extract_uris(text);
+            if (!uris.length)
+                throw new Error(_('No OTP entries found in the file.'));
+
+            this.#insert(uris);
+        }
+        catch (e) {
+            if (e instanceof GLib.Error && e.matches(Gtk.DialogError, Gtk.DialogError.DISMISSED))
+                return;     // the user closed the file chooser
+            reportError(this.get_root(), e);
+        }
+    }
+
+};
+
+
 class ImportURIsDialog extends Gtk.Dialog {
 
     static {
@@ -1026,11 +1102,12 @@ class ImportURIsDialog extends Gtk.Dialog {
         vbox.append(hbox);
 
         const heading = new Gtk.Label({
-            label: _('Paste all "otpauth://" URIs you want to import, one per line.'),
+            label: _('Paste the contents of a Yandex ID export file, or all "otpauth://" URIs, one per line.'),
             hexpand: true,
         });
         hbox.append(heading);
 
+        hbox.append(new ImportFileButton(uris => this.insertURIs(uris)));
         hbox.append(new PasteButton(settings));
         hbox.append(new ScanQRButton(settings));
 
@@ -1089,6 +1166,14 @@ class ImportURIsDialog extends Gtk.Dialog {
     {
         const iter = this.#buffer.get_end_iter();
         this.#buffer.insert(iter, uri + '\n', -1);
+    }
+
+
+    insertURIs(uris)
+    {
+        const iter = this.#buffer.get_end_iter();
+        for (const uri of uris)
+            this.#buffer.insert(iter, uri + '\n', -1);
     }
 
 
@@ -1334,17 +1419,26 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 return; // canceled or empty text
 
             const n = this.#rows.length;
-            const uris = GLib.Uri.list_extract_uris(text);
+            const uris = extract_uris(text);
 
             let successes = 0;
-            let need_pin = 0;
+            let skipped = 0;
             for (let i = 0; i < uris.length; ++i) {
                 try {
                     const otp = uri2OTP(uris[i]);
-                    await SecretUtils.createOTPItem(otp, n + i);
+
+                    // The old Yandex scheme needs a PIN that the export never
+                    // contains: ask for it now, so the entry works right away.
+                    if (otp.type == 'YAOTP' && otp.needs_pin()) {
+                        const pin = await ask_pin(this.root, otp);
+                        if (pin === null) {
+                            ++skipped;
+                            continue;
+                        }
+                    }
+
+                    await SecretUtils.createOTPItem(otp, n + successes);
                     ++successes;
-                    if (otp.type == 'YAOTP' && !otp.pin)
-                        ++need_pin;
                 }
                 catch (e) {
                     logError(e);
@@ -1354,10 +1448,9 @@ class SecretsGroup extends Adw.PreferencesGroup {
                 title: _('Imported secrets:') + ` ${successes}`
             }));
 
-            if (need_pin)
-                // Yandex never exports the PIN, so it has to be entered by hand.
+            if (skipped)
                 this.root?.add_toast(new Adw.Toast({
-                    title: _('Yandex entries need their PIN: edit them to set it.'),
+                    title: _('Skipped (no PIN):') + ` ${skipped}`,
                     timeout: 10
                 }));
 

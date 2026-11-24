@@ -353,6 +353,15 @@ class YaOTP extends OTP.OTP {
     }
 
 
+    // The old Yandex scheme cannot produce a code without the PIN, and Yandex
+    // never exports it, so the PIN is asked for during import rather than left
+    // for the user to discover later.
+    needs_pin()
+    {
+        return this.resolved_scheme == SCHEME_OLD && !this.pin;
+    }
+
+
     // The PIN is checked lazily: an imported entry may exist before the user
     // typed its PIN, and only code generation actually needs it.
     check_pin()

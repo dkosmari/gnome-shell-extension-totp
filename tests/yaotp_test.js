@@ -69,11 +69,32 @@ print('--- PIN: не нужен в новой схеме, обязателен �
 const auto_new = new YaOTP({ secret: NEW_SECRET, digits: 6 });
 check('новая схема определена автоматически', auto_new.resolved_scheme, SCHEME_NEW);
 check('новая схема без PIN работает', auto_new.code(NEW_TIME), NEW_EXPECTED);
+check('новая схема не требует PIN при импорте', auto_new.needs_pin(), false);
 
 const old_without_pin = new YaOTP({ secret: OLD_SECRET, digits: 8, scheme: SCHEME_OLD });
 let pin_error = '';
 try { old_without_pin.code(1581064020); } catch (e) { pin_error = e.message; }
 check('старая схема без PIN — ошибка про PIN', pin_error.includes('PIN'), true);
+check('старая схема требует PIN при импорте', old_without_pin.needs_pin(), true);
+
+// После ввода PIN запрос больше не нужен, и код считается.
+const old_with_pin = new YaOTP({ secret: OLD_SECRET, digits: 8, scheme: SCHEME_OLD });
+old_with_pin.pin = '7586';
+check('после ввода PIN запрос снят', old_with_pin.needs_pin(), false);
+check('код после ввода PIN', old_with_pin.code(1581064020), 'oactmacq');
+
+// Неверный PIN по длине не проходит проверку (диалог переспросит).
+const bad_pin = new YaOTP({ secret: OLD_SECRET, digits: 8, scheme: SCHEME_OLD });
+bad_pin.pin = '12';
+let bad_error = '';
+try { bad_pin.check_pin(); } catch (e) { bad_error = e.message; }
+check('короткий PIN отвергнут', bad_error.length > 0, true);
+
+const letters_pin = new YaOTP({ secret: OLD_SECRET, digits: 8, scheme: SCHEME_OLD });
+letters_pin.pin = 'abcd';
+let letters_error = '';
+try { letters_pin.check_pin(); } catch (e) { letters_error = e.message; }
+check('нецифровой PIN отвергнут', letters_error.length > 0, true);
 
 print('--- переключатель old(alpha)/new(digit) на одном секрете');
 const as_old = new YaOTP({ secret: NEW_SECRET, pin: '1234', digits: 8, scheme: SCHEME_OLD });

@@ -31,9 +31,23 @@ function copyToClipboard(text)
 }
 
 
+// The name from a Yandex export already carries the issuer as a prefix, and some
+// entries have no issuer at all: don't repeat it and don't leave a dangling colon.
+function joinLabel(issuer, name)
+{
+    if (!issuer)
+        return name;
+    if (!name)
+        return issuer;
+    if (name.toLowerCase().startsWith(issuer.toLowerCase() + ':'))
+        return name;
+    return `${issuer}: ${name}`;
+}
+
+
 function makeLabel({issuer, name})
 {
-    return `${issuer}: ${name}`;
+    return joinLabel(issuer, name);
 }
 
 

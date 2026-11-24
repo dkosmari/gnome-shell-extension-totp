@@ -28,6 +28,8 @@ EXTRA_SOURCES := \
 	hotp.js \
 	otp.js \
 	totp.js \
+	importers.js \
+	pins.js \
 	yaotp.js
 
 
